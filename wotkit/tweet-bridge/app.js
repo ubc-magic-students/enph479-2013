@@ -2,7 +2,7 @@ var sys = require('sys')
 var exec = require('child_process').exec;
 var credentials = require('./credentials.js');
 
-// Connect to Twitter
+// Import Twitter data to WoTKit
 var Twit = require('twit');
 var T = new Twit(credentials.twitter_access);
 
@@ -38,7 +38,7 @@ stream.on('warning', function (warning) {
 });
 
 
-// WEATHER API
+// Import Weather data to WoTKit
 var weather_command="curl --request GET 'http://api.openweathermap.org/data/2.5/weather?q=Vancouver,ca'";
 
 var input_command;
@@ -53,12 +53,26 @@ setInterval(function() {
 		console.log(stdout);
 		input_command = "curl --user "+credentials.wotkit_access.user+":"+credentials.wotkit_access.password+" --request POST -d value=1 -d message=\""+stdout+"\" 'http://wotkit.sensetecnic.com/api/sensors/weather-in-vancouver/data'"
 		child = exec(input_command, function (error, stdout, stderr) {
-			sys.print('stdout: ' + stdout);
+			/*sys.print('stdout: ' + stdout);
 			sys.print('stderr: ' + stderr);
 			if (error !== null) {
 				console.log('exec error: ' + error);
-			}
+			}*/
 		});
 	});
 }, 5000);
 
+// Export WoTKit weather data
+
+var end_time;
+var start_time;
+setInterval(function() {
+
+		end_time = new Date().getTime();
+		start_time = end_time - 10000;
+		var export_command = "curl --request GET 'http://wotkit.sensetecnic.com/api/sensors/2013enph479.weather-in-vancouver/data?start=" + start_time + "&end=" + end_time + "' >> output.txt";
+		sys.print('export_command: ' + export_command + "\n");
+		child = exec(export_command, function (error, stdout, stderr) {
+			console.log('stdout: ' + stdout);
+		});
+}, 5000);
