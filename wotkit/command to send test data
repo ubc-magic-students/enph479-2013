@@ -1,0 +1,2 @@
+curl --user 2013enph479:engphyssucks --request POST -d value=5 -d lng=6 -d lat=7 'http://wotkit.sensetecnic.com/api/sensors/tweets-in-vancouver/data'
+

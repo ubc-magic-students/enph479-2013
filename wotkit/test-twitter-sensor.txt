@@ -1,0 +1,8 @@
+{
+"private":false,
+"name":"tweets-in-vancouver",
+"description" : "Streaming Tweets from Vancouver",
+"longName":"Streaming Tweets from Vancouver",
+"latitude":51.060386316691,
+"longitude":-114.087524414062
+}
