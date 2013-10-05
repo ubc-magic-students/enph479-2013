@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ca.ubc.magic</groupId>
+  <artifactId>algorithm-module</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>algorithm-module</name>
+  
+    <organization>
+    <name>UBC-MAGIC</name>
+    <url>http://www.magic.ubc.ca/</url>
+  </organization>
+  
+  <developers>
+    <developer>
+      <id>chris</id>
+      <name>Chris Yoon</name>
+      <email>chris.yoon90@gmail.com</email>
+      <url>http://www.chrisjyyoon.com/</url>
+      <organization>UBC Engineering Physics</organization>
+      <organizationUrl>http://www.engphys.ubc.ca/</organizationUrl>
+      <roles>
+      	<role>Developer</role>
+        <role>Project Manager</role>
+      </roles>
+    </developer>
+     <developer>
+      <id>colin</id>
+      <name>Colin Leung</name>
+      <email>colinmleung@gmail.com</email>
+      <url>http://www.colinmleung.com/</url>
+      <organization>UBC Engineering Physics</organization>
+      <organizationUrl>http://www.engphys.ubc.ca/</organizationUrl>
+      <roles>
+      	<role>Developer</role>
+        <role>Editorial Manager</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>richard</id>
+      <name>Richard Lee</name>
+      <email>richardli520@gmail.com</email>
+      <url>http://richardxlee.com/</url>
+      <organization>UBC Engineering Physics</organization>
+      <organizationUrl>http://www.engphys.ubc.ca/</organizationUrl>
+      <roles>
+      	<role>Developer</role>
+        <role>Technical Manager</role>
+      </roles>
+    </developer>
+  </developers>
+  
+  <properties>
+    <moa-version>2012.08</moa-version>
+  </properties>
+  
+  <dependencies>
+  	<dependency>
+  		<groupId>nz.ac.waikato.cms.moa</groupId>
+  		<artifactId>moa</artifactId>
+  		<version>${moa-version}</version>
+  	</dependency>
+  </dependencies>
+  
+</project>
