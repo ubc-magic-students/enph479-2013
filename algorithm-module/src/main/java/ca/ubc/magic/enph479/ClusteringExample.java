@@ -1,12 +1,16 @@
 package ca.ubc.magic.enph479;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.BufferedWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.ubc.magic.enph479.builder.TweetCluster;
 import com.ubc.magic.enph479.builder.TweetInstance;
@@ -23,7 +27,6 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.neighboursearch.BallTree;
-import weka.core.neighboursearch.LinearNNSearch;
 import weka.core.neighboursearch.NearestNeighbourSearch;
 
 public class ClusteringExample {
@@ -31,11 +34,11 @@ public class ClusteringExample {
 	 * @param args
 	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Throwable {
 		
 		try {
 		
-			int totalInstances = 10;
+			int totalInstances = 100000;
 		
 			RandomRBFGeneratorEvents stream = new RandomRBFGeneratorEvents();
 			AbstractClusterer clusterer = new ClusTree();
@@ -47,12 +50,7 @@ public class ClusteringExample {
 			int m_timestamp = 0;
 		
 			Clustering clustering0 = null;
-		
-			//Path path = Paths.get("/home/chris/Desktop/example.csv");
-		
-			//try(BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset(), StandardOpenOption.WRITE))  {
-
-			ArrayList<TweetInstance> tweetList = new ArrayList<TweetInstance>();
+			HashMap<Integer, TweetInstance> tweetMap = new HashMap<Integer, TweetInstance>();
 		
 			while(m_timestamp < totalInstances && stream.hasMoreInstances()){
 				Instance next = stream.nextInstance();
@@ -64,11 +62,9 @@ public class ClusteringExample {
 				else
 					traininst0.deleteAttributeAt(point0.classIndex());
 			
-				tweetList.add(new TweetInstance(traininst0, m_timestamp));
-				System.out.println(traininst0);
-				/*double[] nums = traininst0.toDoubleArray();
-				writer.write(String.format("%f", nums[0]) + "," + String.format("%f", nums[1]));
-				writer.newLine();*/
+				tweetMap.put(m_timestamp, new TweetInstance(traininst0, m_timestamp));
+				//System.out.println(m_timestamp);
+				
 
 				clusterer.trainOnInstanceImpl(traininst0);
 				Clustering gtClustering0 = ((RandomRBFGeneratorEvents)stream).getMicroClustering();
@@ -76,42 +72,54 @@ public class ClusteringExample {
 				clustering0 = moa.clusterers.KMeans.gaussianMeans(gtClustering0, microC);
 				m_timestamp++;
 			}
-		
-			//writer.newLine(); writer.newLine(); writer.newLine();
-		
-			//print each cluster centers
-			for (int i = 0; i < clustering0.getClustering().size(); i++) {
-				Cluster c = clustering0.getClustering().get(i);
-				c.setId(i);
-				double[] center = c.getCenter();
-				//writer.write(String.format("%f", center[0]) + "," + String.format("%f", center[1]));
-				//writer.newLine();
-				//System.err.println("ID " + c.getId() + ": " + center[0] + ", " + center[1] + ", Radius: " + ((SphereCluster) c).getRadius() );
-				System.out.println(c.getInfo());
-			}
-		
-			mapDataPointsToClusters(clustering0, tweetList);
 			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			for (int i = 0; i < clustering0.getClustering().size(); i++) {
+				clustering0.getClustering().get(i).setId(i);
+			}
+			
+			Path path = Paths.get("/home/chris/Desktop/example.csv");
+			
+			
+			try(BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset(), StandardOpenOption.WRITE))  {
+				int tweetCount = 0;
+				long startTime = System.currentTimeMillis();
+				ArrayList<TweetCluster> clusters = mapDataPointsToClusters(clustering0, tweetMap);
+				long finishTime = System.currentTimeMillis();
+				for(TweetCluster t : clusters) {
+					writer.write("ClusterId:,"+ t.getCluster().getId() + "\n");
+					writer.write("Cluster center:," + t.getCluster().getCenter()[0] + "," + t.getCluster().getCenter()[1] + "\n");
+					writer.write("Cluster radius:," + t.getCluster().getRadius() + "\n");
+					writer.newLine();
+					for(int id : t.getTweetIds()) {
+						TweetInstance ti = tweetMap.get(id);
+						writer.write(ti.toDoubleArray()[0] + ", " + ti.toDoubleArray()[1] + "\n");
+						tweetCount++;
+					}
+					
+					writer.newLine(); writer.newLine();
+					
+				}
+				System.out.println("Total number of tweets: " + tweetCount);
+				System.out.println("Time to run k-nearest neighbours on " + totalInstances + "tweets (ms): " + (finishTime-startTime));
+			}
+			
+		} catch (Throwable e) {
 			e.printStackTrace();
-			throw e;
 		}
 		
 		System.out.println("Clustering Finished");
 		
-		//} 
 
 	}
 	
-	public static void mapDataPointsToClusters(Clustering clusterSets, ArrayList<TweetInstance> tweetList) throws Exception {
+	public static ArrayList<TweetCluster> mapDataPointsToClusters(Clustering clusterSets, HashMap<Integer, TweetInstance> tweetInstanceMap) throws Exception {
 		try {
 			int numberOfClusters = clusterSets.getClustering().size();
 
-			ArrayList<TweetCluster> tweetClusters = new ArrayList<TweetCluster>();
+			ArrayList<TweetCluster> tweetClusterList = new ArrayList<TweetCluster>();
 			HashMap<List<Double>, Double> clusterMap = new HashMap<List<Double>, Double>();
 			for (Cluster c: clusterSets.getClustering()) {
-				tweetClusters.add(new TweetCluster(c));
+				tweetClusterList.add(new TweetCluster(c));
 				clusterMap.put(Collections.unmodifiableList(arrayToList(c.getCenter())), c.getId());
 			}
 			
@@ -127,22 +135,14 @@ public class ClusteringExample {
 			NearestNeighbourSearch nearestNeighbour = new BallTree();
 			nearestNeighbour.setInstances(centerInstances);
 			
-			for (TweetInstance t : tweetList) {
-				Instance nearestInstance = nearestNeighbour.nearestNeighbour(t);
+			for (Map.Entry<Integer, TweetInstance> entry : tweetInstanceMap.entrySet()) {
+				Instance nearestInstance = nearestNeighbour.nearestNeighbour(entry.getValue());
 				Double clusterId = (Double) clusterMap.get(arrayToList(nearestInstance.toDoubleArray()));
-				t.setClusterId(clusterId);
-				tweetClusters.get(clusterId.intValue()).addTweetMembers(t.getId());
+				entry.getValue().setClusterId(clusterId);
+				tweetClusterList.get(clusterId.intValue()).addTweetMembers(entry.getKey());
 			}
 			
-			for(TweetCluster t : tweetClusters) {
-				System.out.println("Cluster center: [" 
-									+ t.getCluster().getCenter()[0] + ", " 
-									+ t.getCluster().getCenter()[1] + "], ClusterId: " 
-									+ t.getCluster().getId());
-				for (int i : t.getTweetIds())
-					System.out.print(i + "(" + tweetList.get(i) + "), ");
-				System.out.println("");
-			}
+			return tweetClusterList;
 
 		} catch (Exception e) {
 			e.printStackTrace();
