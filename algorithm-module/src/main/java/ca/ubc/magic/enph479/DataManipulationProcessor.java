@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.io.*;
 
+import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 
@@ -75,35 +76,23 @@ public class DataManipulationProcessor {
 	
 	public ArrayList<Instance> PrepareForCluster(ArrayList<TwitterObject> lTwitter) {
 		
-		ArrayList<Instance> lInstance;
+		ArrayList<Instance> lInstance = null;
 		Instance inst;
+		Attribute id = new Attribute("id");
+		Attribute timestamp = new Attribute("timestamp");
+		Attribute message = new Attribute("message");
 		for(int i = 0; i < lTwitter.size(); i++) {
 			inst = new DenseInstance(3);
-			// Set instance's values for the attributes "length", "weight", and "position"
-			inst.setValue(id, lTwitter.get(i).getId()); 
-			inst.setValue(timestamp, lTwitter.get(i).getTimestamp()); 
-			inst.setValue(message, lTwitter.get(i).getMessage()); 
+			inst.setValue(id, lTwitter.get(i).getId());
+			inst.setValue(timestamp, lTwitter.get(i).getTimestamp());
+			inst.setValue(message, lTwitter.get(i).getMessage());
 			lInstance.add(inst);
+			
+			if(_isDebug)
+            	System.out.println(inst);
 		}
 		
 		return lInstance;
 	}
 
 }
-
-/*
-// Create empty instance with three attribute values
-TweetInstance inst = new DenseInstance(3); 
-Instance inst = new DenseInstance(3); 
-
-// Set instance's values for the attributes "length", "weight", and "position"
-inst.setValue(length, 5.3); 
-inst.setValue(weight, 300); 
-inst.setValue(position, "first"); 
-
-// Set instance's dataset to be the dataset "race" 
-inst.setDataset(race); 
-
-// Print the instance 
-System.out.println("The instance: " + inst); 
-*/
