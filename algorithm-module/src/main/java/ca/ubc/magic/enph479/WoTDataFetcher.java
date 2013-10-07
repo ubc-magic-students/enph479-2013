@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import com.ubc.magic.enph479.builder.TweetInstance;
+
 import weka.core.Instance;
 
 public class WoTDataFetcher {
@@ -70,7 +72,7 @@ public class WoTDataFetcher {
 		//retrive from WoT
 		String jsonstring = dmp.getJsonFromWoT(epoch_start_time, epoch_end_time);
 		ArrayList<TwitterObject> ltwitter = dmp.toListFromJsonParser(jsonstring);
-		//ArrayList<Instance> linstance = dmp.toWekaInstanceFromTwitterObj(ltwitter);
+		ArrayList<TweetInstance> linstance = dmp.toWekaInstanceFromTwitterObj(ltwitter);
 		
 		
 		return "";

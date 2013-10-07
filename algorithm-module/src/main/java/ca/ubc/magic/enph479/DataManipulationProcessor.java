@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.ubc.magic.enph479.builder.TweetInstance;
 
 public class DataManipulationProcessor {
 	
@@ -78,33 +79,17 @@ public class DataManipulationProcessor {
         return ltwitter;
 	}
 	
-	public ArrayList<Instance> toWekaInstanceFromTwitterObj(ArrayList<TwitterObject> _ltwitter) {
-		
-		Instance inst = new DenseInstance(3);
-		Attribute id = new Attribute("id");
-		Attribute timestamp = new Attribute("timestamp");
-		Attribute message = new Attribute("message");
-		
-		ArrayList<Attribute> attribute_list = new ArrayList<Attribute>(2);
-		attribute_list.add(id);
-        attribute_list.add(timestamp);
-        attribute_list.add(message);
+	public ArrayList<TweetInstance> toWekaInstanceFromTwitterObj(ArrayList<TwitterObject> _ltwitter) {
         
-        Instances data = new Instances("TestInstances",attribute_list,0);
-        inst.setDataset(data);
-        
-        ArrayList<Instance> linstance = null;
-        TweetInstance 
+        ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
 		
-		for(int i = 0; i < _ltwitter.size(); i++) {
-			//inst = new DenseInstance(3);
-			inst.setValue(id, _ltwitter.get(i).getId());
-			inst.setValue(timestamp, _ltwitter.get(i).getTimestamp());
-			inst.setValue(message, _ltwitter.get(i).getMessage());
-			linstance.add(inst);
+        for(int i = 0; i < _ltwitter.size(); i++) {
+			TweetInstance ti = new TweetInstance(1, new double[]{_ltwitter.get(i).getSensor_id(),
+					_ltwitter.get(i).getValue()}, _ltwitter.get(i).getId());
+			linstance.add(ti);
 			
 			if(is_debug)
-            	System.out.println(inst);
+            	System.out.println(ti);
 		}
 		
 		return linstance;
