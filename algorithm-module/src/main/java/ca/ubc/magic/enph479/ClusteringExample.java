@@ -11,14 +11,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.ubc.magic.enph479.builder.TweetCluster;
 import com.ubc.magic.enph479.builder.TweetInstance;
+import com.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
 
 import moa.cluster.Cluster;
 import moa.cluster.Clustering;
 import moa.clusterers.AbstractClusterer;
 import moa.clusterers.ClusterGenerator;
+import moa.clusterers.clustream.Clustream;
 import moa.clusterers.clustree.ClusTree;
 import moa.gui.visualization.DataPoint;
 import moa.streams.clustering.RandomRBFGeneratorEvents;
@@ -38,7 +41,8 @@ public class ClusteringExample {
 		
 		try {
 		
-			int totalInstances = 100000;
+			int totalInstances = 10;
+			final int numClusters = 10;
 		
 			RandomRBFGeneratorEvents stream = new RandomRBFGeneratorEvents();
 			AbstractClusterer clusterer = new ClusTree();
@@ -51,7 +55,7 @@ public class ClusteringExample {
 		
 			Clustering clustering0 = null;
 			HashMap<Integer, TweetInstance> tweetMap = new HashMap<Integer, TweetInstance>();
-		
+			
 			while(m_timestamp < totalInstances && stream.hasMoreInstances()){
 				Instance next = stream.nextInstance();
 				DataPoint point0 = new DataPoint(next,m_timestamp);
@@ -63,13 +67,24 @@ public class ClusteringExample {
 					traininst0.deleteAttributeAt(point0.classIndex());
 			
 				tweetMap.put(m_timestamp, new TweetInstance(traininst0, m_timestamp));
-				//System.out.println(m_timestamp);
+				System.out.println(traininst0);
 				
-
-				clusterer.trainOnInstanceImpl(traininst0);
-				Clustering gtClustering0 = ((RandomRBFGeneratorEvents)stream).getMicroClustering();
+				clusterer.trainOnInstanceImpl(traininst0);		
 				Clustering microC = clusterer.getMicroClusteringResult();
-				clustering0 = moa.clusterers.KMeans.gaussianMeans(gtClustering0, microC);
+				Clustering randomClustering = new Clustering();
+				
+				int k;
+				if (numClusters > microC.size())
+					k = microC.size();
+				else
+					k = numClusters;
+				
+				UniqueRandomNumberGenerator random = new UniqueRandomNumberGenerator(microC.size());
+				for(int i = 0; i < k ; i++) {
+					randomClustering.add(microC.get(random.nextInt()));
+				}
+				
+				clustering0 = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
 				m_timestamp++;
 			}
 			
