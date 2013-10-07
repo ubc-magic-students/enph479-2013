@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import com.ubc.magic.enph479.builder.TweetInstance;
@@ -17,6 +18,12 @@ public class WoTDataFetcher {
 	private int fetch_interval = 0; //in seconds
 	private String ref_datetime = null;
 	
+	private HashMap<Integer, TwitterObject> ltweets_all = new HashMap<Integer, TwitterObject>();
+	
+	public HashMap<Integer, TwitterObject> getAllTweetsData() throws Exception {
+		return ltweets_all;
+	}
+
 	public boolean prepareForFetching(boolean _istesting, int _fetch_interval, String _start_time) throws Exception  {
 		
 		dmp = new DataManipulationProcessor();
@@ -37,7 +44,7 @@ public class WoTDataFetcher {
 		//ArrayList<Instance> linstance = dmp.PrepareForCluster(ltwitter);
 	}
 	
-	public String fetchData() throws Exception {
+	public ArrayList<TweetInstance> fetchData() throws Exception {
 		
 		//calculate start time and end time from ref_datetime
 		Date date_start_time = new Date(ref_datetime);
@@ -68,14 +75,18 @@ public class WoTDataFetcher {
 		String epoch_start_time = dmp.toEpochTime(start_time);
 		String epoch_end_time = dmp.toEpochTime(end_time);
 		
-		System.out.println(ref_datetime);
+		System.out.println("Fetching data @ " + ref_datetime);
 		//retrive from WoT
 		String jsonstring = dmp.getJsonFromWoT(epoch_start_time, epoch_end_time);
-		ArrayList<TwitterObject> ltwitter = dmp.toListFromJsonParser(jsonstring);
-		ArrayList<TweetInstance> linstance = dmp.toWekaInstanceFromTwitterObj(ltwitter);
+		ArrayList<TwitterObject> ltweets_incoming = dmp.toListFromJsonParser(jsonstring);
+		//remove duplicates
+		ArrayList<TwitterObject> ltweets_processed = dmp.removeDuplicates(ltweets_incoming, ltweets_all);
+		//convert twitterObject to TweetInstance for clustering
+		ArrayList<TweetInstance> linstance = dmp.toWekaInstanceFromTwitterObj(ltweets_processed);
+		//update current all tweets list
+		ltweets_all = dmp.updateAllTweetsList(ltweets_processed, ltweets_all);
 		
-		
-		return "";
+		return linstance;
 	}
 	
 	

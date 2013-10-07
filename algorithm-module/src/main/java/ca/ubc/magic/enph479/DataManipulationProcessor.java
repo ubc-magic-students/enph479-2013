@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.io.*;
 
 import weka.core.Attribute;
@@ -73,26 +74,46 @@ public class DataManipulationProcessor {
         	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
         	ltwitter.add(tweet);
         	if(is_debug)
-            	System.out.println(tweet.getInfo());
+            	System.out.println(tweet.printInfo());
         }
         
         return ltwitter;
 	}
 	
-	public ArrayList<TweetInstance> toWekaInstanceFromTwitterObj(ArrayList<TwitterObject> _ltwitter) {
+	public ArrayList<TwitterObject> removeDuplicates(ArrayList<TwitterObject> _ltweets_incoming, HashMap<Integer, TwitterObject> _ltweets_all) {
+		
+		//check to see if all tweets contain the current incoming list, if it does, remove it
+		for(int i = 0; i < _ltweets_incoming.size(); i++) {
+			if(_ltweets_all.containsKey(_ltweets_incoming.get(i).getId())) {
+				_ltweets_incoming.remove(i);
+				i--;
+			}
+		}
+		
+		return _ltweets_incoming;
+	}
+	
+	public ArrayList<TweetInstance> toWekaInstanceFromTwitterObj(ArrayList<TwitterObject> _ltweets_processed) {
         
         ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
 		
-        for(int i = 0; i < _ltwitter.size(); i++) {
-			TweetInstance ti = new TweetInstance(1, new double[]{_ltwitter.get(i).getLatitude(),
-					_ltwitter.get(i).getLongitude()}, _ltwitter.get(i).getId());
+        for(int i = 0; i < _ltweets_processed.size(); i++) {
+			TweetInstance ti = new TweetInstance(1, new double[]{_ltweets_processed.get(i).getLatitude(),
+					_ltweets_processed.get(i).getLongitude()}, _ltweets_processed.get(i).getId());
 			linstance.add(ti);
-			
-			if(is_debug)
-            	System.out.println(ti);
 		}
 		
 		return linstance;
+	}
+	
+	public HashMap<Integer, TwitterObject> updateAllTweetsList(ArrayList<TwitterObject> _ltweets_processed, HashMap<Integer, TwitterObject> _ltweets_all) {
+		
+		//add tweets processed to the tweets all list
+		for(int i = 0; i < _ltweets_processed.size(); i++) {
+			_ltweets_all.put(_ltweets_processed.get(i).getId(), _ltweets_processed.get(i));
+		}
+		
+		return _ltweets_all;
 	}
 
 }

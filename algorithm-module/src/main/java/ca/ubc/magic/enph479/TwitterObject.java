@@ -59,7 +59,7 @@ public class TwitterObject {
 	public void setValue(int value) {
 		this.value = value;
 	}
-	public String getInfo() {
+	public String printInfo() {
 		return "id: " + Integer.toString(this.id) +
 				" timestamp: " + this.timestamp +
 				" latitude: " + this.latitude + 
