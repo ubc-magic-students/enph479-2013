@@ -84,8 +84,8 @@ public class DataManipulationProcessor {
         ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
 		
         for(int i = 0; i < _ltwitter.size(); i++) {
-			TweetInstance ti = new TweetInstance(1, new double[]{_ltwitter.get(i).getSensor_id(),
-					_ltwitter.get(i).getValue()}, _ltwitter.get(i).getId());
+			TweetInstance ti = new TweetInstance(1, new double[]{_ltwitter.get(i).getLatitude(),
+					_ltwitter.get(i).getLongitude()}, _ltwitter.get(i).getId());
 			linstance.add(ti);
 			
 			if(is_debug)
