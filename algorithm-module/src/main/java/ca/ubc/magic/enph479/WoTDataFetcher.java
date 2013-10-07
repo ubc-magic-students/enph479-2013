@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import weka.core.Instance;
+
 public class WoTDataFetcher {
 
 	private DataManipulationProcessor dmp = null;
@@ -38,6 +40,8 @@ public class WoTDataFetcher {
 		//calculate start time and end time from ref_datetime
 		Date date_start_time = new Date(ref_datetime);
 		Date date_end_time = new Date(ref_datetime);
+		
+		//set start time fetch interval earlier
 		date_start_time.setTime(date_start_time.getTime() - fetch_interval * 1000);
 		
 		DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
@@ -49,6 +53,12 @@ public class WoTDataFetcher {
 		//update ref_date
 		Date date_ref_time = new Date(ref_datetime);
 		date_ref_time.setTime(date_ref_time.getTime() + fetch_interval * 1000);
+		//check if start time is greater than current time
+		//if it is, set current time to start time
+		Date date_current_time = new Date();
+		if(date_ref_time.after(date_current_time)) {
+			date_ref_time = date_current_time;
+		}
 		String ref_time = date_format.format(date_ref_time);
 		ref_datetime = ref_time;
 		
@@ -60,7 +70,7 @@ public class WoTDataFetcher {
 		//retrive from WoT
 		String jsonstring = dmp.getJsonFromWoT(epoch_start_time, epoch_end_time);
 		ArrayList<TwitterObject> ltwitter = dmp.toListFromJsonParser(jsonstring);
-		//ArrayList<Instance> linstance = dmp.PrepareForCluster(ltwitter);
+		//ArrayList<Instance> linstance = dmp.toWekaInstanceFromTwitterObj(ltwitter);
 		
 		
 		return "";

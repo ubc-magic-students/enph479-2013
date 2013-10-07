@@ -10,6 +10,7 @@ public class WDF_Driver {
 	public static void main(String[] args) throws Exception {
 		
 		WoTDataFetcher wdf = new WoTDataFetcher();
+		int fetch_interval = 1;
 		
 		String start_datetime = "2013 Sep 29 23:11:00";
 		
@@ -17,10 +18,9 @@ public class WDF_Driver {
 		Date date_now = new Date();
 		DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
 		String start_datetime = date_format.format(date_now);
-		start_datetime += " UTC";
 		*/
 		
-		if(!wdf.prepareForFetching(false, 1, start_datetime)) {
+		if(!wdf.prepareForFetching(false, fetch_interval, start_datetime)) {
 			System.out.println("Error while initializing WotDataFetcher...");
 			return;
 		}
@@ -28,6 +28,7 @@ public class WDF_Driver {
 		//wdf.fetchDataExample();
 		for(int i = 0; i < 10; i++) {
 			wdf.fetchData();
+			Thread.sleep((long) (fetch_interval * 1000 * 0.9));
 		}
 		
 		

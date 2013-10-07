@@ -80,8 +80,7 @@ public class DataManipulationProcessor {
 	
 	public ArrayList<Instance> toWekaInstanceFromTwitterObj(ArrayList<TwitterObject> _ltwitter) {
 		
-		ArrayList<Instance> linstance = null;
-		Instance inst = new DenseInstance(3);;
+		Instance inst = new DenseInstance(3);
 		Attribute id = new Attribute("id");
 		Attribute timestamp = new Attribute("timestamp");
 		Attribute message = new Attribute("message");
@@ -93,6 +92,9 @@ public class DataManipulationProcessor {
         
         Instances data = new Instances("TestInstances",attribute_list,0);
         inst.setDataset(data);
+        
+        ArrayList<Instance> linstance = null;
+        TweetInstance 
 		
 		for(int i = 0; i < _ltwitter.size(); i++) {
 			//inst = new DenseInstance(3);
