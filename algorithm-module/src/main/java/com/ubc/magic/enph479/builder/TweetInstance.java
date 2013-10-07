@@ -23,7 +23,7 @@ public class TweetInstance extends DenseInstance{
 		super(numAttributes);
 		this.id = id;
 	}
-	
+
 	public int getId() {
 		return id;
 	}

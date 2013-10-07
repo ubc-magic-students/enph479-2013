@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import com.ubc.magic.enph479.builder.TweetCluster;
 import com.ubc.magic.enph479.builder.TweetInstance;
@@ -40,73 +39,43 @@ public class ClusteringExample {
 	public static void main(String[] args) throws Throwable {
 		
 		try {
-		
 			int totalInstances = 10;
-			final int numClusters = 10;
+			final int numClusters = 4;
 		
 			RandomRBFGeneratorEvents stream = new RandomRBFGeneratorEvents();
-			AbstractClusterer clusterer = new ClusTree();
 			
 			stream.prepareForUse();
-			clusterer.prepareForUse();
 			
 			System.err.println(stream.getHeader());
 			int m_timestamp = 0;
-		
-			Clustering clustering0 = null;
-			HashMap<Integer, TweetInstance> tweetMap = new HashMap<Integer, TweetInstance>();
 			
+			TweetClusterer clusterer = new TweetClusterer();
+			ArrayList<TweetInstance> tweetList = new ArrayList<TweetInstance>();
 			while(m_timestamp < totalInstances && stream.hasMoreInstances()){
 				Instance next = stream.nextInstance();
 				DataPoint point0 = new DataPoint(next,m_timestamp);
-				Instance traininst0 = new DenseInstance(point0);
-				
-				if(clusterer instanceof ClusterGenerator)
-					traininst0.setDataset(point0.dataset());
-				else
-					traininst0.deleteAttributeAt(point0.classIndex());
-			
-				tweetMap.put(m_timestamp, new TweetInstance(traininst0, m_timestamp));
+				Instance traininst0 = new TweetInstance(point0, m_timestamp);
+				traininst0.deleteAttributeAt(point0.classIndex());
 				System.out.println(traininst0);
-				
-				clusterer.trainOnInstanceImpl(traininst0);		
-				Clustering microC = clusterer.getMicroClusteringResult();
-				Clustering randomClustering = new Clustering();
-				
-				int k;
-				if (numClusters > microC.size())
-					k = microC.size();
-				else
-					k = numClusters;
-				
-				UniqueRandomNumberGenerator random = new UniqueRandomNumberGenerator(microC.size());
-				for(int i = 0; i < k ; i++) {
-					randomClustering.add(microC.get(random.nextInt()));
-				}
-				
-				clustering0 = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
+				tweetList.add((TweetInstance)traininst0);			
 				m_timestamp++;
 			}
-			
-			for (int i = 0; i < clustering0.getClustering().size(); i++) {
-				clustering0.getClustering().get(i).setId(i);
-			}
+			long startTime = System.currentTimeMillis();
+			ArrayList<TweetCluster> clusters = clusterer.cluster(tweetList, numClusters);		
+			long finishTime = System.currentTimeMillis();
 			
 			Path path = Paths.get("/home/chris/Desktop/example.csv");
 			
 			
 			try(BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset(), StandardOpenOption.WRITE))  {
 				int tweetCount = 0;
-				long startTime = System.currentTimeMillis();
-				ArrayList<TweetCluster> clusters = mapDataPointsToClusters(clustering0, tweetMap);
-				long finishTime = System.currentTimeMillis();
 				for(TweetCluster t : clusters) {
 					writer.write("ClusterId:,"+ t.getCluster().getId() + "\n");
 					writer.write("Cluster center:," + t.getCluster().getCenter()[0] + "," + t.getCluster().getCenter()[1] + "\n");
 					writer.write("Cluster radius:," + t.getCluster().getRadius() + "\n");
 					writer.newLine();
 					for(int id : t.getTweetIds()) {
-						TweetInstance ti = tweetMap.get(id);
+						TweetInstance ti = clusterer.getTweetMap().get(id);
 						writer.write(ti.toDoubleArray()[0] + ", " + ti.toDoubleArray()[1] + "\n");
 						tweetCount++;
 					}
@@ -127,7 +96,7 @@ public class ClusteringExample {
 
 	}
 	
-	public static ArrayList<TweetCluster> mapDataPointsToClusters(Clustering clusterSets, HashMap<Integer, TweetInstance> tweetInstanceMap) throws Exception {
+	/*public static ArrayList<TweetCluster> mapDataPointsToClusters(Clustering clusterSets, HashMap<Integer, TweetInstance> tweetInstanceMap) throws Exception {
 		try {
 			int numberOfClusters = clusterSets.getClustering().size();
 
@@ -173,5 +142,5 @@ public class ClusteringExample {
 		}
 		
 		return list;
-	}
+	}*/
 }
