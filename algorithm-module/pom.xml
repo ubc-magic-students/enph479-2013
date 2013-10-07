@@ -50,6 +50,8 @@
   </developers>
   
   <properties>
+  	<maven.compiler.source>1.7</maven.compiler.source>
+  	<maven.compiler.target>1.7</maven.compiler.target>
     <moa-version>2012.08</moa-version>
   </properties>
   
