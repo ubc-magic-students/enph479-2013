@@ -10,6 +10,7 @@ import java.io.*;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
+import weka.core.Instances;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -18,10 +19,12 @@ import com.google.gson.JsonParser;
 
 public class DataManipulationProcessor {
 	
-	private boolean _isDebug = true;
+	private boolean is_debug = true;
+	private String[] wot_url = new String[] {"http://wotkit.sensetecnic.com/api/sensors/2013enph479.tweets-in-vancouver/data?start=",
+			"&end="};
 	
 	
-	public String ToEpochTime(String _date) {
+	public String toEpochTime(String _date) {
 		
 	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd HH:mm:ss zzz");
 	    Date date = null;
@@ -35,64 +38,74 @@ public class DataManipulationProcessor {
 	    return String.valueOf(epoch);
 	}
 	
-	public String GetJsonFromWoT(String _startTime, String _endTime) throws Exception {
+	public String getJsonFromWoT(String _startTime, String _endTime) throws Exception {
 		
-		URL WoTurl = new URL("http://wotkit.sensetecnic.com/api/sensors/2013enph479.tweets-in-vancouver/data?start="
-				+ _startTime + "&end=" + _endTime);
-        URLConnection con = WoTurl.openConnection();
-        BufferedReader bReader = new BufferedReader(
+		String url_1 = wot_url[0];
+		String url_2 = wot_url[1];
+		URL wot_url = new URL(url_1 + _startTime + url_2 + _endTime);
+        URLConnection con = wot_url.openConnection();
+        BufferedReader breader = new BufferedReader(
                                 new InputStreamReader(
                                 		con.getInputStream()));
         /*String inputLine;
         while ((inputLine = bReader.readLine()) != null) {
             System.out.println(inputLine);
         }*/
-        String jsonString = bReader.readLine();
-        if(_isDebug)
-        	System.out.println(jsonString);
-        bReader.close();
+        String json_string = breader.readLine();
+        //if(is_debug)
+        //	System.out.println(json_string);
+        breader.close();
         
-        return jsonString;
+        return json_string;
 	}
 	
-	public ArrayList<TwitterObject> JsonParserToList(String jsonString) {
+	public ArrayList<TwitterObject> toListFromJsonParser(String _jsonstring) {
 		
 		JsonParser parser = new JsonParser();
-        JsonArray Jarray = parser.parse(jsonString).getAsJsonArray();
+        JsonArray jarray = parser.parse(_jsonstring).getAsJsonArray();
         Gson gson = new Gson();
         
-        ArrayList<TwitterObject> lTwitter = new ArrayList<TwitterObject>();
+        ArrayList<TwitterObject> ltwitter = new ArrayList<TwitterObject>();
 
-        for(JsonElement obj : Jarray )
+        for(JsonElement obj : jarray )
         {
         	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
-        	lTwitter.add(tweet);
-        	if(_isDebug)
+        	ltwitter.add(tweet);
+        	if(is_debug)
             	System.out.println(tweet.getInfo());
         }
         
-        return lTwitter;
+        return ltwitter;
 	}
 	
-	public ArrayList<Instance> PrepareForCluster(ArrayList<TwitterObject> lTwitter) {
+	public ArrayList<Instance> toWekaInstanceFromTwitterObj(ArrayList<TwitterObject> _ltwitter) {
 		
-		ArrayList<Instance> lInstance = null;
-		Instance inst;
+		ArrayList<Instance> linstance = null;
+		Instance inst = new DenseInstance(3);;
 		Attribute id = new Attribute("id");
 		Attribute timestamp = new Attribute("timestamp");
 		Attribute message = new Attribute("message");
-		for(int i = 0; i < lTwitter.size(); i++) {
-			inst = new DenseInstance(3);
-			inst.setValue(id, lTwitter.get(i).getId());
-			inst.setValue(timestamp, lTwitter.get(i).getTimestamp());
-			inst.setValue(message, lTwitter.get(i).getMessage());
-			lInstance.add(inst);
+		
+		ArrayList<Attribute> attribute_list = new ArrayList<Attribute>(2);
+		attribute_list.add(id);
+        attribute_list.add(timestamp);
+        attribute_list.add(message);
+        
+        Instances data = new Instances("TestInstances",attribute_list,0);
+        inst.setDataset(data);
+		
+		for(int i = 0; i < _ltwitter.size(); i++) {
+			//inst = new DenseInstance(3);
+			inst.setValue(id, _ltwitter.get(i).getId());
+			inst.setValue(timestamp, _ltwitter.get(i).getTimestamp());
+			inst.setValue(message, _ltwitter.get(i).getMessage());
+			linstance.add(inst);
 			
-			if(_isDebug)
+			if(is_debug)
             	System.out.println(inst);
 		}
 		
-		return lInstance;
+		return linstance;
 	}
 
 }

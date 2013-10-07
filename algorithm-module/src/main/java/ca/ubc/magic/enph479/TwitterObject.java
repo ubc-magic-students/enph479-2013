@@ -47,8 +47,8 @@ public class TwitterObject {
 	}
 	public String getInfo() {
 		return "id: " + Integer.toString(this.id) +
-				" timestamp: " + this.timestamp +
-				" message: " + this.message;
+				" timestamp: " + this.timestamp + 
+				" message: "+ this.message;
 	}
 	
 	

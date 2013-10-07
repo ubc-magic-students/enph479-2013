@@ -1,27 +1,71 @@
 package ca.ubc.magic.enph479;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
-import weka.core.Instance;
+import java.util.Date;
+import java.util.Locale;
 
 public class WoTDataFetcher {
 
-	public static void main(String[] args) throws Exception {
+	private DataManipulationProcessor dmp = null;
+	private boolean is_testing = false;
+	private int fetch_interval = 0; //in seconds
+	private String ref_datetime = null;
+	
+	public boolean prepareForFetching(boolean _istesting, int _fetch_interval, String _start_time) throws Exception  {
 		
-		DataManipulationProcessor dmp = new DataManipulationProcessor();
+		dmp = new DataManipulationProcessor();
+		this.is_testing = _istesting;
+		this.fetch_interval = _fetch_interval;
+		this.ref_datetime = _start_time;
 		
-		String startTime = dmp.ToEpochTime("2013 Sep 29 23:10:00 UTC");
-		String endTime = dmp.ToEpochTime("2013 Sep 29 23:20:00 UTC");
-		/* testing for 1 twitter */
-		//String startTime = dmp.ToEpochTime("2013 Sep 29 23:11:00 UTC");
-		//String endTime = dmp.ToEpochTime("2013 Sep 29 23:11:10 UTC");
-		/* testing for 0 twitter */
-		//String startTime = dmp.ToEpochTime("2013 Sep 29 23:11:00 UTC");
-		//String endTime = dmp.ToEpochTime("2013 Sep 29 23:11:01 UTC");
-		
-		String jsonString = dmp.GetJsonFromWoT(startTime, endTime);
-		ArrayList<TwitterObject> lTwitter = dmp.JsonParserToList(jsonString);
-		ArrayList<Instance> lInstance = dmp.PrepareForCluster(lTwitter);
-		
+		return true;
 	}
+	
+	public void fetchDataExample() throws Exception {
+		
+		String start_time = dmp.toEpochTime("2013 Sep 29 23:11:04 UTC");
+		String end_time = dmp.toEpochTime("2013 Sep 29 23:11:06 UTC");
+		
+		String jsonstring = dmp.getJsonFromWoT(start_time, end_time);
+		ArrayList<TwitterObject> ltwitter = dmp.toListFromJsonParser(jsonstring);
+		//ArrayList<Instance> linstance = dmp.PrepareForCluster(ltwitter);
+	}
+	
+	public String fetchData() throws Exception {
+		
+		//calculate start time and end time from ref_datetime
+		Date date_start_time = new Date(ref_datetime);
+		Date date_end_time = new Date(ref_datetime);
+		date_start_time.setTime(date_start_time.getTime() - fetch_interval * 1000);
+		
+		DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
+		String start_time = date_format.format(date_start_time);
+		String end_time = date_format.format(date_end_time);
+		start_time += " UTC";
+		end_time += " UTC";
+		
+		//update ref_date
+		Date date_ref_time = new Date(ref_datetime);
+		date_ref_time.setTime(date_ref_time.getTime() + fetch_interval * 1000);
+		String ref_time = date_format.format(date_ref_time);
+		ref_datetime = ref_time;
+		
+		//get epoch time
+		String epoch_start_time = dmp.toEpochTime(start_time);
+		String epoch_end_time = dmp.toEpochTime(end_time);
+		
+		System.out.println(ref_datetime);
+		//retrive from WoT
+		String jsonstring = dmp.getJsonFromWoT(epoch_start_time, epoch_end_time);
+		ArrayList<TwitterObject> ltwitter = dmp.toListFromJsonParser(jsonstring);
+		//ArrayList<Instance> linstance = dmp.PrepareForCluster(ltwitter);
+		
+		
+		return "";
+	}
+	
+	
+	
 }
