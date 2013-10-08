@@ -35,20 +35,20 @@ public class ClusteringExample {
 			int m_timestamp = 0;
 			
 			TweetClusterer clusterer = new TweetClusterer();
-			HashMap<Integer, Instance> tweetMap = new HashMap<Integer, Instance>();
-			ArrayList<TweetInstance> tweetList = new ArrayList<TweetInstance>();
+			HashMap<Integer, Instance> allTweets = new HashMap<Integer, Instance>();
+			ArrayList<TweetInstance> newTweets = new ArrayList<TweetInstance>();
 			while(m_timestamp < totalInstances && stream.hasMoreInstances()){
 				Instance next = stream.nextInstance();
 				DataPoint point0 = new DataPoint(next,m_timestamp);
 				Instance traininst0 = new TweetInstance(point0, m_timestamp);
 				traininst0.deleteAttributeAt(point0.classIndex());
 				System.out.println(traininst0);
-				tweetList.add((TweetInstance)traininst0);
-				tweetMap.put(m_timestamp, traininst0);
+				newTweets.add((TweetInstance)traininst0);
+				allTweets.put(m_timestamp, traininst0);
 				m_timestamp++;
 			}
 			long startTime = System.currentTimeMillis();
-			ArrayList<TweetCluster> clusters = clusterer.cluster(tweetList, numClusters).mapDataPointsToClusters(tweetMap);		
+			ArrayList<TweetCluster> clusters = clusterer.cluster(newTweets, allTweets, numClusters);
 			long finishTime = System.currentTimeMillis();
 			
 			Path path = Paths.get("/home/chris/Desktop/example.csv");
@@ -62,7 +62,7 @@ public class ClusteringExample {
 					writer.write("Cluster radius:," + t.getCluster().getRadius() + "\n");
 					writer.newLine();
 					for(int id : t.getTweetIds()) {
-						TweetInstance ti = (TweetInstance) tweetMap.get(id);
+						TweetInstance ti = (TweetInstance) allTweets.get(id);
 						writer.write(ti.toDoubleArray()[0] + ", " + ti.toDoubleArray()[1] + "\n");
 						tweetCount++;
 					}

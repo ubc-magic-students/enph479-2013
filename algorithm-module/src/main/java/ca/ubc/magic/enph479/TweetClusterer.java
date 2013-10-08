@@ -25,7 +25,6 @@ public class TweetClusterer {
 	
 	//private HashMap<Integer, Instance> tweetMap = new HashMap<Integer, Instance>();
 	private AbstractClusterer clusterer = new ClusTree();
-	private Clustering clustering;
 	
 	public TweetClusterer() {
 		clusterer.prepareForUse();
@@ -38,64 +37,68 @@ public class TweetClusterer {
 	 * @return
 	 * @throws Exception
 	 */
-	public TweetClusterer cluster(ArrayList<TweetInstance> newTweets, int k) throws Exception {
+	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, Instance> allTweets, int k) throws Exception {
 		for (TweetInstance inst : newTweets) {
 			clusterer.trainOnInstanceImpl(inst);
 		}
 		Clustering microC = clusterer.getMicroClusteringResult();
-		Clustering randomClustering = new Clustering();
 		
 		if (k > microC.size())
 			k = microC.size();
 		
+		Clustering randomClustering = new Clustering();
 		UniqueRandomNumberGenerator random = new UniqueRandomNumberGenerator(microC.size());
 		for(int i = 0; i < k ; i++) {
 			randomClustering.add(microC.get(random.nextInt()));
 		}
 		
-		clustering = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
+		Clustering clustering = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
 		
 		for (int i = 0; i < clustering.getClustering().size(); i++) {
 			clustering.getClustering().get(i).setId(i);
 		}
 		
-		return this;
+		return nearestNeighbour(clustering, allTweets);
 		
 	}
 	
-	public ArrayList<TweetCluster> mapDataPointsToClusters(HashMap<Integer, Instance> tweetInstanceMap) throws Exception {
+	private ArrayList<TweetCluster> nearestNeighbour(Clustering clustering, HashMap<Integer, Instance> tweetInstanceMap) throws Exception {
 		try {
 			int numberOfClusters = clustering.getClustering().size();
 
 			ArrayList<TweetCluster> tweetClusterList = new ArrayList<TweetCluster>();
-			HashMap<List<Double>, Double> clusterMap = new HashMap<List<Double>, Double>();
+			HashMap<List<Double>, Double> mapClusterCentersToClusterId = new HashMap<List<Double>, Double>();
 			for (Cluster c: clustering.getClustering()) {
 				tweetClusterList.add(new TweetCluster(c));
-				clusterMap.put(Collections.unmodifiableList(arrayToList(c.getCenter())), c.getId());
+				mapClusterCentersToClusterId.put(Collections.unmodifiableList(arrayToList(c.getCenter())), c.getId());
 			}
-			
+
 			ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
-			atts.add(new Attribute("latitude"));
-			atts.add(new Attribute("logitude"));
+			Attribute latitude = new Attribute("latitude");
+			Attribute longitude = new Attribute("longitude");
+			atts.add(latitude);
+			atts.add(longitude);
 			Instances centerInstances = new Instances("ClusterCenterInstances", atts , 0);
 			
 			for (int i = 0; i < numberOfClusters; i++) {
-				centerInstances.add(new DenseInstance(1, clustering.getClustering().get(i).getCenter()));
+				Instance tempInst = new DenseInstance(2);
+				tempInst.setValue(latitude, clustering.getClustering().get(i).getCenter()[0]);
+				tempInst.setValue(longitude, clustering.getClustering().get(i).getCenter()[1]);
+				centerInstances.add(tempInst);
 			}
 			
-			NearestNeighbourSearch nearestNeighbour = new BallTree();
-			nearestNeighbour.setInstances(centerInstances);
+			NearestNeighbourSearch nearestNeighbourSearch = new BallTree();
+			nearestNeighbourSearch.setInstances(centerInstances);
 			
 			for (Map.Entry<Integer, Instance> entry : tweetInstanceMap.entrySet()) {
-				Instance nearestInstance = nearestNeighbour.nearestNeighbour(entry.getValue());
-				Double clusterId = (Double) clusterMap.get(arrayToList(nearestInstance.toDoubleArray()));
+				Instance nearestInstance = nearestNeighbourSearch.nearestNeighbour(entry.getValue());
+				Double clusterId = (Double) mapClusterCentersToClusterId.get(arrayToList(nearestInstance.toDoubleArray()));
 				tweetClusterList.get(clusterId.intValue()).addTweetMembers(entry.getKey());
 			}
 			
 			return tweetClusterList;
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw e;
 		}
 	}
