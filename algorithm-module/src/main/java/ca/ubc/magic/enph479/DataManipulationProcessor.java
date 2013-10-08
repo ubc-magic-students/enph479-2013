@@ -12,12 +12,12 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import ca.ubc.magic.enph479.builder.TweetInstance;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.ubc.magic.enph479.builder.TweetInstance;
 
 /**
  * DataManipulationProcessor is the low level algorithm that actually process raw data processed from WoTkit

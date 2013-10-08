@@ -9,9 +9,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.ubc.magic.enph479.builder.TweetCluster;
-import com.ubc.magic.enph479.builder.TweetInstance;
-
+import ca.ubc.magic.enph479.builder.TweetCluster;
+import ca.ubc.magic.enph479.builder.TweetInstance;
 import moa.gui.visualization.DataPoint;
 import moa.streams.clustering.RandomRBFGeneratorEvents;
 import weka.core.Instance;

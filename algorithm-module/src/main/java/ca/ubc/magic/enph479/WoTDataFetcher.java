@@ -8,9 +8,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import ca.ubc.magic.enph479.DataManipulationProcessor.sel_type;
-
-import com.ubc.magic.enph479.builder.TweetInstance;
-
+import ca.ubc.magic.enph479.builder.TweetInstance;
 import weka.core.Instance;
 
 /**

@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
-import com.ubc.magic.enph479.builder.TweetInstance;
+import ca.ubc.magic.enph479.builder.TweetInstance;
 
 public class WDF_Driver {
 

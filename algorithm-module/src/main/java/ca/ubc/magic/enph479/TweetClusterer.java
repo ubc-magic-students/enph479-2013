@@ -16,10 +16,9 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.neighboursearch.BallTree;
 import weka.core.neighboursearch.NearestNeighbourSearch;
-
-import com.ubc.magic.enph479.builder.TweetCluster;
-import com.ubc.magic.enph479.builder.TweetInstance;
-import com.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
+import ca.ubc.magic.enph479.builder.TweetCluster;
+import ca.ubc.magic.enph479.builder.TweetInstance;
+import ca.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
 
 /**
  * Class for clustering tweet instances.
@@ -38,7 +37,7 @@ public class TweetClusterer {
 	/**
 	 * Clusters tweet instances into k clusters.
 	 * 
-	 * @param newTweets Must be in a form of [latitude, longitude]
+	 * @param newTweets a list of TweetInstances in a form of [latitude, longitude]
 	 * @param k number of clusters
 	 * @return A list of TweetCluster objects
 	 * @throws Exception
@@ -69,7 +68,6 @@ public class TweetClusterer {
 	}
 	
 	private ArrayList<TweetCluster> nearestNeighbour(Clustering clustering, HashMap<Integer, Instance> tweetInstanceMap) throws Exception {
-		try {
 			int numberOfClusters = clustering.getClustering().size();
 
 			ArrayList<TweetCluster> tweetClusterList = new ArrayList<TweetCluster>();
@@ -104,9 +102,6 @@ public class TweetClusterer {
 			
 			return tweetClusterList;
 
-		} catch (Exception e) {
-			throw e;
-		}
 	}
 	
 	private static List<Double> arrayToList(double[] array) {

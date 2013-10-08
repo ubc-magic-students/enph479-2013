@@ -1,4 +1,4 @@
-package com.ubc.magic.enph479.builder;
+package ca.ubc.magic.enph479.builder;
 
 import weka.core.DenseInstance;
 import weka.core.Instance;
