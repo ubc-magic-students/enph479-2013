@@ -12,16 +12,16 @@ var stream = T.stream('statuses/filter', { locations: vancouver });
 
 var command;
 stream.on('tweet', function (tweet) {
-		console.log(tweet.text);
-		command = "curl --user "+credentials.wotkit_access.user+":"+credentials.wotkit_access.password+" --request POST -d value="+tweet.id+" -d message=\""+tweet.text+"\" 'http://wotkit.sensetecnic.com/api/sensors/tweets-in-vancouver/data'";
-
-		child = exec(command, function (error, stdout, stderr) {
-			sys.print('stdout: ' + stdout);
-			sys.print('stderr: ' + stderr);
-			if (error !== null) {
-				console.log('exec error: ' + error);
-			}
-		});
+		if (tweet && tweet.text && tweet.coordinates && tweet.coordinates.coordinates) {
+			command = "curl --user "+credentials.wotkit_access.user+":"+credentials.wotkit_access.password+" --request POST -d value="+tweet.id+" -d lng="+tweet.coordinates.coordinates[0]+" -d lat="+tweet.coordinates.coordinates[1]+" -d message=\""+tweet.text+"\" 'http://wotkit.sensetecnic.com/api/sensors/tweets-in-vancouver/data'";
+			child = exec(command, function (error, stdout, stderr) {
+				sys.print('stdout: ' + stdout);
+				sys.print('stderr: ' + stderr);
+				if (error !== null) {
+					console.log('exec error: ' + error);
+				}
+			});
+	  }
 });
 
 stream.on('connect', function(request) {
@@ -45,13 +45,11 @@ var input_command;
 
 setInterval(function() {
 	child = exec(weather_command, function (error, stdout, stderr) {
-		sys.print('stdout: ' + stdout);
-		sys.print('stderr: ' + stderr);
 		if (error !== null) {
 			console.log('exec error: ' + error);
 		}
-		console.log(stdout);
-		input_command = "curl --user "+credentials.wotkit_access.user+":"+credentials.wotkit_access.password+" --request POST -d value=1 -d message=\""+stdout+"\" 'http://wotkit.sensetecnic.com/api/sensors/weather-in-vancouver/data'"
+		var obj = JSON.parse(stdout);
+		input_command = "curl --user "+credentials.wotkit_access.user+":"+credentials.wotkit_access.password+" --request POST -d value=1 -d lat="+obj.coord.lat+" -d lng="+obj.coord.lon+" -d message=\""+stdout+"\" 'http://wotkit.sensetecnic.com/api/sensors/weather-in-vancouver/data'"
 		child = exec(input_command, function (error, stdout, stderr) {
 			/*sys.print('stdout: ' + stdout);
 			sys.print('stderr: ' + stderr);
