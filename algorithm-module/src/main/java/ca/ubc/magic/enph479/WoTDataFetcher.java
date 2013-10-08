@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import ca.ubc.magic.enph479.DataManipulationProcessor.sel_type;
+
 import com.ubc.magic.enph479.builder.TweetInstance;
 
 import weka.core.Instance;
@@ -23,10 +25,12 @@ public class WoTDataFetcher {
 	private int fetch_interval = 0; //in seconds
 	private String ref_datetime = null; //reference time in system for fetching
 	
-	private HashMap<Integer, TwitterObject> ltweets_all = new HashMap<Integer, TwitterObject>(); //stores all of the tweets
-	
 	public HashMap<Integer, TwitterObject> getAllTweetsData() throws Exception {
-		return ltweets_all;
+		return dmp.gettweets_all();
+	}
+	
+	public HashMap<String, WeatherObject> getAllWeathersData() throws Exception {
+		return dmp.getweathers_all();
 	}
 
 	public boolean prepareForFetching(int _fetch_interval, String _start_time) throws Exception  {
@@ -39,8 +43,8 @@ public class WoTDataFetcher {
 	public void fetchDataExample() throws Exception {
 		String start_time = dmp.toEpochTime("2013 Sep 29 23:11:04 UTC");
 		String end_time = dmp.toEpochTime("2013 Sep 29 23:11:06 UTC");
-		String jsonstring = dmp.getJsonFromWoT(start_time, end_time);
-		ArrayList<TwitterObject> ltwitter = dmp.toListFromJsonParser(jsonstring);
+		dmp.getJsonFromWoT(sel_type.twitter, start_time, end_time);
+		dmp.toListFromJsonParser(sel_type.twitter);
 	}
 	
 	public ArrayList<TweetInstance> fetchData() throws Exception {
@@ -70,14 +74,18 @@ public class WoTDataFetcher {
 		String epoch_end_time = dmp.toEpochTime(end_time);
 		System.out.println("Fetching data @ " + ref_datetime);
 		//retrieve from WoT
-		String jsonstring = dmp.getJsonFromWoT(epoch_start_time, epoch_end_time);
-		ArrayList<TwitterObject> ltweets_incoming = dmp.toListFromJsonParser(jsonstring);
+		dmp.getJsonFromWoT(sel_type.twitter, epoch_start_time, epoch_end_time);
+		dmp.getJsonFromWoT(sel_type.weather, epoch_start_time, epoch_end_time);
+		dmp.toListFromJsonParser(sel_type.twitter);
+		dmp.toListFromJsonParser(sel_type.weather);
 		//remove duplicates
-		ArrayList<TwitterObject> ltweets_processed = dmp.removeDuplicates(ltweets_incoming, ltweets_all);
+		dmp.removeDuplicates(sel_type.twitter);
+		dmp.removeDuplicates(sel_type.weather);
 		//convert twitterObject to TweetInstance for clustering
-		ArrayList<TweetInstance> linstance = dmp.toWekaInstanceFromTwitterObj(ltweets_processed);
-		//update current all tweets list
-		ltweets_all = dmp.updateAllTweetsList(ltweets_processed, ltweets_all);
+		ArrayList<TweetInstance> linstance = dmp.toWekaInstanceFromTwitterObj();
+		//update current all list
+		dmp.updateAllList(sel_type.twitter);
+		dmp.updateAllList(sel_type.weather);
 		return linstance;
 	}
 	

@@ -27,9 +27,19 @@ import com.ubc.magic.enph479.builder.TweetInstance;
  */
 public class DataManipulationProcessor {
 	
+	public enum sel_type {twitter, weather, none};
+	private String json_string_twitter = null;
+	private String json_string_weather = null;
+	private ArrayList<TwitterObject> ltweets_incoming = new ArrayList<TwitterObject>();
+	private ArrayList<WeatherObject> lweathers_incoming = new ArrayList<WeatherObject>();
+	private HashMap<Integer, TwitterObject> ltweets_all = new HashMap<Integer, TwitterObject>(); //stores all of the tweets
+	private HashMap<String, WeatherObject> lweathers_all = new HashMap<String, WeatherObject>(); //stores all of the weathers
+	
 	private boolean is_debug = true;
-	private String[] wot_url = new String[] {"http://wotkit.sensetecnic.com/api/sensors/2013enph479.tweets-in-vancouver/data?start=",
+	private String[] wot_url_tweet = new String[] {"http://wotkit.sensetecnic.com/api/sensors/2013enph479.tweets-in-vancouver/data?start=",
 			"&end="};
+	private String[] wot_url_weather = new String[] {"http://wotkit.sensetecnic.com/api/sensors/2013enph479.weather-in-vancouver/data?start=",
+	"&end="};
 	
 	
 	public String toEpochTime(String _date) {
@@ -46,80 +56,132 @@ public class DataManipulationProcessor {
 	    return String.valueOf(epoch);
 	}
 	
-	public String getJsonFromWoT(String _startTime, String _endTime) throws Exception {
+	public void getJsonFromWoT(sel_type _type, String _startTime, String _endTime) throws Exception {
 		
-		String url_1 = wot_url[0];
-		String url_2 = wot_url[1];
-		URL wot_url = new URL(url_1 + _startTime + url_2 + _endTime);
-        URLConnection con = wot_url.openConnection();
-        BufferedReader breader = new BufferedReader(
-                                new InputStreamReader(
-                                		con.getInputStream()));
-        /*String inputLine;
-        while ((inputLine = bReader.readLine()) != null) {
-            System.out.println(inputLine);
-        }*/
-        String json_string = breader.readLine();
-        //if(is_debug)
-        //	System.out.println(json_string);
-        breader.close();
-        
-        return json_string;
+		String url_1 = null, url_2 = null;
+		
+		if(_type == sel_type.twitter) {
+			url_1 = wot_url_tweet[0];
+			url_2 = wot_url_tweet[1];
+			
+			URL wot_url = new URL(url_1 + _startTime + url_2 + _endTime);
+	        URLConnection con = wot_url.openConnection();
+	        BufferedReader breader = new BufferedReader(
+	                                new InputStreamReader(
+	                                		con.getInputStream()));
+	        /*String inputLine;
+	        while ((inputLine = bReader.readLine()) != null) {
+	            System.out.println(inputLine);
+	        }*/
+	        json_string_twitter = breader.readLine();
+	        //if(is_debug)
+	        //	System.out.println(json_string);
+	        breader.close();
+		}
+		else if(_type == sel_type.weather) {
+			url_1 = wot_url_weather[0];
+			url_2 = wot_url_weather[1];
+			
+			URL wot_url = new URL(url_1 + _startTime + url_2 + _endTime);
+	        URLConnection con = wot_url.openConnection();
+	        BufferedReader breader = new BufferedReader(
+	                                new InputStreamReader(
+	                                		con.getInputStream()));
+	        json_string_weather = breader.readLine();
+	        breader.close();
+		}
 	}
 	
-	public ArrayList<TwitterObject> toListFromJsonParser(String _jsonstring) {
+	public void toListFromJsonParser(sel_type _type) {
 		
-		JsonParser parser = new JsonParser();
-        JsonArray jarray = parser.parse(_jsonstring).getAsJsonArray();
-        Gson gson = new Gson();
-        
-        ArrayList<TwitterObject> ltwitter = new ArrayList<TwitterObject>();
-
-        for(JsonElement obj : jarray )
-        {
-        	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
-        	ltwitter.add(tweet);
-        	if(is_debug)
-            	System.out.println(tweet.printInfo());
+        if(_type == sel_type.twitter) {
+        	
+        	JsonParser parser = new JsonParser();
+            JsonArray jarray = parser.parse(json_string_twitter).getAsJsonArray();
+            Gson gson = new Gson();
+            
+	        for(JsonElement obj : jarray )
+	        {
+	        	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
+	        	ltweets_incoming.add(tweet);
+	        	if(is_debug)
+	            	System.out.println(tweet.printInfo());
+	        }
         }
-        
-        return ltwitter;
+        else if(_type == sel_type.weather) {
+        	
+        	JsonParser parser = new JsonParser();
+            JsonArray jarray = parser.parse(json_string_weather).getAsJsonArray();
+            Gson gson = new Gson();
+            
+	        for(JsonElement obj : jarray )
+	        {
+	        	WeatherObject weather = gson.fromJson(obj , WeatherObject.class);
+	        	lweathers_incoming.add(weather);
+	        	if(is_debug)
+	            	System.out.println(weather.printInfo());
+	        }
+        }
+
 	}
 	
-	public ArrayList<TwitterObject> removeDuplicates(ArrayList<TwitterObject> _ltweets_incoming, HashMap<Integer, TwitterObject> _ltweets_all) {
+	public void removeDuplicates(sel_type _type) {
 		
-		//check to see if all tweets contain the current incoming list, if it does, remove it
-		for(int i = 0; i < _ltweets_incoming.size(); i++) {
-			if(_ltweets_all.containsKey(_ltweets_incoming.get(i).getId())) {
-				_ltweets_incoming.remove(i);
-				i--;
+		if(_type == sel_type.twitter) {
+			//check to see if all tweets contain the current incoming list, if it does, remove it
+			for(int i = 0; i < ltweets_incoming.size(); i++) {
+				if(ltweets_all.containsKey(ltweets_incoming.get(i).getId())) {
+					ltweets_incoming.remove(i);
+					i--;
+				}
+			}
+		}
+		else if(_type == sel_type.weather) {
+			//check to see if all weathers contain the current incoming list, if it does, remove it
+			for(int i = 0; i < lweathers_incoming.size(); i++) {
+				if(lweathers_all.containsKey(lweathers_incoming.get(i).getTimestamp())) {
+					lweathers_incoming.remove(i);
+					i--;
+				}
 			}
 		}
 		
-		return _ltweets_incoming;
 	}
 	
-	public ArrayList<TweetInstance> toWekaInstanceFromTwitterObj(ArrayList<TwitterObject> _ltweets_processed) {
+	public ArrayList<TweetInstance> toWekaInstanceFromTwitterObj() {
         
         ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
 		
-        for(int i = 0; i < _ltweets_processed.size(); i++) {
-			TweetInstance ti = new TweetInstance(1, new double[]{_ltweets_processed.get(i).getLatitude(),
-					_ltweets_processed.get(i).getLongitude()}, _ltweets_processed.get(i).getId());
+        for(int i = 0; i < ltweets_incoming.size(); i++) {
+			TweetInstance ti = new TweetInstance(1, new double[]{ltweets_incoming.get(i).getLatitude(),
+					ltweets_incoming.get(i).getLongitude()}, ltweets_incoming.get(i).getId());
 			linstance.add(ti);
 		}
 		
 		return linstance;
 	}
 	
-	public HashMap<Integer, TwitterObject> updateAllTweetsList(ArrayList<TwitterObject> _ltweets_processed, HashMap<Integer, TwitterObject> _ltweets_all) {
+	public void updateAllList(sel_type _type) {
 		
-		//add tweets processed to the tweets all list
-		for(int i = 0; i < _ltweets_processed.size(); i++) {
-			_ltweets_all.put(_ltweets_processed.get(i).getId(), _ltweets_processed.get(i));
+		if(_type == sel_type.twitter) {
+			//add tweets processed to the tweets all list
+			for(int i = 0; i < ltweets_incoming.size(); i++) {
+				ltweets_all.put(ltweets_incoming.get(i).getId(), ltweets_incoming.get(i));
+			}
 		}
-		
-		return _ltweets_all;
+		else if(_type == sel_type.weather) {
+			//add weathers processed to the weathers all list
+			for(int i = 0; i < lweathers_incoming.size(); i++) {
+				lweathers_all.put(lweathers_incoming.get(i).getTimestamp(), lweathers_incoming.get(i));
+			}
+		}
+	}
+
+	public HashMap<Integer, TwitterObject> gettweets_all() {
+		return ltweets_all;
+	}
+	public HashMap<String, WeatherObject> getweathers_all() {
+		return lweathers_all;
 	}
 
 }

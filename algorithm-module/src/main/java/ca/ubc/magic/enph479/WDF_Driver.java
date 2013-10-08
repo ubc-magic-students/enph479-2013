@@ -22,7 +22,11 @@ public class WDF_Driver {
 		WoTDataFetcher wdf = new WoTDataFetcher();
 		
 		if(is_demo)
-			start_datetime = "2013 Sep 29 23:11:00";
+		{
+			//start_datetime = "2013 Sep 29 23:11:00";
+			start_datetime = "2013 Sep 29 23:02:08";
+			//start_datetime = "2013 Sep 29 23:42:29";
+		}
 		else {
 			Date date_now = new Date();
 			DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
@@ -42,7 +46,8 @@ public class WDF_Driver {
 			//Thread.sleep((long) (fetch_interval * 1000 * 0.9));
 		}
 		
-		//getting all tweets
+		//getting all lists
 		HashMap<Integer, TwitterObject> tweets = wdf.getAllTweetsData();
+		HashMap<String, WeatherObject> weathers = wdf.getAllWeathersData();
 	}
 }

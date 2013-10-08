@@ -66,7 +66,7 @@ public class TwitterObject {
 		this.value = value;
 	}
 	public String printInfo() {
-		return "id: " + this.id +
+		return "Twitter-id: " + this.id +
 				" timestamp: " + this.timestamp +
 				" latitude: " + this.latitude + 
 				" longitude: " + this.longitude;
