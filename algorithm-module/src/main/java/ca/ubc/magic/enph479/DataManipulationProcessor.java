@@ -94,7 +94,6 @@ public class DataManipulationProcessor {
         inst.setDataset(data);
         
         ArrayList<Instance> linstance = null;
-        TweetInstance 
 		
 		for(int i = 0; i < _ltwitter.size(); i++) {
 			//inst = new DenseInstance(3);
