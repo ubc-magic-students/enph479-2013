@@ -3,6 +3,12 @@ package com.ubc.magic.enph479.builder;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 
+/**
+ * An extension of Instance class for tweets.
+ * 
+ * @author chris.yoon90@gmail.com
+ *
+ */
 public class TweetInstance extends DenseInstance{
 	
 	private static final long serialVersionUID = 1L;

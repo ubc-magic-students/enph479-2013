@@ -21,9 +21,14 @@ import com.ubc.magic.enph479.builder.TweetCluster;
 import com.ubc.magic.enph479.builder.TweetInstance;
 import com.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
 
+/**
+ * Class for clustering tweet instances.
+ * 
+ * @author chris.yoon90@gmail.com
+ *
+ */
 public class TweetClusterer {
 	
-	//private HashMap<Integer, Instance> tweetMap = new HashMap<Integer, Instance>();
 	private AbstractClusterer clusterer = new ClusTree();
 	
 	public TweetClusterer() {
@@ -31,10 +36,11 @@ public class TweetClusterer {
 	}
 	
 	/**
+	 * Clusters tweet instances into k clusters.
 	 * 
 	 * @param newTweets Must be in a form of [latitude, longitude]
-	 * @param k
-	 * @return
+	 * @param k number of clusters
+	 * @return A list of TweetCluster objects
 	 * @throws Exception
 	 */
 	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, Instance> allTweets, int k) throws Exception {
