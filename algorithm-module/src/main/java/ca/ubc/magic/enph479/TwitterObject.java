@@ -1,15 +1,21 @@
 package ca.ubc.magic.enph479;
 
+/**
+ * TwitterObject is the object that contains all of the structured data of tweets fetched from WoTKit
+ * id, timestamp, latitude, longitude, sensor id, sensor name, message, value
+ * @author Richard
+ *
+ */
 public class TwitterObject {
 
-	private int id = 0;
+	private int id = -1;
 	private String timestamp = "undefined";
-	private double latitude = 0;
-	private double longitude = 0;
-	private int sensor_id = 0;
+	private double latitude = -1;
+	private double longitude = -1;
+	private int sensor_id = -1;
 	private String sensor_name = "undefined";
 	private String message = "undefined";
-	private int value = 0;
+	private int value = -1;
 	
 	public int getId() {
 		return id;
@@ -60,11 +66,9 @@ public class TwitterObject {
 		this.value = value;
 	}
 	public String printInfo() {
-		return "id: " + Integer.toString(this.id) +
+		return "id: " + this.id +
 				" timestamp: " + this.timestamp +
 				" latitude: " + this.latitude + 
 				" longitude: " + this.longitude;
-	}
-	
-	
+	}	
 }

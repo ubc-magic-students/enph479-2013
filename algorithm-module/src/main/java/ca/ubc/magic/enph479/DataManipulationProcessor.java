@@ -19,6 +19,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.ubc.magic.enph479.builder.TweetInstance;
 
+/**
+ * DataManipulationProcessor is the low level algorithm that actually process raw data processed from WoTkit
+ * User has no access to this class
+ * @author Richard
+ *
+ */
 public class DataManipulationProcessor {
 	
 	private boolean is_debug = true;
