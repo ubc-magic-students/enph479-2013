@@ -38,11 +38,12 @@ public class TweetClusterer {
 	 * Clusters tweet instances into k clusters.
 	 * 
 	 * @param newTweets a list of TweetInstances in a form of [latitude, longitude]
+	 * @param allTweets A hashmap of tweet objects mapped to their ids
 	 * @param k number of clusters
 	 * @return A list of TweetCluster objects
 	 * @throws Exception
 	 */
-	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, Instance> allTweets, int k) throws Exception {
+	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, TwitterObject> allTweets, int k) throws Exception {
 		for (TweetInstance inst : newTweets) {
 			clusterer.trainOnInstanceImpl(inst);
 		}
@@ -67,7 +68,7 @@ public class TweetClusterer {
 		
 	}
 	
-	private ArrayList<TweetCluster> nearestNeighbour(Clustering clustering, HashMap<Integer, Instance> tweetInstanceMap) throws Exception {
+	private ArrayList<TweetCluster> nearestNeighbour(Clustering clustering, HashMap<Integer, TwitterObject> tweetInstanceMap) throws Exception {
 			int numberOfClusters = clustering.getClustering().size();
 
 			ArrayList<TweetCluster> tweetClusterList = new ArrayList<TweetCluster>();
@@ -94,8 +95,11 @@ public class TweetClusterer {
 			NearestNeighbourSearch nearestNeighbourSearch = new BallTree();
 			nearestNeighbourSearch.setInstances(centerInstances);
 			
-			for (Map.Entry<Integer, Instance> entry : tweetInstanceMap.entrySet()) {
-				Instance nearestInstance = nearestNeighbourSearch.nearestNeighbour(entry.getValue());
+			for (Map.Entry<Integer, TwitterObject> entry : tweetInstanceMap.entrySet()) {
+				Instance tempTweetInst = new DenseInstance(2);
+				tempTweetInst.setValue(latitude, entry.getValue().getLatitude());
+				tempTweetInst.setValue(latitude, entry.getValue().getLongitude());
+				Instance nearestInstance = nearestNeighbourSearch.nearestNeighbour(tempTweetInst);
 				Double clusterId = (Double) mapClusterCentersToClusterId.get(arrayToList(nearestInstance.toDoubleArray()));
 				tweetClusterList.get(clusterId.intValue()).addTweetMembers(entry.getKey());
 			}
