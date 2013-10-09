@@ -1,13 +1,18 @@
-package com.ubc.magic.enph479.builder;
+package ca.ubc.magic.enph479.builder;
 
 import weka.core.DenseInstance;
 import weka.core.Instance;
 
+/**
+ * An extension of Instance class for tweets.
+ * 
+ * @author chris.yoon90@gmail.com
+ *
+ */
 public class TweetInstance extends DenseInstance{
 	
 	private static final long serialVersionUID = 1L;
 	private int id;
-	private double clusterId;
 	
 	public TweetInstance(double weight, double[] attValues, int id) {
 		super(weight, attValues);
@@ -26,14 +31,6 @@ public class TweetInstance extends DenseInstance{
 
 	public int getId() {
 		return id;
-	}
-	
-	public void setClusterId(double id) {
-		this.clusterId = id;
-	}
-	
-	public double getClusterId() {
-		return clusterId;
 	}
 
 }

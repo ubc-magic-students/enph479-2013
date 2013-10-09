@@ -10,104 +10,102 @@ import moa.cluster.Cluster;
 import moa.cluster.Clustering;
 import moa.clusterers.AbstractClusterer;
 import moa.clusterers.clustree.ClusTree;
-import moa.gui.visualization.DataPoint;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.neighboursearch.BallTree;
 import weka.core.neighboursearch.NearestNeighbourSearch;
+import ca.ubc.magic.enph479.builder.TweetCluster;
+import ca.ubc.magic.enph479.builder.TweetInstance;
+import ca.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
 
-import com.ubc.magic.enph479.builder.TweetCluster;
-import com.ubc.magic.enph479.builder.TweetInstance;
-import com.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
-
+/**
+ * Class for clustering tweet instances.
+ * 
+ * @author chris.yoon90@gmail.com
+ *
+ */
 public class TweetClusterer {
 	
-	private HashMap<Integer, TweetInstance> tweetMap = new HashMap<Integer, TweetInstance>();
 	private AbstractClusterer clusterer = new ClusTree();
 	
 	public TweetClusterer() {
 		clusterer.prepareForUse();
 	}
 	
-	public HashMap<Integer, TweetInstance> getTweetMap() {
-		return tweetMap;
-		
-	}
-	
 	/**
+	 * Clusters tweet instances into k clusters.
 	 * 
-	 * @param instList Must be in a form of [latitude, longitude]
-	 * @param k
-	 * @return
+	 * @param newTweets a list of TweetInstances in a form of [latitude, longitude]
+	 * @param allTweets A hashmap of tweet objects mapped to their ids
+	 * @param k number of clusters
+	 * @return A list of TweetCluster objects
 	 * @throws Exception
 	 */
-	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> instList, int k) throws Exception {
-		for (TweetInstance inst : instList) {
-			tweetMap.put(inst.getId(), inst);
-		
+	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, TwitterObject> allTweets, int k) throws Exception {
+		for (TweetInstance inst : newTweets) {
 			clusterer.trainOnInstanceImpl(inst);
 		}
 		Clustering microC = clusterer.getMicroClusteringResult();
-		Clustering randomClustering = new Clustering();
 		
 		if (k > microC.size())
 			k = microC.size();
 		
+		Clustering randomClustering = new Clustering();
 		UniqueRandomNumberGenerator random = new UniqueRandomNumberGenerator(microC.size());
 		for(int i = 0; i < k ; i++) {
 			randomClustering.add(microC.get(random.nextInt()));
 		}
 		
-		Clustering clustering0 = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
+		Clustering clustering = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
 		
-		for (int i = 0; i < clustering0.getClustering().size(); i++) {
-			clustering0.getClustering().get(i).setId(i);
+		for (int i = 0; i < clustering.getClustering().size(); i++) {
+			clustering.getClustering().get(i).setId(i);
 		}
 		
-		ArrayList<TweetCluster> clusters = mapDataPointsToClusters(clustering0, tweetMap);
-		
-		return clusters;
+		return nearestNeighbour(clustering, allTweets);
 		
 	}
 	
-	private static ArrayList<TweetCluster> mapDataPointsToClusters(Clustering clusterSets, HashMap<Integer, TweetInstance> tweetInstanceMap) throws Exception {
-		try {
-			int numberOfClusters = clusterSets.getClustering().size();
+	private ArrayList<TweetCluster> nearestNeighbour(Clustering clustering, HashMap<Integer, TwitterObject> tweetInstanceMap) throws Exception {
+			int numberOfClusters = clustering.getClustering().size();
 
 			ArrayList<TweetCluster> tweetClusterList = new ArrayList<TweetCluster>();
-			HashMap<List<Double>, Double> clusterMap = new HashMap<List<Double>, Double>();
-			for (Cluster c: clusterSets.getClustering()) {
+			HashMap<List<Double>, Double> mapClusterCentersToClusterId = new HashMap<List<Double>, Double>();
+			for (Cluster c: clustering.getClustering()) {
 				tweetClusterList.add(new TweetCluster(c));
-				clusterMap.put(Collections.unmodifiableList(arrayToList(c.getCenter())), c.getId());
+				mapClusterCentersToClusterId.put(Collections.unmodifiableList(arrayToList(c.getCenter())), c.getId());
 			}
-			
+
 			ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
-			atts.add(new Attribute("latitude"));
-			atts.add(new Attribute("logitude"));
+			Attribute latitude = new Attribute("latitude");
+			Attribute longitude = new Attribute("longitude");
+			atts.add(latitude);
+			atts.add(longitude);
 			Instances centerInstances = new Instances("ClusterCenterInstances", atts , 0);
 			
 			for (int i = 0; i < numberOfClusters; i++) {
-				centerInstances.add(new DenseInstance(1, clusterSets.getClustering().get(i).getCenter()));
+				Instance tempInst = new DenseInstance(2);
+				tempInst.setValue(latitude, clustering.getClustering().get(i).getCenter()[0]);
+				tempInst.setValue(longitude, clustering.getClustering().get(i).getCenter()[1]);
+				centerInstances.add(tempInst);
 			}
 			
-			NearestNeighbourSearch nearestNeighbour = new BallTree();
-			nearestNeighbour.setInstances(centerInstances);
+			NearestNeighbourSearch nearestNeighbourSearch = new BallTree();
+			nearestNeighbourSearch.setInstances(centerInstances);
 			
-			for (Map.Entry<Integer, TweetInstance> entry : tweetInstanceMap.entrySet()) {
-				Instance nearestInstance = nearestNeighbour.nearestNeighbour(entry.getValue());
-				Double clusterId = (Double) clusterMap.get(arrayToList(nearestInstance.toDoubleArray()));
-				entry.getValue().setClusterId(clusterId);
+			for (Map.Entry<Integer, TwitterObject> entry : tweetInstanceMap.entrySet()) {
+				Instance tempTweetInst = new DenseInstance(2);
+				tempTweetInst.setValue(latitude, entry.getValue().getLatitude());
+				tempTweetInst.setValue(latitude, entry.getValue().getLongitude());
+				Instance nearestInstance = nearestNeighbourSearch.nearestNeighbour(tempTweetInst);
+				Double clusterId = (Double) mapClusterCentersToClusterId.get(arrayToList(nearestInstance.toDoubleArray()));
 				tweetClusterList.get(clusterId.intValue()).addTweetMembers(entry.getKey());
 			}
 			
 			return tweetClusterList;
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
 	}
 	
 	private static List<Double> arrayToList(double[] array) {

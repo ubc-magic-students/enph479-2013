@@ -1,10 +1,16 @@
-package com.ubc.magic.enph479.builder;
+package ca.ubc.magic.enph479.builder;
 
 import java.util.ArrayList;
 
 import moa.cluster.Cluster;
 import moa.cluster.SphereCluster;
 
+/**
+ * Class that stores cluster objects for tweets.
+ * 
+ * @author chris.yoon90@gmail.com
+ *
+ */
 public class TweetCluster {
 
 	private static final long serialVersionUID = 1L;

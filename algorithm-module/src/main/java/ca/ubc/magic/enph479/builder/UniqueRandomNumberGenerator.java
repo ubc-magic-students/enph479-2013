@@ -1,9 +1,15 @@
-package com.ubc.magic.enph479.builder;
+package ca.ubc.magic.enph479.builder;
 
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * A class for generating unique random numbers.
+ * 
+ * @author chris.yoon90@gmail.com
+ *
+ */
 public class UniqueRandomNumberGenerator {
 	private final Random random = new Random();
 	private final int range;
