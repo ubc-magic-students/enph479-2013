@@ -54,6 +54,7 @@
   	<maven.compiler.target>1.7</maven.compiler.target>
     <moa-version>2012.08</moa-version>
     <google-gson-version>2.2.4</google-gson-version>
+    <json-lib-version>2.4</json-lib-version>
   </properties>
   
   <dependencies>
@@ -66,6 +67,12 @@
   		<groupId>com.google.code.gson</groupId>
   		<artifactId>gson</artifactId>
   		<version>${google-gson-version}</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>net.sf.json-lib</groupId>
+  		<artifactId>json-lib</artifactId>
+  		<version>${json-lib-version}</version>
+  		<classifier>jdk15</classifier>
   	</dependency>
   </dependencies>
   
