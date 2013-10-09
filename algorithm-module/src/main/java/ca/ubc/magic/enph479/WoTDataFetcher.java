@@ -80,11 +80,11 @@ public class WoTDataFetcher {
 		return linstance;
 	}
 	
-	public String getWeatherFromLatLng(double _lat, double _lng) throws Exception {
+	public WeatherObject getWeatherFromLatLng(double _lat, double _lng) throws Exception {
 		//retrive weather json from web
 		dmp.getJsonFromWeb(web_type.weather, _lat, _lng);
-		String weather_condition = dmp.toWeatherFromJsonParser(web_type.weather);
-		System.out.println("Weather data @ cluster centre: " + weather_condition);
+		WeatherObject weather_condition = dmp.toWeatherFromJsonParser(web_type.weather);
+		System.out.println("Weather data @ cluster centre: " + weather_condition.printInfo());
 		return weather_condition;
 	}
 	

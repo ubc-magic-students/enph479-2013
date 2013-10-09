@@ -53,7 +53,7 @@ public class WDF_Driver {
 		
 		//get weather from lat and lng
 		double[] centers = tweetClusters.get(0).getCluster().getCenter();
-		String weather = wdf.getWeatherFromLatLng(centers[0], centers[1]);
+		WeatherObject weather = wdf.getWeatherFromLatLng(centers[0], centers[1]);
 		
 		System.out.println(weather);
 	}

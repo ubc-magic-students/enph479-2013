@@ -122,7 +122,7 @@ public class DataManipulationProcessor {
 
 	}
 	
-	public String toWeatherFromJsonParser(web_type _type) {
+	public WeatherObject toWeatherFromJsonParser(web_type _type) {
 		
         if(_type == web_type.weather) {
         	
@@ -137,10 +137,10 @@ public class DataManipulationProcessor {
         	weather_info.setTemperature(temperature - 273.0);
         	weather_info.setPressure(pressure);
         	
-        	return weather_info.printInfo();
+        	return weather_info;
         }
         
-        return "";
+        return weather_info;
 	}
 	
 	public void removeDuplicates(wot_type _type) {
