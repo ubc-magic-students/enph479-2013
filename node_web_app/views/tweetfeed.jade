@@ -1,0 +1,14 @@
+extends layout
+
+block title
+    hashtag_title = '#'+data.replace(/"/g, '');
+    title= hashtag_title
+    header= hashtag_title
+
+block append styles
+    link(rel='stylesheet', type='text/css', href='/styles/tweetfeed.css')
+
+block append scripts
+    script(type='text/javascript')
+        var hashtag_name = $.parseJSON(!{JSON.stringify(data)});
+    script(type='text/javascript', src='/js/tweetfeed.js')

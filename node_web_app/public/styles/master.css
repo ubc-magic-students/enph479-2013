@@ -1,0 +1,29 @@
+body {
+    background-color: black;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+
+footer {
+    font-family: "Helvetica", "Arial", sans-serif;
+    font-size: 10px;
+    line-height: normal;
+    color: white;
+    text-align: left;
+    position: absolute;
+    top: 95%;
+}
+
+footer h1 {
+    float: left;
+    margin-top: 0px;
+    margin-left: 10px;
+}
+
+footer p {
+    float: left;
+    margin-top: 9px;
+    margin-left: 5px;
+}

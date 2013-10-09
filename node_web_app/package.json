@@ -1,0 +1,22 @@
+{
+  "name": "enph479-webapp",
+  "author": "Colin Leung <colinmleung@gmail.com>",
+  "description": "Web application for ENPH479 project",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "~3.0.0",
+    "jade": ">=0.0.1",
+    "mongoose": ">=3.5.x",
+    "connect": ">=1.9.1",
+    "socket.io": "0.9.6",
+    "twit": "*"
+  },
+  "version": "0.0.1-88",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": "0.8.x"
+  }
+}

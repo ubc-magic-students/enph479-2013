@@ -1,0 +1,16 @@
+div.jqcloud span.change0 { color: #0000ff; }
+div.jqcloud span.change1 { color: #1F00DF; }
+div.jqcloud span.change2 { color: #3F00BF; }
+div.jqcloud span.change3 { color: #5F009F; }
+div.jqcloud span.change4 { color: #7F007F; }
+div.jqcloud span.change5 { color: #9F005F; }
+div.jqcloud span.change6 { color: #BF003F; }
+div.jqcloud span.change7 { color: #DF001F; }
+div.jqcloud span.change8 { color: #ff0000; }
+
+div.jqcloud a:hover { color: #ffffff; }
+
+.hidden {
+    display: none;
+    visibility: hidden;
+}
