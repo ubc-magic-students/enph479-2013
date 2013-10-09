@@ -23,9 +23,7 @@ public class WDF_Driver {
 		
 		if(is_demo)
 		{
-			//start_datetime = "2013 Sep 29 23:11:00";
-			start_datetime = "2013 Sep 29 23:02:08";
-			//start_datetime = "2013 Sep 29 23:42:29";
+			start_datetime = "2013 Oct 8 22:27:41";
 		}
 		else {
 			Date date_now = new Date();
@@ -48,6 +46,5 @@ public class WDF_Driver {
 		
 		//getting all lists
 		HashMap<Integer, TwitterObject> tweets = wdf.getAllTweetsData();
-		HashMap<String, WeatherObject> weathers = wdf.getAllWeathersData();
 	}
 }

@@ -10,8 +10,8 @@ public class TwitterObject {
 
 	private int id = -1;
 	private String timestamp = "undefined";
-	private double latitude = -1;
-	private double longitude = -1;
+	private double lat = -1;
+	private double lng = -1;
 	private int sensor_id = -1;
 	private String sensor_name = "undefined";
 	private String message = "undefined";
@@ -30,16 +30,16 @@ public class TwitterObject {
 		this.timestamp = timestamp;
 	}
 	public double getLatitude() {
-		return latitude;
+		return lat;
 	}
 	public void setLatitude(double latitude) {
-		this.latitude = latitude;
+		this.lat = latitude;
 	}
 	public double getLongitude() {
-		return longitude;
+		return lng;
 	}
 	public void setLongitude(double longitude) {
-		this.longitude = longitude;
+		this.lng = longitude;
 	}
 	public int getSensor_id() {
 		return sensor_id;
@@ -68,7 +68,7 @@ public class TwitterObject {
 	public String printInfo() {
 		return "Twitter-id: " + this.id +
 				" timestamp: " + this.timestamp +
-				" latitude: " + this.latitude + 
-				" longitude: " + this.longitude;
+				" latitude: " + this.lat + 
+				" longitude: " + this.lng;
 	}	
 }
