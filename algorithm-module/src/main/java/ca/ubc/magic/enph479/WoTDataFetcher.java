@@ -85,7 +85,8 @@ public class WoTDataFetcher {
 	public String getWeatherFromLatLng(double _lat, double _lng) throws Exception {
 		//retrive weather json from web
 		dmp.getJsonFromWeb(web_type.weather, _lat, _lng);
-		return "";
+		String weather_condition = dmp.toWeatherFromJsonParser(web_type.weather);
+		return weather_condition;
 	}
 	
 	

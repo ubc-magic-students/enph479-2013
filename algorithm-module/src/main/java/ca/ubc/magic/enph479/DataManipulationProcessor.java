@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.io.*;
 
+import net.sf.json.JSONSerializer;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -18,6 +19,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 /**
  * DataManipulationProcessor is the low level algorithm that actually process raw data processed from WoTkit
@@ -116,6 +119,18 @@ public class DataManipulationProcessor {
 	        }
         }
 
+	}
+	
+	public String toWeatherFromJsonParser(web_type _type) {
+		
+        if(_type == web_type.weather) {
+        	
+        	JSONObject json = (JSONObject) JSONSerializer.toJSON(json_string_weather);
+        	String weather = ((JSONObject)json.getJSONArray("weather").get(0)).getString("main");
+        	return weather;
+        }
+        
+        return "";
 	}
 	
 	public void removeDuplicates(wot_type _type) {

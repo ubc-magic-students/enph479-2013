@@ -14,7 +14,7 @@ public class WDF_Driver {
 	public static void main(String[] args) throws Exception {
 		
 		//declare variables
-		int fetch_interval = 5; //in seconds
+		int fetch_interval = 60; //in seconds
 		String start_datetime = "undefined";
 		boolean is_demo = true; //fetch from a custom defined starting time if true, current starting time is false
 		
@@ -41,10 +41,14 @@ public class WDF_Driver {
 		ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
 		for(int i = 0; i < 10; i++) {
 			linstance = wdf.fetchData();
-			//Thread.sleep((long) (fetch_interval * 1000 * 0.9));
+			Thread.sleep((long) (fetch_interval * 1000 * 0.9));
 		}
 		
 		//getting all lists
 		HashMap<Integer, TwitterObject> tweets = wdf.getAllTweetsData();
+		
+		//get weather from lat and lng
+		String weather = wdf.getWeatherFromLatLng(35, 139);
+		System.out.println("Weather: " + weather);
 	}
 }
