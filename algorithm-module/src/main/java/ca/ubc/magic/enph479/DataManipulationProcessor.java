@@ -36,6 +36,7 @@ public class DataManipulationProcessor {
 	private String json_string_weather = null;
 	private ArrayList<TwitterObject> ltweets_incoming = new ArrayList<TwitterObject>();
 	private HashMap<Integer, TwitterObject> ltweets_all = new HashMap<Integer, TwitterObject>(); //stores all of the tweets
+	private WeatherObject weather_info = new WeatherObject();
 	
 	private boolean is_debug = true;
 	private String[] wot_url_tweet = new String[] {"http://wotkit.sensetecnic.com/api/sensors/2013enph479.tweets-in-vancouver/data?start=",
@@ -127,7 +128,16 @@ public class DataManipulationProcessor {
         	
         	JSONObject json = (JSONObject) JSONSerializer.toJSON(json_string_weather);
         	String weather = ((JSONObject)json.getJSONArray("weather").get(0)).getString("main");
-        	return weather;
+        	String description = ((JSONObject)json.getJSONArray("weather").get(0)).getString("description");
+        	double temperature = json.getJSONObject("main").getDouble("temp");
+        	double pressure = json.getJSONObject("main").getDouble("pressure");
+        	
+        	weather_info.setWeather(weather);
+        	weather_info.setDescription(description);
+        	weather_info.setTemperature(temperature - 273.0);
+        	weather_info.setPressure(pressure);
+        	
+        	return weather_info.printInfo();
         }
         
         return "";
