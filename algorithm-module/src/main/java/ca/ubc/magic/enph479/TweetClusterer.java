@@ -44,6 +44,9 @@ public class TweetClusterer {
 	 * @throws Exception
 	 */
 	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, TwitterObject> allTweets, int k) throws Exception {
+		if (newTweets.size() == 0)
+			return null;
+		
 		for (TweetInstance inst : newTweets) {
 			clusterer.trainOnInstanceImpl(inst);
 		}
@@ -69,6 +72,9 @@ public class TweetClusterer {
 	}
 	
 	private ArrayList<TweetCluster> nearestNeighbour(Clustering clustering, HashMap<Integer, TwitterObject> tweetInstanceMap) throws Exception {
+			if (tweetInstanceMap.isEmpty())
+				return null;
+			
 			int numberOfClusters = clustering.getClustering().size();
 
 			ArrayList<TweetCluster> tweetClusterList = new ArrayList<TweetCluster>();
@@ -98,7 +104,7 @@ public class TweetClusterer {
 			for (Map.Entry<Integer, TwitterObject> entry : tweetInstanceMap.entrySet()) {
 				Instance tempTweetInst = new DenseInstance(2);
 				tempTweetInst.setValue(latitude, entry.getValue().getLatitude());
-				tempTweetInst.setValue(latitude, entry.getValue().getLongitude());
+				tempTweetInst.setValue(longitude, entry.getValue().getLongitude());
 				Instance nearestInstance = nearestNeighbourSearch.nearestNeighbour(tempTweetInst);
 				Double clusterId = (Double) mapClusterCentersToClusterId.get(arrayToList(nearestInstance.toDoubleArray()));
 				tweetClusterList.get(clusterId.intValue()).addTweetMembers(entry.getKey());

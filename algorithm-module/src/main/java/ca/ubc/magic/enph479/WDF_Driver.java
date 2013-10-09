@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import ca.ubc.magic.enph479.builder.TweetCluster;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 
 public class WDF_Driver {
@@ -37,17 +38,23 @@ public class WDF_Driver {
 			return;
 		}
 		
+		TweetClusterer clusterer = new TweetClusterer();
+		ArrayList<TweetCluster> tweetClusters = new ArrayList<TweetCluster>();
 		//start fetching using while/for loop
 		ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
 		for(int i = 0; i < 10; i++) {
 			linstance = wdf.fetchData();
+			tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData(), 5);
 			//Thread.sleep((long) (fetch_interval * 1000 * 0.9));
 		}
 		
 		//getting all lists
-		HashMap<Integer, TwitterObject> tweets = wdf.getAllTweetsData();
+		//HashMap<Integer, TwitterObject> tweets = wdf.getAllTweetsData();
 		
 		//get weather from lat and lng
-		String weather = wdf.getWeatherFromLatLng(35, 139);
+		double[] centers = tweetClusters.get(0).getCluster().getCenter();
+		String weather = wdf.getWeatherFromLatLng(centers[0], centers[1]);
+		
+		System.out.println(weather);
 	}
 }
