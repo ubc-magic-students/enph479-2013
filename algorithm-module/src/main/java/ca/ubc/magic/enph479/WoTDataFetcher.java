@@ -9,9 +9,7 @@ import java.util.Locale;
 
 import ca.ubc.magic.enph479.DataManipulationProcessor.web_type;
 import ca.ubc.magic.enph479.DataManipulationProcessor.wot_type;
-
 import ca.ubc.magic.enph479.builder.TweetInstance;
-
 import weka.core.Instance;
 
 /**
@@ -86,6 +84,7 @@ public class WoTDataFetcher {
 		//retrive weather json from web
 		dmp.getJsonFromWeb(web_type.weather, _lat, _lng);
 		String weather_condition = dmp.toWeatherFromJsonParser(web_type.weather);
+		System.out.println("Weather data @ cluster centre: " + weather_condition);
 		return weather_condition;
 	}
 	

@@ -41,7 +41,7 @@ public class WDF_Driver {
 		ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
 		for(int i = 0; i < 10; i++) {
 			linstance = wdf.fetchData();
-			Thread.sleep((long) (fetch_interval * 1000 * 0.9));
+			//Thread.sleep((long) (fetch_interval * 1000 * 0.9));
 		}
 		
 		//getting all lists
@@ -49,6 +49,5 @@ public class WDF_Driver {
 		
 		//get weather from lat and lng
 		String weather = wdf.getWeatherFromLatLng(35, 139);
-		System.out.println("Weather: " + weather);
 	}
 }
