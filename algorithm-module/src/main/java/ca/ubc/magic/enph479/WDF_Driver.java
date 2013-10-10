@@ -1,5 +1,6 @@
 package ca.ubc.magic.enph479;
 
+import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,7 +8,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import com.google.gson.Gson;
+
 import ca.ubc.magic.enph479.builder.TweetCluster;
+import ca.ubc.magic.enph479.builder.TweetClusterJSONObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 
 public class WDF_Driver {
@@ -38,10 +42,12 @@ public class WDF_Driver {
 			return;
 		}
 		
+		Socket nodejs = new Socket("localhost", 3000);
+		Thread.sleep(2000);
 		TweetClusterer clusterer = new TweetClusterer();
 		ArrayList<TweetCluster> tweetClusters = new ArrayList<TweetCluster>();
-		//start fetching using while/for loop
 		ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
+		//start fetching using while/for loop
 		for(int i = 0; i < 10; i++) {
 			linstance = wdf.fetchData();
 			tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData(), 5);
@@ -54,8 +60,16 @@ public class WDF_Driver {
 		//get weather from lat and lng
 		double[] centers = tweetClusters.get(0).getCluster().getCenter();
 		WeatherObject weather = wdf.getWeatherFromLatLng(centers[0], centers[1]);
-		
-		System.out.println(weather);
+		Gson gson = new Gson();
+		StringBuffer buffer = new StringBuffer("{");
+		for (TweetCluster c : tweetClusters) {
+			buffer.append(gson.toJson(new TweetClusterJSONObject(c, weather)));
+		}
+		buffer.append("}");
+		nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
+		nodejs.getOutputStream().flush();
+		System.out.println(gson.toJson(new TweetClusterJSONObject(tweetClusters.get(0), weather)));
+		//System.out.println(weather);
 	}
 	
 	
