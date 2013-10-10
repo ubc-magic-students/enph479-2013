@@ -1,5 +1,6 @@
 package ca.ubc.magic.enph479;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -42,37 +43,44 @@ public class WDF_Driver {
 			return;
 		}
 		
-		Socket nodejs = new Socket("localhost", 8080);
+		Socket nodejs = null;
 		Thread.sleep(2000);
 		TweetClusterer clusterer = new TweetClusterer();
 		ArrayList<TweetCluster> tweetClusters = new ArrayList<TweetCluster>();
 		ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
+		Gson gson = new Gson();
 		//start fetching using while/for loop
-		for(int i = 0; i < 10; i++) {
+		while(true) {
+			try {		
+			nodejs = new Socket("localhost", 8080);
 			linstance = wdf.fetchData();
 			tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData(), 5);
+			
+			StringBuffer buffer = new StringBuffer("{");
+			for (int i =0; i < tweetClusters.size(); i++) {
+				double [] center = tweetClusters.get(i).getCluster().getCenter();
+				WeatherObject weather = wdf.getWeatherFromLatLng(center[0], center[1]);
+				if (i != 0)
+					buffer.append(",");
+				buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather)));
+			}
+			buffer.append("}");
+			nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
+			nodejs.getOutputStream().flush();
+			System.out.println("Going through while loop.....");
 			//Thread.sleep((long) (fetch_interval * 1000 * 0.9));
+			} catch (IOException e){
+				System.err.println("No one is listening to Socket.");
+			}
+			catch (Throwable t) {
+				t.printStackTrace();
+				System.err.println("Error in the driver.");
+				nodejs.close();
+				nodejs = new Socket("localhost", 8080);
+				Thread.sleep(2000);
+			}
 		}
 		
-		//getting all lists
-		//HashMap<Integer, TwitterObject> tweets = wdf.getAllTweetsData();
-		
-		//get weather from lat and lng
-		double[] centers = tweetClusters.get(0).getCluster().getCenter();
-		WeatherObject weather = wdf.getWeatherFromLatLng(centers[0], centers[1]);
-		Gson gson = new Gson();
-		StringBuffer buffer = new StringBuffer("{");
-		for (TweetCluster c : tweetClusters) {
-			buffer.append(gson.toJson(new TweetClusterJSONObject(c, weather)));
-		}
-		buffer.append("}");
-		nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
-		nodejs.getOutputStream().flush();
-		System.out.println(gson.toJson(new TweetClusterJSONObject(tweetClusters.get(0), weather)));
-		//System.out.println(weather);
 	}
-	
-	
-	
 	
 }

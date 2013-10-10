@@ -29,6 +29,7 @@ import ca.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
 public class TweetClusterer {
 	
 	private AbstractClusterer clusterer = new ClusTree();
+	private ArrayList<TweetCluster> tweetClusterList = new ArrayList<TweetCluster>();
 	
 	public TweetClusterer() {
 		clusterer.prepareForUse();
@@ -45,7 +46,7 @@ public class TweetClusterer {
 	 */
 	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, TwitterObject> allTweets, int k) throws Exception {
 		if (newTweets.size() == 0)
-			return null;
+			return tweetClusterList;
 		
 		for (TweetInstance inst : newTweets) {
 			clusterer.trainOnInstanceImpl(inst);
@@ -67,13 +68,15 @@ public class TweetClusterer {
 			clustering.getClustering().get(i).setId(i);
 		}
 		
-		return nearestNeighbour(clustering, allTweets);
+		tweetClusterList = nearestNeighbour(clustering, allTweets);
+		
+		return tweetClusterList;
 		
 	}
 	
 	private ArrayList<TweetCluster> nearestNeighbour(Clustering clustering, HashMap<Integer, TwitterObject> tweetInstanceMap) throws Exception {
 			if (tweetInstanceMap.isEmpty())
-				return null;
+				return tweetClusterList;
 			
 			int numberOfClusters = clustering.getClustering().size();
 
