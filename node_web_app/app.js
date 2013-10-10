@@ -1,4 +1,6 @@
 /*************************** Setup *********************************/
+var javaPort = 8080;
+var javaServer = require('net').createServer();
 
 // Instantiate the application
 var express = require('express')
@@ -44,12 +46,45 @@ app.get('/', function (req, res) {
 });
 
 /********** Tweets Import and Hashtag Count Calculation ************/
+javaServer.on('listening', function () {
+   console.log('Server is listening on ' + javaPort);
+});
+
+ javaServer.on('error', function (e) {
+    console.log('Server error: ' + e.code);
+  });
+
+ javaServer.on('close', function () {
+   console.log('Server closed');
+ });
+
+  javaServer.on('connection', function (javaSocket) {
+    var clientAddress = javaSocket.address().address + ':' + javaSocket.address().port;
+    console.log('Java ' + clientAddress + ' connected');
+
+    var firstDataListenner = function (data) {
+        console.log('Received namespace from java End: ' + data);
+        io.sockets.in('hashtagcloud').emit('hashtag tweet', { data: String.fromCharCode.apply(String, data) });
+        //javaServer.send(data);
+        javaSocket.removeListener('data', firstDataListenner);
+    }
+
+javaSocket.on('data', firstDataListenner);
+
+ javaSocket.on('close', function() {
+        console.log('Java ' + clientAddress + ' disconnected');
+ });
+});
+ javaServer.listen(javaPort);
+
+
+
 
 var tweet_array = [];
 
 stream.on('tweet', function (tweet) {
     if (tweet && tweet.text) {
-        io.sockets.in('hashtagcloud').emit('hashtag tweet', { data: tweet.text });
+        //io.sockets.in('hashtagcloud').emit('hashtag tweet', { data: tweet.text });
     }
 });
 

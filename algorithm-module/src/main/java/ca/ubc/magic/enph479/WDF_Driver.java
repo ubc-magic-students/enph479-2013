@@ -42,7 +42,7 @@ public class WDF_Driver {
 			return;
 		}
 		
-		Socket nodejs = new Socket("localhost", 3000);
+		Socket nodejs = new Socket("localhost", 8080);
 		Thread.sleep(2000);
 		TweetClusterer clusterer = new TweetClusterer();
 		ArrayList<TweetCluster> tweetClusters = new ArrayList<TweetCluster>();
