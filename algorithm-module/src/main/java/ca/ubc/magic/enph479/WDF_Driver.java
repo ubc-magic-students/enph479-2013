@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import ca.ubc.magic.enph479.builder.TweetCluster;
 import ca.ubc.magic.enph479.builder.TweetClusterJSONObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
+import ca.ubc.magic.enph479.builder.WeatherObject;
 
 public class WDF_Driver {
 

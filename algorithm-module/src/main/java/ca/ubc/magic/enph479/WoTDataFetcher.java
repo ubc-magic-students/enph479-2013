@@ -10,6 +10,8 @@ import java.util.Locale;
 import ca.ubc.magic.enph479.DataManipulationProcessor.web_type;
 import ca.ubc.magic.enph479.DataManipulationProcessor.wot_type;
 import ca.ubc.magic.enph479.builder.TweetInstance;
+import ca.ubc.magic.enph479.builder.TwitterObject;
+import ca.ubc.magic.enph479.builder.WeatherObject;
 import weka.core.Instance;
 
 /**

@@ -2,7 +2,6 @@ package ca.ubc.magic.enph479.builder;
 
 import java.util.ArrayList;
 
-import ca.ubc.magic.enph479.WeatherObject;
 
 /**
  * JSON object representing TweetCluster

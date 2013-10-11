@@ -14,6 +14,8 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import ca.ubc.magic.enph479.builder.TweetInstance;
+import ca.ubc.magic.enph479.builder.TwitterObject;
+import ca.ubc.magic.enph479.builder.WeatherObject;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;

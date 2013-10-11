@@ -18,6 +18,7 @@ import weka.core.neighboursearch.BallTree;
 import weka.core.neighboursearch.NearestNeighbourSearch;
 import ca.ubc.magic.enph479.builder.TweetCluster;
 import ca.ubc.magic.enph479.builder.TweetInstance;
+import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
 
 /**
