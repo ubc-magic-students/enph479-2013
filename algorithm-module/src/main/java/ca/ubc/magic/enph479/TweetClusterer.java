@@ -61,7 +61,7 @@ public class TweetClusterer {
 		for(int i = 0; i < k ; i++) {
 			randomClustering.add(microC.get(random.nextInt()));
 		}
-		
+
 		Clustering clustering = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
 		
 		for (int i = 0; i < clustering.getClustering().size(); i++) {

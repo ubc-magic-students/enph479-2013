@@ -127,6 +127,7 @@ public class DataManipulationProcessor {
         if(_type == web_type.weather) {
         	
         	JSONObject json = (JSONObject) JSONSerializer.toJSON(json_string_weather);
+        	System.err.println("weather json:" + json);
         	String weather = ((JSONObject)json.getJSONArray("weather").get(0)).getString("main");
         	String description = ((JSONObject)json.getJSONArray("weather").get(0)).getString("description");
         	double temperature = json.getJSONObject("main").getDouble("temp");

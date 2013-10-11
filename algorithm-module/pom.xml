@@ -57,6 +57,7 @@
     <json-lib-version>2.4</json-lib-version>
     <junit-version>4.11</junit-version>
     <java-servlet-api>3.1.0</java-servlet-api>
+    <quartz-version>2.2.1</quartz-version>
   </properties>
   
   <dependencies>
@@ -85,6 +86,11 @@
   		<groupId>javax.servlet</groupId>
   		<artifactId>javax.servlet-api</artifactId>
   		<version>${java-servlet-api}</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.quartz-scheduler</groupId>
+  		<artifactId>quartz</artifactId>
+  		<version>${quartz-version}</version>
   	</dependency>
   </dependencies>
   
