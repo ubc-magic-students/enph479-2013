@@ -1,5 +1,6 @@
 package ca.ubc.magic.enph479;
 
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -37,11 +38,10 @@ public class WeatherJob implements Job{
 				StringBuffer buffer = new StringBuffer("{");
 				for (int i =0; i < tweetClusters.size(); i++) {
 					double [] center = tweetClusters.get(i).getCluster().getCenter();
-					System.out.println(center[0] + " " + center[1]);
 					WeatherObject weather = wdf.getWeatherFromLatLng(center[0], center[1]);
 					if (i != 0)
 						buffer.append(",");
-					buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather)));
+					buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather, wdf.getAllTweetsData())));
 				}
 				buffer.append("}");
 				nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
@@ -49,6 +49,8 @@ public class WeatherJob implements Job{
 				nodejs.close();
 			}	
 			
+		} catch (ConnectException c) {
+			System.err.println("No one is listening to the port");
 		} catch (Exception e) {
 			System.err.println("Error while executing weather job.");
 			e.printStackTrace();

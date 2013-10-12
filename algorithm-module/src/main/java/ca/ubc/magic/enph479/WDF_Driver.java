@@ -30,7 +30,7 @@ public class WDF_Driver {
 		
 		if(is_demo)
 		{
-			start_datetime = "2013 Oct 8 22:27:41";
+			start_datetime = "2013 Oct 8 22:48:30";
 		}
 		else {
 			Date date_now = new Date();
@@ -63,7 +63,7 @@ public class WDF_Driver {
 				WeatherObject weather = wdf.getWeatherFromLatLng(center[0], center[1]);
 				if (i != 0)
 					buffer.append(",");
-				buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather)));
+				buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather, wdf.getAllTweetsData())));
 			}
 			buffer.append("}");
 			nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));

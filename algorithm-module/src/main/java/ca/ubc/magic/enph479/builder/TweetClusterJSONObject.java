@@ -1,7 +1,6 @@
 package ca.ubc.magic.enph479.builder;
 
-import java.util.ArrayList;
-
+import java.util.HashMap;
 
 /**
  * JSON object representing TweetCluster
@@ -16,19 +15,24 @@ public class TweetClusterJSONObject {
 	private double clusterRadius = -1.0;
 	private int numTweets = -1;
 	private int[] tweetIDs = null;
+	private double overallSentiment = -1.0;
 	private WeatherObject weather = null;
 	
-	public TweetClusterJSONObject(TweetCluster tweetCluster, WeatherObject weather) {
+	public TweetClusterJSONObject(TweetCluster tweetCluster, WeatherObject weather, HashMap<Integer, TwitterObject> tweetMap) {
 		this.clusterId = tweetCluster.getCluster().getId();
 		this.centerLat = tweetCluster.getCluster().getCenter()[0];
 		this.centerLong = tweetCluster.getCluster().getCenter()[1];
 		this.clusterRadius = tweetCluster.getCluster().getRadius();
 		this.numTweets = tweetCluster.getTweetIds().size();
 		this.tweetIDs = new int[this.numTweets];
+		int sum =0;
 		for (int i = 0; i < numTweets; i++) {
 			this.tweetIDs[i] = tweetCluster.getTweetIds().get(i);
+			sum += tweetMap.get(this.tweetIDs[i]).getSentimentPolarity();
 		}
+		this.overallSentiment = (double)sum/this.numTweets;
 		this.weather = weather;
+		
 		
 	}
 	
@@ -86,8 +90,13 @@ public class TweetClusterJSONObject {
 	public void setWeather(WeatherObject weather) {
 		this.weather = weather;
 	}
-	
-	
-	
+
+	public double getOverallSentiment() {
+		return overallSentiment;
+	}
+
+	public void setOverallSentiment(double overallSentiment) {
+		this.overallSentiment = overallSentiment;
+	}
 	
 }

@@ -105,7 +105,7 @@ public class DataManipulationProcessor {
 		}
 	}
 	
-	public void toListFromJsonParser(wot_type _type) {
+	public void toListFromJsonParser(wot_type _type) throws Exception {
 		
         if(_type == wot_type.twitter) {
         	
@@ -116,9 +116,14 @@ public class DataManipulationProcessor {
 	        for(JsonElement obj : jarray )
 	        {
 	        	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
-	        	ltweets_incoming.add(tweet);
-	        	if(is_debug)
-	            	System.out.println(tweet.printInfo());
+	        	double lat = tweet.getLatitude();
+	        	double lon = tweet.getLongitude();
+	        	if ( (lon < -123.020 && lon > -123.27) && (lat < 49.315 && lat > 49.195)) {
+	        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
+	        		ltweets_incoming.add(tweet);
+	        		if(is_debug)
+		            	System.out.println(tweet.printInfo());
+	        	}
 	        }
         }
 
@@ -129,7 +134,6 @@ public class DataManipulationProcessor {
         if(_type == web_type.weather) {
         	
         	JSONObject json = (JSONObject) JSONSerializer.toJSON(json_string_weather);
-        	System.err.println("weather json:" + json);
         	String weather = ((JSONObject)json.getJSONArray("weather").get(0)).getString("main");
         	String description = ((JSONObject)json.getJSONArray("weather").get(0)).getString("description");
         	double temperature = json.getJSONObject("main").getDouble("temp");

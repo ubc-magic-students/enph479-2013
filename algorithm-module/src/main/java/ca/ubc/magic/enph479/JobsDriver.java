@@ -25,7 +25,7 @@ public class JobsDriver {
 			
 			if(is_demo)
 			{
-				start_datetime = "2013 Oct 8 22:33:30";
+				start_datetime = "2013 Oct 11 20:48:00";
 			}
 			else {
 				Date date_now = new Date();
@@ -46,7 +46,7 @@ public class JobsDriver {
 				.build();
 		
 			Trigger trigger = TriggerBuilder.newTrigger()
-				.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(2).repeatForever())
+				.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(3).repeatForever())
 				.build();
 		
 			Scheduler schedule = StdSchedulerFactory.getDefaultScheduler();

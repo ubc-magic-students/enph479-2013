@@ -16,6 +16,7 @@ public class TwitterObject {
 	private String sensor_name = "undefined";
 	private String message = "undefined";
 	private int value = -1;
+	private int sentimentPolarity = -1;
 	
 	public int getId() {
 		return id;
@@ -69,6 +70,14 @@ public class TwitterObject {
 		return "Twitter-id: " + this.id +
 				" timestamp: " + this.timestamp +
 				" latitude: " + this.lat + 
-				" longitude: " + this.lng;
+				" longitude: " + this.lng 
+				+ " polarity: " + this.sentimentPolarity;
+	}
+	
+	public int getSentimentPolarity() {
+		return sentimentPolarity;
+	}
+	public void setSentimentPolarity(int sentimentPolarity) {
+		this.sentimentPolarity = sentimentPolarity;
 	}	
 }

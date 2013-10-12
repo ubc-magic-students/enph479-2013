@@ -86,7 +86,7 @@ public class WoTDataFetcher {
 		//retrive weather json from web
 		dmp.getJsonFromWeb(web_type.weather, _lat, _lng);
 		WeatherObject weather_condition = dmp.toWeatherFromJsonParser(web_type.weather);
-		System.out.println("Weather data @ cluster centre: " + weather_condition.printInfo());
+		//System.out.println("Weather data @ cluster centre: " + weather_condition.printInfo());
 		return weather_condition;
 	}
 	
