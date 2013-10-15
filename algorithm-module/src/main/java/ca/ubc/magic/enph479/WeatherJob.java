@@ -33,7 +33,7 @@ public class WeatherJob implements Job{
 			if (!linstance.isEmpty()) {	
 				Socket nodejs  = new Socket("localhost", 8080);
 				System.out.println("new tweet instances found!");
-				tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData(), 5);
+				tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData(), 20);
 			
 				StringBuffer buffer = new StringBuffer("{");
 				for (int i =0; i < tweetClusters.size(); i++) {

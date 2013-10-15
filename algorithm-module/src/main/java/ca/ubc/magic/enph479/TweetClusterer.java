@@ -41,11 +41,12 @@ public class TweetClusterer {
 	 * 
 	 * @param newTweets a list of TweetInstances in a form of [latitude, longitude]
 	 * @param allTweets A hashmap of tweet objects mapped to their ids
-	 * @param k number of clusters
+	 * @param maxK number of clusters
 	 * @return A list of TweetCluster objects
 	 * @throws Exception
 	 */
-	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, TwitterObject> allTweets, int k) throws Exception {
+	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, TwitterObject> allTweets, int maxK) throws Exception {
+		//TODO: we may not need this if check anymore.
 		if (newTweets.size() == 0)
 			return tweetClusterList;
 		
@@ -54,24 +55,44 @@ public class TweetClusterer {
 		}
 		Clustering microC = clusterer.getMicroClusteringResult();
 		
-		if (k > microC.size())
-			k = microC.size();
+		double maxCalinskiHarabaszIndex = 0.0;
 		
-		Clustering randomClustering = new Clustering();
-		UniqueRandomNumberGenerator random = new UniqueRandomNumberGenerator(microC.size());
-		for(int i = 0; i < k ; i++) {
-			randomClustering.add(microC.get(random.nextInt()));
+		//Choose k random micro clusters as initial centers.
+		if (maxK > microC.size())
+			maxK = microC.size();
+		
+		HashMap<Double, ArrayList<TweetCluster>> indexMap = new HashMap<Double, ArrayList<TweetCluster>>();
+		for (int k = 1; k <= maxK; k++) {
+			
+			Clustering randomClustering = new Clustering();
+			UniqueRandomNumberGenerator random = new UniqueRandomNumberGenerator(k);
+			for(int i = 0; i < k ; i++) {
+				randomClustering.add(microC.get(random.nextInt()));
+			}
+		
+			Clustering clustering = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
+		
+			for (int i = 0; i < clustering.getClustering().size(); i++) {
+				clustering.getClustering().get(i).setId(i);
+			}
+		
+			tweetClusterList = nearestNeighbour(clustering, allTweets);
+			
+			double indexMultiplier;
+			if (k == 1 || k == allTweets.size())
+				indexMultiplier = 1;
+			else
+				indexMultiplier = (allTweets.size()-k)/(double)(k-1);
+				
+			double tempIndex = indexMultiplier * getSumInterClusterDistance(tweetClusterList, allTweets)/getSumIntraClusterDistance(tweetClusterList, allTweets);
+			
+			System.err.println(tempIndex);
+			indexMap.put(tempIndex, tweetClusterList);
+			if (tempIndex > maxCalinskiHarabaszIndex)
+				maxCalinskiHarabaszIndex = tempIndex;
 		}
-
-		Clustering clustering = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
-		
-		for (int i = 0; i < clustering.getClustering().size(); i++) {
-			clustering.getClustering().get(i).setId(i);
-		}
-		
-		tweetClusterList = nearestNeighbour(clustering, allTweets);
-		
-		return tweetClusterList;
+			
+		return indexMap.get(maxCalinskiHarabaszIndex);
 		
 	}
 	
@@ -125,6 +146,46 @@ public class TweetClusterer {
 		}
 		
 		return list;
+	}
+	
+	private static double distanceSqr(double[] pointA, double [] pointB){
+        double distance = 0.0;
+        for (int i = 0; i < pointA.length; i++) {
+            double d = pointA[i] - pointB[i];
+            distance += d * d;
+        }
+        return distance;
+    }
+	
+	private static double getSumInterClusterDistance(ArrayList<TweetCluster> tweetClusterList, HashMap<Integer, TwitterObject> tweetObjectMap) {
+		double sumLat = 0.0;
+		double sumLong = 0.0;
+		
+		for (Map.Entry<Integer, TwitterObject> entry : tweetObjectMap.entrySet()) {
+			sumLat += entry.getValue().getLatitude();
+			sumLong += entry.getValue().getLongitude();
+		}
+		
+		double[] mean = new double[] {sumLat/tweetObjectMap.size(), sumLong/tweetObjectMap.size()};
+		
+		double sum = 0.0;
+		for (TweetCluster c : tweetClusterList) {
+			sum += c.getTweetIds().size() * distanceSqr(c.getCluster().getCenter(), mean);
+		}
+		
+		return sum;
+	}
+	
+	private static double getSumIntraClusterDistance(ArrayList<TweetCluster> tweetClusterList, HashMap<Integer, TwitterObject> tweetObjectMap) {
+		double sum = 0.0;
+		for (TweetCluster c : tweetClusterList) {
+			for (int i : c.getTweetIds()) {
+				double[] tweetLatLong = new double[] {tweetObjectMap.get(i).getLatitude(), tweetObjectMap.get(i).getLongitude()};
+				sum += distanceSqr(c.getCluster().getCenter(), tweetLatLong);
+			}
+		}
+		
+		return sum;
 	}
 	
 }
