@@ -87,18 +87,21 @@ public class TweetClusterer {
 				tweetClusterList.add(new TweetCluster(c));
 				mapClusterCentersToClusterId.put(Collections.unmodifiableList(arrayToList(c.getCenter())), c.getId());
 			}
-
-			ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
-			Attribute latitude = new Attribute("latitude");
-			Attribute longitude = new Attribute("longitude");
-			atts.add(latitude);
-			atts.add(longitude);
+			
+			int numberOfAtts = clustering.getClustering().get(0).getCenter().length;
+			
+			ArrayList<Attribute> atts = new ArrayList<Attribute>(numberOfAtts);
+			for (int i=0; i< numberOfAtts; i++) {
+				atts.add(new Attribute("att"+i));
+			}
+			
 			Instances centerInstances = new Instances("ClusterCenterInstances", atts , 0);
 			
 			for (int i = 0; i < numberOfClusters; i++) {
-				Instance tempInst = new DenseInstance(2);
-				tempInst.setValue(latitude, clustering.getClustering().get(i).getCenter()[0]);
-				tempInst.setValue(longitude, clustering.getClustering().get(i).getCenter()[1]);
+				Instance tempInst = new DenseInstance(numberOfAtts);
+				for (int j=0; j< numberOfAtts; j++) {
+					tempInst.setValue(atts.get(j), clustering.getClustering().get(i).getCenter()[j]);
+				}
 				centerInstances.add(tempInst);
 			}
 			
@@ -106,9 +109,10 @@ public class TweetClusterer {
 			nearestNeighbourSearch.setInstances(centerInstances);
 			
 			for (Map.Entry<Integer, TwitterObject> entry : tweetInstanceMap.entrySet()) {
-				Instance tempTweetInst = new DenseInstance(2);
-				tempTweetInst.setValue(latitude, entry.getValue().getLatitude());
-				tempTweetInst.setValue(longitude, entry.getValue().getLongitude());
+				Instance tempTweetInst = new DenseInstance(numberOfAtts);
+				//TODO: figure out how to make this work with more than two attributes
+				tempTweetInst.setValue(atts.get(0), entry.getValue().getLatitude());
+				tempTweetInst.setValue(atts.get(1), entry.getValue().getLongitude());
 				Instance nearestInstance = nearestNeighbourSearch.nearestNeighbour(tempTweetInst);
 				Double clusterId = (Double) mapClusterCentersToClusterId.get(arrayToList(nearestInstance.toDoubleArray()));
 				tweetClusterList.get(clusterId.intValue()).addTweetMembers(entry.getKey());
@@ -117,7 +121,7 @@ public class TweetClusterer {
 			return tweetClusterList;
 
 	}
-	
+
 	private static List<Double> arrayToList(double[] array) {
 		List<Double> list = new ArrayList<Double>();
 		for (double d : array) {
