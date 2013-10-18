@@ -105,12 +105,12 @@
   	<dependency>
   		<groupId>nz.ac.waikato.cms.weka</groupId>
   		<artifactId>weka-dev</artifactId>
-  		<version>${weka-version}</version>
+  		<version>3.7.10</version>
   	</dependency>
   	<dependency>
   		<groupId>nz.ac.waikato.cms.moa</groupId>
   		<artifactId>moa</artifactId>
-  		<version>${moa-version}</version>
+  		<version>2013.08</version>
   	</dependency>
   </dependencies>
   
