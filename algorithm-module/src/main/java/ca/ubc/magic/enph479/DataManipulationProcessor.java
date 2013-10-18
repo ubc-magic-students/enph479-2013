@@ -187,8 +187,21 @@ public class DataManipulationProcessor {
 		}
 	}
 
+	public void addToTweets_all(ArrayList<TwitterObject> _ltweets) {
+		
+		for(int i = 0; i < _ltweets.size(); i++) {
+			if(!ltweets_all.containsKey(_ltweets.get(i))) {
+				ltweets_all.put(_ltweets.get(i).getId(), _ltweets.get(i));
+			}
+		}
+	}
+	
 	public HashMap<Integer, TwitterObject> gettweets_all() {
 		return ltweets_all;
+	}
+	
+	public ArrayList<TwitterObject> gettweets_incoming() {
+		return ltweets_incoming;
 	}
 
 }
