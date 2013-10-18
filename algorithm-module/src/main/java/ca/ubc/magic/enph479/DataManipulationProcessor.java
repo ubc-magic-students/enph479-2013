@@ -27,7 +27,7 @@ import net.sf.json.JSONSerializer;
 /**
  * DataManipulationProcessor is the low level algorithm that actually process raw data processed from WoTkit
  * User has no access to this class
- * @author Richard
+ * @author richardlee@hotmail.ca
  *
  */
 public class DataManipulationProcessor {

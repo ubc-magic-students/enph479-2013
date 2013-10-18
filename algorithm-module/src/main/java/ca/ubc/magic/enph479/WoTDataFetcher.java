@@ -17,12 +17,13 @@ import weka.core.Instance;
 /**
  * WoTDataFetcher is a controlling manager that calls DataManipulationProcessor to gets data from WoTkit
  * User directly call functions in the class
- * @author Richard
+ * @author richardlee@hotmail.ca
  *
  */
 public class WoTDataFetcher {
 
 	private DataManipulationProcessor dmp = null;
+	private DB_Handler dbh = null;
 	private int fetch_interval = 0; //in seconds
 	private String ref_datetime = null; //reference time in system for fetching
 	
@@ -34,7 +35,15 @@ public class WoTDataFetcher {
 		dmp = new DataManipulationProcessor();
 		this.fetch_interval = _fetch_interval;
 		this.ref_datetime = _start_time;
-		return true;
+		
+		dbh = new DB_Handler();
+		if(dbh.prepareDB()) {
+			return true;
+		}
+		else {
+			System.err.println("Error initializing connecting to database!");
+			return false;
+		}
 	}
 	
 	public void fetchDataExample() throws Exception {

@@ -1,9 +1,13 @@
 package ca.ubc.magic.enph479.builder;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * TwitterObject is the object that contains all of the structured data of tweets fetched from WoTKit
  * id, timestamp, latitude, longitude, sensor id, sensor name, message, value
- * @author Richard
+ * @author richardlee@hotmail.ca
  *
  */
 public class TwitterObject {
@@ -29,6 +33,24 @@ public class TwitterObject {
 	}
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
+	}
+	public String toEpochTime() {
+		
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd HH:mm:ss zzz");
+	    Date date = null;
+	    if(timestamp == "undefined")
+	    	return "";
+	    else{
+	    	try {
+				date = sdf.parse(timestamp + " UTC");
+			} catch (ParseException e) {
+				e.printStackTrace();
+				return "";
+			}
+		    long epoch = date.getTime();
+		    
+		    return String.valueOf(epoch);
+	    }
 	}
 	public double getLatitude() {
 		return lat;
