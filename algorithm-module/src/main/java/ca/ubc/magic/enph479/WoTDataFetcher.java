@@ -17,7 +17,7 @@ import weka.core.Instance;
 /**
  * WoTDataFetcher is a controlling manager that calls DataManipulationProcessor to gets data from WoTkit
  * User directly call functions in the class
- * @author Richard
+ * @author richardlee@hotmail.ca
  *
  */
 public class WoTDataFetcher {

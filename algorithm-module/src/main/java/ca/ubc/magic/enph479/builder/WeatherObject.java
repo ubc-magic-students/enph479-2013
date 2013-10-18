@@ -3,7 +3,7 @@ package ca.ubc.magic.enph479.builder;
 /**
  * WeatherObject is the object that contains all of the structured data of weathers fetched from WeatherAPI
  * weather, temp
- * @author Richard
+ * @author richardlee@hotmail.ca
  *
  */
 public class WeatherObject {
