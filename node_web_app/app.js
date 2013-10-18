@@ -40,6 +40,11 @@ process.on('uncaughtException', function(err) {
 
 /*************************** Pages *********************************/
 
+// Map Page
+app.get('/map', function (req, res) {
+    res.render('map.jade');
+});
+
 // Tag Cloud Page
 app.get('/', function (req, res) {
     res.render('index.jade');
