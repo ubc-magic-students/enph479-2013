@@ -9,7 +9,7 @@
 	<url>https://github.com/ubc-magic-students/enph479-2013.git</url>
 	<connection>scm:git:git://github.com/ubc-magic-students/enph479-2013.git</connection>
 	<developerConnection>scm:git:git@github.com:ubc-magic-students/enph479-2013.git</developerConnection>
-</scm>
+  </scm>
   
   <organization>
     <name>UBC-MAGIC</name>
@@ -66,6 +66,8 @@
     <weka-version>3.7.10</weka-version>
     <httpClient-version>4.3</httpClient-version>
     <moa-version>2012.08</moa-version>
+    <maven-jar-plugin-version>2.4</maven-jar-plugin-version>
+    <maven-assembly-plugin-version>2.4</maven-assembly-plugin-version>
   </properties>
   
   <dependencies>
@@ -111,5 +113,38 @@
   		<version>${moa-version}</version>
   	</dependency>
   </dependencies>
+  
+	<build>
+  		<plugins>
+ 			<plugin>
+    			<groupId>org.apache.maven.plugins</groupId>
+    			<artifactId>maven-jar-plugin</artifactId>
+    			<version>${maven-jar-plugin-version}</version>
+  			</plugin>
+  			<plugin>
+    			<groupId>org.apache.maven.plugins</groupId>
+    			<artifactId>maven-assembly-plugin</artifactId>
+    			<version>${maven-assembly-plugin-version}</version>
+    			<configuration>
+      				<descriptorRefs>
+        				<descriptorRef>jar-with-dependencies</descriptorRef>
+      				</descriptorRefs>
+      				<archive>
+        				<manifest>
+          					<mainClass>ca.ubc.magic.enph479.JobsDriver</mainClass>
+        				</manifest>
+      				</archive>
+    			</configuration>
+    			<executions>
+      				<execution>
+        				<phase>package</phase>
+        				<goals>
+          					<goal>single</goal>
+        				</goals>
+      				</execution>
+    			</executions>
+  			</plugin>
+  		</plugins>
+	</build>
   
 </project>
