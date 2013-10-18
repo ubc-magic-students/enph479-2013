@@ -5,7 +5,13 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>algorithm-module</name>
   
-    <organization>
+  <scm>
+	<url>https://github.com/ubc-magic-students/enph479-2013.git</url>
+	<connection>scm:git:git://github.com/ubc-magic-students/enph479-2013.git</connection>
+	<developerConnection>scm:git:git@github.com:ubc-magic-students/enph479-2013.git</developerConnection>
+</scm>
+  
+  <organization>
     <name>UBC-MAGIC</name>
     <url>http://www.magic.ubc.ca/</url>
   </organization>
