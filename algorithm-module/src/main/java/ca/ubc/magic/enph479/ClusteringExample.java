@@ -14,8 +14,6 @@ import java.util.HashMap;
 import ca.ubc.magic.enph479.builder.TweetCluster;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
-import moa.gui.visualization.DataPoint;
-import moa.streams.clustering.RandomRBFGeneratorEvents;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -28,7 +26,6 @@ public class ClusteringExample {
             
             try {
             	int totalInstances = 100000;
-            	final int numClusters = 50;
             
             	//RandomRBFGeneratorEvents stream = new RandomRBFGeneratorEvents();
                     

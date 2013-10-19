@@ -9,10 +9,6 @@ import java.util.HashMap;
 import java.io.*;
 
 import net.sf.json.JSONSerializer;
-import weka.core.Attribute;
-import weka.core.DenseInstance;
-import weka.core.Instance;
-import weka.core.Instances;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.WeatherObject;
@@ -22,7 +18,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
 /**
  * DataManipulationProcessor is the low level algorithm that actually process raw data processed from WoTkit

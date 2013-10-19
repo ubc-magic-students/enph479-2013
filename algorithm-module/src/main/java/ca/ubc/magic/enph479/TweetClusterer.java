@@ -1,27 +1,17 @@
 package ca.ubc.magic.enph479;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import moa.cluster.Cluster;
-import moa.cluster.Clustering;
 import moa.cluster.SphereCluster;
-import moa.clusterers.AbstractClusterer;
 import moa.clusterers.CobWeb;
-import moa.clusterers.clustree.ClusTree;
 import weka.core.Attribute;
-import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.neighboursearch.BallTree;
-import weka.core.neighboursearch.NearestNeighbourSearch;
 import ca.ubc.magic.enph479.builder.TweetCluster;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
-import ca.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
 
 /**
  * Class for clustering tweet instances.
