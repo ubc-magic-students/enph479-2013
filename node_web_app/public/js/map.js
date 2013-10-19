@@ -2,6 +2,7 @@ $(function() {
   
   var map;
   var circles = [];
+  var icons = [];
 
   function initialize() {
     var mapOptions = {
@@ -23,6 +24,17 @@ $(function() {
 
   var clusterLatLng;
 
+  function addIcon(location, icon_path) {
+    var marker = new google.maps.Marker({
+      position: location,
+      map: map,
+      icon: {
+        url: icon_path,
+      }
+    });
+    icons.push(marker);
+  }
+
   function addCircle(location, size) {
     var circle = new google.maps.Circle({
       strokeColor: '#FF0000',
@@ -41,31 +53,41 @@ $(function() {
     for (var i = 0; i < circles.length; i++) {
       circles[i].setMap(map);
     }
+    for (var i = 0; i < icons.length; i++) {
+      icons[i].setMap(map);
+    }
   }
 
 
-  function clearCircles() {
+  function clearMap() {
     setAllMap(null);
   }
 
-  function deleteCircles() {
-    clearCircles();
+  function deleteMap() {
+    clearMap();
+    icons = [];
     circles = [];
   }
 
   function addNewTweet(tweet) {
-    deleteCircles();
+    deleteMap();
     //$('div#content').append('<div class="tweetbox">' + tweet + '</div>');
     clusterCollection = $.parseJSON(tweet);
     for (var cluster in clusterCollection) {
       if (clusterCollection.hasOwnProperty(cluster)) {
-        console.log("lat: "+clusterCollection[cluster].centerLat+", long: "+clusterCollection[cluster].centerLong+", rad: "+clusterCollection[cluster].clusterRadius);
+        //console.log("lat: "+clusterCollection[cluster].centerLat+", long: "+clusterCollection[cluster].centerLong+", rad: "+clusterCollection[cluster].clusterRadius);
         clusterLatLng = new google.maps.LatLng(clusterCollection[cluster].centerLat,clusterCollection[cluster].centerLong);
         addCircle(clusterLatLng, clusterCollection[cluster].clusterRadius);
+        if (clusterCollection[cluster].overallSentiment > 2.5) {
+          addIcon(clusterLatLng, '/img/smile.jpg');
+        } else if (clusterCollection[cluster].overallSentiment < 1.5) {
+          addIcon(clusterLatLng, '/img/sad.png');
+        } else {
+          addIcon(clusterLatLng, '/img/neutral.png');
+        }
       }
     }
     setAllMap(map);
-    console.log("CIRCLES ON MAP");
   }
 
   google.maps.event.addDomListener(window, 'load', initialize);
