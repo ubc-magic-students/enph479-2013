@@ -31,26 +31,28 @@ public class WeatherJob implements Job{
 			linstance = wdf.fetchData();
 			
 			if (!linstance.isEmpty()) {	
-				Socket nodejs  = new Socket("localhost", 8080);
 				System.out.println("new tweet instances found!");
 				tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData());
-			
-				StringBuffer buffer = new StringBuffer("{");
-				for (int i =0; i < tweetClusters.size(); i++) {
-					double [] center = tweetClusters.get(i).getCluster().getCenter();
-					WeatherObject weather = wdf.getWeatherFromLatLng(center[0], center[1]);
-					if (i != 0)
-						buffer.append(",");
-					buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather, wdf.getAllTweetsData())));
+				try {
+					Socket nodejs  = new Socket("localhost", 8080);
+					StringBuffer buffer = new StringBuffer("{");
+					for (int i =0; i < tweetClusters.size(); i++) {
+						double [] center = tweetClusters.get(i).getCluster().getCenter();
+						WeatherObject weather = wdf.getWeatherFromLatLng(center[0], center[1]);
+						if (i != 0)
+							buffer.append(",");
+						buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather, wdf.getAllTweetsData())));
+					}
+					buffer.append("}");
+					nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
+					nodejs.getOutputStream().flush();
+					nodejs.close();
 				}
-				buffer.append("}");
-				nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
-				nodejs.getOutputStream().flush();
-				nodejs.close();
+				catch (ConnectException c) {
+					System.err.println("No one is listening to the port");
+				}
 			}	
 			
-		} catch (ConnectException c) {
-			System.err.println("No one is listening to the port");
 		} catch (Exception e) {
 			System.err.println("Error while executing weather job.");
 			e.printStackTrace();

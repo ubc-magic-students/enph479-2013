@@ -42,7 +42,7 @@ public class TweetClusterer {
 	/**
 	 * The minimal standard deviation of a cluster attribute.
 	 */
-	private final double ACUITY = 0.05;
+	private final double ACUITY = 0.01;
 	
 	public TweetClusterer() {
 		clusterer.prepareForUse();
@@ -76,12 +76,7 @@ public class TweetClusterer {
 			clusterer.trainOnInstance(inst);
 		}
 		
-		for (Cluster c : clusterer.getClusteringResult().getClustering()) {
-			System.out.println(c.getCenter()[0] + ", " + c.getCenter()[1]);
-		}
-		
-		
-		HashMap<Double, ArrayList<TweetInstance>> map = new HashMap<Double, ArrayList<TweetInstance>>();
+		HashMap<Integer, ArrayList<TweetInstance>> map = new HashMap<Integer, ArrayList<TweetInstance>>();
 		
 		for (Map.Entry<Integer, TwitterObject> entry : allTweets.entrySet()) {
 			TweetInstance tempTweetInst = new TweetInstance(numAtts, entry.getValue().getId());
@@ -90,7 +85,7 @@ public class TweetClusterer {
 			tempTweetInst.setValue(new Attribute("longitude", 1), entry.getValue().getLongitude());
 			tempTweetInst.setDataset(new Instances("Dataset" + tempTweetInst.getId(), atts , 0));
 			
-			double index = returnIndex(clusterer.getVotesForInstance(tempTweetInst));
+			int index = returnIndex(clusterer.getVotesForInstance(tempTweetInst));
 			
 	    	if (index == -1)
 	    		continue;
@@ -103,19 +98,23 @@ public class TweetClusterer {
 	    		map.put(index, temp);
 	    	}
 		}
-		
-		System.out.println(clusterer.graph());
-		
+
+		ArrayList<TweetCluster> tempClusterList = new ArrayList<TweetCluster>();
 		double clusterId = 0.0;
-	    for (Map.Entry<Double, ArrayList<TweetInstance>> entry : map.entrySet()) {
+	    for (Map.Entry<Integer, ArrayList<TweetInstance>> entry : map.entrySet()) {
 	    	SphereCluster c = new SphereCluster(entry.getValue(), numAtts);
 	    	c.setId(clusterId++);
 	    	TweetCluster tc = new TweetCluster(c);
 	    	for (Instance i : entry.getValue()) {
 	    		tc.addTweetMembers(((TweetInstance) i).getId());
 	    	}
-	    	tweetClusterList.add(tc);
+	    	tempClusterList.add(tc);
 	    }
+	    
+	    System.out.println(clusterer.graph());
+	    System.out.println("Number of Clusters: " + tempClusterList.size());
+	    
+	    tweetClusterList = tempClusterList;
 		
 		return tweetClusterList;
 		
