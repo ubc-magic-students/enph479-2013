@@ -1,7 +1,7 @@
 $(function() {
   
   var map;
-  var markers = [];
+  var circles = [];
 
   function initialize() {
     var mapOptions = {
@@ -23,44 +23,49 @@ $(function() {
 
   var clusterLatLng;
 
-  function addMarker(location) {
-    var marker = new google.maps.Marker({
-      position: location,
+  function addCircle(location, size) {
+    var circle = new google.maps.Circle({
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: '#FF0000',
+      fillOpacity: 0.35,
+      center: location,
+      radius: size*10000,
       map: map
     });
-    markers.push(marker);
+    circles.push(circle);
   }
 
   function setAllMap(map) {
-    for (var i = 0; i < markers.length; i++) {
-      markers[i].setMap(map);
+    for (var i = 0; i < circles.length; i++) {
+      circles[i].setMap(map);
     }
   }
 
 
-  function clearMarkers() {
+  function clearCircles() {
     setAllMap(null);
   }
 
-  function deleteMarkers() {
-    clearMarkers();
-    markers = [];
+  function deleteCircles() {
+    clearCircles();
+    circles = [];
   }
 
   function addNewTweet(tweet) {
-    deleteMarkers();
+    deleteCircles();
     //$('div#content').append('<div class="tweetbox">' + tweet + '</div>');
     clusterCollection = $.parseJSON(tweet);
     for (var cluster in clusterCollection) {
       if (clusterCollection.hasOwnProperty(cluster)) {
-        console.log("lat: "+clusterCollection[cluster].centerLat+", long: "+clusterCollection[cluster].centerLong);
+        console.log("lat: "+clusterCollection[cluster].centerLat+", long: "+clusterCollection[cluster].centerLong+", rad: "+clusterCollection[cluster].clusterRadius);
         clusterLatLng = new google.maps.LatLng(clusterCollection[cluster].centerLat,clusterCollection[cluster].centerLong);
-        addMarker(clusterLatLng);
-        //console.log("MARKER MADE");
+        addCircle(clusterLatLng, clusterCollection[cluster].clusterRadius);
       }
     }
     setAllMap(map);
-    console.log("MARKERS ON MAP");
+    console.log("CIRCLES ON MAP");
   }
 
   google.maps.event.addDomListener(window, 'load', initialize);
