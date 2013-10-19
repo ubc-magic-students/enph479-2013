@@ -55,7 +55,7 @@ public class WDF_Driver {
 			try {		
 			nodejs = new Socket("localhost", 8080);
 			linstance = wdf.fetchData();
-			tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData(), 5);
+			tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData());
 			
 			StringBuffer buffer = new StringBuffer("{");
 			for (int i =0; i < tweetClusters.size(); i++) {

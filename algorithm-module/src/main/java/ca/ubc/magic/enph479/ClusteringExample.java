@@ -36,18 +36,19 @@ public class ClusteringExample {
                     
             	//System.err.println(stream.getHeader());
             	int m_timestamp = 0;
-            	Instances data = new Instances(new BufferedReader(new FileReader("/home/chris/Desktop/tweetLatLong.arff")));
+            	Instances data = new Instances(new BufferedReader(new FileReader("/home/chris/Desktop/tweetLatLong2.arff")));
                     
             	TweetClusterer clusterer = new TweetClusterer();
             	HashMap<Integer, TwitterObject> allTweets = new HashMap<Integer, TwitterObject>();
             	ArrayList<TweetInstance> newTweets = new ArrayList<TweetInstance>();
             	for (Instance inst : data) {
-            		DataPoint point0 = new DataPoint(inst,m_timestamp);
-            		Instance traininst0 = new TweetInstance(point0, m_timestamp);
+            		//DataPoint point0 = new DataPoint(inst,m_timestamp);
+            		Instance traininst0 = new TweetInstance(inst, m_timestamp);
             		//traininst0.deleteAttributeAt(point0.classIndex());
-            		System.out.println(traininst0);
+            		//System.out.println(traininst0);
             		newTweets.add((TweetInstance)traininst0);
             		TwitterObject tweet = new TwitterObject();
+            		tweet.setId(m_timestamp);
             		tweet.setLatitude(traininst0.value(0));
             		tweet.setLongitude(traininst0.value(1));
             		allTweets.put(m_timestamp, tweet);
@@ -69,7 +70,7 @@ public class ClusteringExample {
                             m_timestamp++;
                     }*/
             	long startTime = System.currentTimeMillis();
-                    ArrayList<TweetCluster> clusters = clusterer.cluster(newTweets, allTweets, numClusters);
+                    ArrayList<TweetCluster> clusters = clusterer.cluster(newTweets, allTweets);
                     long finishTime = System.currentTimeMillis();
                     
                     Path path = Paths.get("/home/chris/Desktop/example.csv");

@@ -8,7 +8,9 @@ import java.util.Map;
 
 import moa.cluster.Cluster;
 import moa.cluster.Clustering;
+import moa.cluster.SphereCluster;
 import moa.clusterers.AbstractClusterer;
+import moa.clusterers.CobWeb;
 import moa.clusterers.clustree.ClusTree;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -29,11 +31,23 @@ import ca.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
  */
 public class TweetClusterer {
 	
-	private AbstractClusterer clusterer = new ClusTree();
+	private CobWeb clusterer = new CobWeb();
 	private ArrayList<TweetCluster> tweetClusterList = new ArrayList<TweetCluster>();
+	
+	/**
+	 * The minimum increase of category utility to add a new node to the hierarchy.
+	 */
+	private final double CUTOFF = 0.002;
+	
+	/**
+	 * The minimal standard deviation of a cluster attribute.
+	 */
+	private final double ACUITY = 0.05;
 	
 	public TweetClusterer() {
 		clusterer.prepareForUse();
+		clusterer.setCutoff(CUTOFF);
+		clusterer.setAcuity(ACUITY);
 	}
 	
 	/**
@@ -45,90 +59,76 @@ public class TweetClusterer {
 	 * @return A list of TweetCluster objects
 	 * @throws Exception
 	 */
-	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, TwitterObject> allTweets, int k) throws Exception {
+	public ArrayList<TweetCluster> cluster(ArrayList<TweetInstance> newTweets, HashMap<Integer, TwitterObject> allTweets) throws Exception {
 		if (newTweets.size() == 0)
 			return tweetClusterList;
 		
-		for (TweetInstance inst : newTweets) {
-			clusterer.trainOnInstanceImpl(inst);
-		}
-		Clustering microC = clusterer.getMicroClusteringResult();
+		final int numAtts = newTweets.get(0).numAttributes();
 		
-		if (k > microC.size())
-			k = microC.size();
-		
-		Clustering randomClustering = new Clustering();
-		UniqueRandomNumberGenerator random = new UniqueRandomNumberGenerator(microC.size());
-		for(int i = 0; i < k ; i++) {
-			randomClustering.add(microC.get(random.nextInt()));
+		ArrayList<Attribute> atts = new ArrayList<Attribute>(numAtts);
+		for (int i=0; i< numAtts; i++) {
+			atts.add(new Attribute("att"+i));
 		}
 
-		Clustering clustering = moa.clusterers.KMeans.gaussianMeans(randomClustering, microC);
-		
-		for (int i = 0; i < clustering.getClustering().size(); i++) {
-			clustering.getClustering().get(i).setId(i);
+		for (TweetInstance inst : newTweets) {
+			Instances referenceInstances = new Instances("Dataset" + inst.getId(), atts , 0);
+	    	inst.setDataset(referenceInstances);
+			clusterer.trainOnInstance(inst);
 		}
 		
-		tweetClusterList = nearestNeighbour(clustering, allTweets);
+		for (Cluster c : clusterer.getClusteringResult().getClustering()) {
+			System.out.println(c.getCenter()[0] + ", " + c.getCenter()[1]);
+		}
+		
+		
+		HashMap<Double, ArrayList<TweetInstance>> map = new HashMap<Double, ArrayList<TweetInstance>>();
+		
+		for (Map.Entry<Integer, TwitterObject> entry : allTweets.entrySet()) {
+			TweetInstance tempTweetInst = new TweetInstance(numAtts, entry.getValue().getId());
+			//TODO: figure out how to make this work with more than two attributes
+			tempTweetInst.setValue(new Attribute("latitude", 0), entry.getValue().getLatitude());
+			tempTweetInst.setValue(new Attribute("longitude", 1), entry.getValue().getLongitude());
+			tempTweetInst.setDataset(new Instances("Dataset" + tempTweetInst.getId(), atts , 0));
+			
+			double index = returnIndex(clusterer.getVotesForInstance(tempTweetInst));
+			
+	    	if (index == -1)
+	    		continue;
+	    	
+	    	if (map.containsKey(index)) {
+	    		map.get(index).add(tempTweetInst);
+	    	} else {
+	    		ArrayList<TweetInstance> temp = new ArrayList<TweetInstance>();
+	    		temp.add(tempTweetInst);
+	    		map.put(index, temp);
+	    	}
+		}
+		
+		System.out.println(clusterer.graph());
+		
+		double clusterId = 0.0;
+	    for (Map.Entry<Double, ArrayList<TweetInstance>> entry : map.entrySet()) {
+	    	SphereCluster c = new SphereCluster(entry.getValue(), numAtts);
+	    	c.setId(clusterId++);
+	    	TweetCluster tc = new TweetCluster(c);
+	    	for (Instance i : entry.getValue()) {
+	    		tc.addTweetMembers(((TweetInstance) i).getId());
+	    	}
+	    	tweetClusterList.add(tc);
+	    }
 		
 		return tweetClusterList;
 		
 	}
 	
-	private ArrayList<TweetCluster> nearestNeighbour(Clustering clustering, HashMap<Integer, TwitterObject> tweetInstanceMap) throws Exception {
-			if (tweetInstanceMap.isEmpty())
-				return tweetClusterList;
-			
-			int numberOfClusters = clustering.getClustering().size();
-
-			ArrayList<TweetCluster> tweetClusterList = new ArrayList<TweetCluster>();
-			HashMap<List<Double>, Double> mapClusterCentersToClusterId = new HashMap<List<Double>, Double>();
-			for (Cluster c: clustering.getClustering()) {
-				tweetClusterList.add(new TweetCluster(c));
-				mapClusterCentersToClusterId.put(Collections.unmodifiableList(arrayToList(c.getCenter())), c.getId());
-			}
-			
-			int numberOfAtts = clustering.getClustering().get(0).getCenter().length;
-			
-			ArrayList<Attribute> atts = new ArrayList<Attribute>(numberOfAtts);
-			for (int i=0; i< numberOfAtts; i++) {
-				atts.add(new Attribute("att"+i));
-			}
-			
-			Instances centerInstances = new Instances("ClusterCenterInstances", atts , 0);
-			
-			for (int i = 0; i < numberOfClusters; i++) {
-				Instance tempInst = new DenseInstance(numberOfAtts);
-				for (int j=0; j< numberOfAtts; j++) {
-					tempInst.setValue(atts.get(j), clustering.getClustering().get(i).getCenter()[j]);
-				}
-				centerInstances.add(tempInst);
-			}
-			
-			NearestNeighbourSearch nearestNeighbourSearch = new BallTree();
-			nearestNeighbourSearch.setInstances(centerInstances);
-			
-			for (Map.Entry<Integer, TwitterObject> entry : tweetInstanceMap.entrySet()) {
-				Instance tempTweetInst = new DenseInstance(numberOfAtts);
-				//TODO: figure out how to make this work with more than two attributes
-				tempTweetInst.setValue(atts.get(0), entry.getValue().getLatitude());
-				tempTweetInst.setValue(atts.get(1), entry.getValue().getLongitude());
-				Instance nearestInstance = nearestNeighbourSearch.nearestNeighbour(tempTweetInst);
-				Double clusterId = (Double) mapClusterCentersToClusterId.get(arrayToList(nearestInstance.toDoubleArray()));
-				tweetClusterList.get(clusterId.intValue()).addTweetMembers(entry.getKey());
-			}
-			
-			return tweetClusterList;
-
-	}
-
-	private static List<Double> arrayToList(double[] array) {
-		List<Double> list = new ArrayList<Double>();
-		for (double d : array) {
-			list.add(d);
+	private static int returnIndex(double[] vote) {
+		for (int i = 0; i < vote.length; i++) {
+			if (vote[i] == 1)
+				return i;
 		}
 		
-		return list;
+		return -1;
+		
 	}
 	
 }
