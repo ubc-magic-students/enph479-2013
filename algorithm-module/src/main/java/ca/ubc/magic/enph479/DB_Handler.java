@@ -81,12 +81,37 @@ public class DB_Handler {
 	public Boolean writeToDBTweet(ArrayList<TwitterObject> _ltweets_incoming) throws Exception {
 		
 		try {
+			
+			if(_ltweets_incoming.size() == 0)
+				return true;
+			
 			Statement st = con.createStatement();
             
 			//String mysql_insert_command = "INSERT INTO tweet_data " + "VALUES (1, 1234, 'Jan 01 1800 23:59:59', 111, 111, 999, 'sensor_test', 'test test test', 999, -1)";
 			String mysql_insert_command = "INSERT INTO tweet_data VALUES";
 			
 			for(int i = 0; i < _ltweets_incoming.size(); i++) {
+				
+				//get rid of commas
+				String tmp = _ltweets_incoming.get(i).getMessage();
+				tmp = tmp.replace(",", ".");
+				tmp = tmp.replace("'", " ");
+				tmp = tmp.replace("\"", "\\\"");
+				tmp = "\"" + tmp + "\"";
+				_ltweets_incoming.get(i).setMessage(tmp);
+				
+				String tmp1 = _ltweets_incoming.get(i).getTimestamp();
+				tmp1 = "\"" + tmp1 + "\"";
+				_ltweets_incoming.get(i).setTimestamp(tmp1);
+				
+				String tmp2 = _ltweets_incoming.get(i).getSensor_name();
+				tmp2 = tmp2.replace(",", ".");
+				tmp2 = tmp2.replace("'", " ");
+				tmp2 = tmp2.replace("\"", "\\\"");
+				tmp2 = "\"" + tmp2 + "\"";
+				_ltweets_incoming.get(i).setSensor_name(tmp2);
+				
+				
 				mysql_insert_command += " ("
 						+ _ltweets_incoming.get(i).getId() + ", "
 						+ _ltweets_incoming.get(i).getTimestamp() + ", "
