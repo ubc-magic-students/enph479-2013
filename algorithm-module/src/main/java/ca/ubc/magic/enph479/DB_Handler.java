@@ -5,7 +5,16 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
+import ca.ubc.magic.enph479.builder.TweetInstance;
+import ca.ubc.magic.enph479.builder.TwitterObject;
+
+/**
+ * DB_Handler is the database handler to talk to the mySQL database
+ * @author richardlee@hotmail.ca
+ *
+ */
 public class DB_Handler {
 	
 	private String url = "jdbc:mysql://localhost:3306/ENPH479";
@@ -15,6 +24,7 @@ public class DB_Handler {
     Connection con = null;
 
 	public boolean prepareDB() throws Exception  {
+		/*
 		try {
 			con = DriverManager.getConnection(url, user, password);
 			if(con == null)
@@ -25,5 +35,113 @@ public class DB_Handler {
         	System.err.println(ex.getMessage());
         	return false;
 		}
+		*/
+		return true;
 	}
+	
+	public ArrayList<TwitterObject> retrieveDBTweet() throws Exception {
+		/*
+		try {
+			Statement st = con.createStatement();
+			ArrayList<TwitterObject> ltweets = new ArrayList<TwitterObject>();
+            
+            String mysql_select_command = "SELECT * FROM tweet_data";
+            ResultSet rs = st.executeQuery(mysql_select_command);
+
+            while (rs.next()) {
+				int id = rs.getInt("id");
+				String timestamp = rs.getString("timestamp");
+				double lat = rs.getDouble("lat");
+				double lng = rs.getDouble("lng");
+				int sensor_id = rs.getInt("sensor_id");
+				String sensor_name = rs.getString("sensor_name");
+				String message = rs.getString("message");
+				int value = rs.getInt("value");
+				int sentimentPolarity = rs.getInt("sentimentPolarity");
+				
+				TwitterObject tweet = new TwitterObject();
+				tweet.setId(id);
+				tweet.setTimestamp(timestamp);
+				tweet.setLatitude(lat);
+				tweet.setLongitude(lng);
+				tweet.setSensor_id(sensor_id);
+				tweet.setSensor_name(sensor_name);
+				tweet.setMessage(message);
+				tweet.setValue(value);
+				tweet.setSentimentPolarity(sentimentPolarity);
+				
+				ltweets.add(tweet);
+			}
+            
+            return ltweets;
+            
+        } catch (SQLException ex) {
+        	System.err.println("DB Error: " + ex.getMessage());
+        	return null;
+        }
+        */
+		return new ArrayList<TwitterObject>();
+	}
+	
+	public Boolean writeToDBTweet(ArrayList<TwitterObject> _ltweets_incoming) throws Exception {
+		/*
+		try {
+			
+			if(_ltweets_incoming.size() == 0)
+				return true;
+			
+			Statement st = con.createStatement();
+            
+			//String mysql_insert_command = "INSERT INTO tweet_data " + "VALUES (1, 1234, 'Jan 01 1800 23:59:59', 111, 111, 999, 'sensor_test', 'test test test', 999, -1)";
+			String mysql_insert_command = "INSERT INTO tweet_data VALUES";
+			
+			for(int i = 0; i < _ltweets_incoming.size(); i++) {
+				
+				//get rid of commas
+				String tmp = _ltweets_incoming.get(i).getMessage();
+				tmp = tmp.replace(",", ".");
+				tmp = tmp.replace("'", " ");
+				tmp = tmp.replace("\"", "\\\"");
+				tmp = "\"" + tmp + "\"";
+				_ltweets_incoming.get(i).setMessage(tmp);
+				
+				String tmp1 = _ltweets_incoming.get(i).getTimestamp();
+				tmp1 = "\"" + tmp1 + "\"";
+				_ltweets_incoming.get(i).setTimestamp(tmp1);
+				
+				String tmp2 = _ltweets_incoming.get(i).getSensor_name();
+				tmp2 = tmp2.replace(",", ".");
+				tmp2 = tmp2.replace("'", " ");
+				tmp2 = tmp2.replace("\"", "\\\"");
+				tmp2 = "\"" + tmp2 + "\"";
+				_ltweets_incoming.get(i).setSensor_name(tmp2);
+				
+				
+				mysql_insert_command += " ("
+						+ _ltweets_incoming.get(i).getId() + ", "
+						+ _ltweets_incoming.get(i).getTimestamp() + ", "
+						+ _ltweets_incoming.get(i).getLatitude() + ", "
+						+ _ltweets_incoming.get(i).getLongitude() + ", "
+						+ _ltweets_incoming.get(i).getSensor_id() + ", "
+						+ _ltweets_incoming.get(i).getSensor_name() + ", "
+						+ _ltweets_incoming.get(i).getMessage() + ", "
+						+ _ltweets_incoming.get(i).getValue() + ", "
+						+ _ltweets_incoming.get(i).getSentimentPolarity() + ")";
+						
+				if(i < _ltweets_incoming.size()-1)
+					mysql_insert_command += ",";
+			}
+            
+			st.executeUpdate(mysql_insert_command);
+            return true;
+            
+        } catch (SQLException ex) {
+        	System.err.println("DB Error: " + ex.getMessage());
+        	return false;
+        }
+        */
+		return true;
+	}
+	
+	
 }

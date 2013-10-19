@@ -38,6 +38,9 @@ public class WoTDataFetcher {
 		
 		dbh = new DB_Handler();
 		if(dbh.prepareDB()) {
+			//retrieve existing tweet data from DB before fetching any new data
+			ArrayList<TwitterObject> ltweets = dbh.retrieveDBTweet();
+			dmp.addToTweets_all(ltweets);
 			return true;
 		}
 		else {
@@ -88,6 +91,9 @@ public class WoTDataFetcher {
 		ArrayList<TweetInstance> linstance = dmp.toWekaInstanceFromTwitterObj();
 		//update current all list
 		dmp.updateAllList(wot_type.twitter);
+		//write to DB
+		dbh.writeToDBTweet(dmp.gettweets_incoming());
+		
 		return linstance;
 	}
 	
