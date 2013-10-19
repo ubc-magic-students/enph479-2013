@@ -24,6 +24,7 @@ public class DB_Handler {
     Connection con = null;
 
 	public boolean prepareDB() throws Exception  {
+		/*
 		try {
 			con = DriverManager.getConnection(url, user, password);
 			if(con == null)
@@ -34,10 +35,12 @@ public class DB_Handler {
         	System.err.println(ex.getMessage());
         	return false;
 		}
+		*/
+		return true;
 	}
 	
 	public ArrayList<TwitterObject> retrieveDBTweet() throws Exception {
-		
+		/*
 		try {
 			Statement st = con.createStatement();
 			ArrayList<TwitterObject> ltweets = new ArrayList<TwitterObject>();
@@ -76,10 +79,12 @@ public class DB_Handler {
         	System.err.println("DB Error: " + ex.getMessage());
         	return null;
         }
+        */
+		return new ArrayList<TwitterObject>();
 	}
 	
 	public Boolean writeToDBTweet(ArrayList<TwitterObject> _ltweets_incoming) throws Exception {
-		
+		/*
 		try {
 			
 			if(_ltweets_incoming.size() == 0)
@@ -134,6 +139,8 @@ public class DB_Handler {
         	System.err.println("DB Error: " + ex.getMessage());
         	return false;
         }
+        */
+		return true;
 	}
 	
 	
