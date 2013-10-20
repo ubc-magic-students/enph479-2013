@@ -20,11 +20,15 @@ public class DB_Handler {
 	private String url = "jdbc:mysql://localhost:3306/ENPH479";
 	private String user = "root";
 	private String password = "";
+	private Boolean _skipDB = false;
     
     Connection con = null;
 
 	public boolean prepareDB() throws Exception  {
-		/*
+		
+		if(_skipDB)
+			return true;
+		
 		try {
 			con = DriverManager.getConnection(url, user, password);
 			if(con == null)
@@ -35,12 +39,13 @@ public class DB_Handler {
         	System.err.println(ex.getMessage());
         	return false;
 		}
-		*/
-		return true;
 	}
 	
 	public ArrayList<TwitterObject> retrieveDBTweet() throws Exception {
-		/*
+		
+		if(_skipDB)
+			return new ArrayList<TwitterObject>();
+		
 		try {
 			Statement st = con.createStatement();
 			ArrayList<TwitterObject> ltweets = new ArrayList<TwitterObject>();
@@ -79,12 +84,13 @@ public class DB_Handler {
         	System.err.println("DB Error: " + ex.getMessage());
         	return null;
         }
-        */
-		return new ArrayList<TwitterObject>();
 	}
 	
 	public Boolean writeToDBTweet(ArrayList<TwitterObject> _ltweets_incoming) throws Exception {
-		/*
+		
+		if(_skipDB)
+			return true;
+		
 		try {
 			
 			if(_ltweets_incoming.size() == 0)
@@ -139,8 +145,6 @@ public class DB_Handler {
         	System.err.println("DB Error: " + ex.getMessage());
         	return false;
         }
-        */
-		return true;
 	}
 	
 	
