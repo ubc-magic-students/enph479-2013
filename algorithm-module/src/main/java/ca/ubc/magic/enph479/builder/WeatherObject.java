@@ -8,12 +8,20 @@ package ca.ubc.magic.enph479.builder;
  */
 public class WeatherObject {
 
+	private int id = -1;
 	private String weather = "undefined";
 	private String description = "undefined";
 	private double temperature = -1;
 	private double pressure = -1;
+	private String icon = "undefined";
 	
 	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
 	public String getWeather() {
 		return weather;
 	}
@@ -37,6 +45,12 @@ public class WeatherObject {
 	}
 	public void setPressure(double pressure) {
 		this.pressure = pressure;
+	}
+	public String getIcon() {
+		return icon;
+	}
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 	public String printInfo() {
 		return "forecase: " + this.getWeather() +

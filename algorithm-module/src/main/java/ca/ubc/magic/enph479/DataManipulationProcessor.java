@@ -56,7 +56,7 @@ public class DataManipulationProcessor {
 	    return String.valueOf(epoch);
 	}
 	
-	public void getJsonFromWoT(wot_type _type, String _startTime, String _endTime) throws Exception {
+	public void getJsonFromWoT(wot_type _type, String _startTime, String _endTime){
 		
 		String url_1 = null, url_2 = null;
 		
@@ -64,23 +64,30 @@ public class DataManipulationProcessor {
 			url_1 = wot_url_tweet[0];
 			url_2 = wot_url_tweet[1];
 			
-			URL wot_url = new URL(url_1 + _startTime + url_2 + _endTime);
-	        URLConnection con = wot_url.openConnection();
-	        BufferedReader breader = new BufferedReader(
-	                                new InputStreamReader(
-	                                		con.getInputStream()));
-	        /*String inputLine;
-	        while ((inputLine = bReader.readLine()) != null) {
-	            System.out.println(inputLine);
-	        }*/
-	        json_string_twitter = breader.readLine();
-	        //if(is_debug)
-	        //	System.out.println(json_string_twitter);
-	        breader.close();
+			try {
+				URL wot_url = new URL(url_1 + _startTime + url_2 + _endTime);
+		        URLConnection con = wot_url.openConnection();
+		        BufferedReader breader = new BufferedReader(
+		                                new InputStreamReader(
+		                                		con.getInputStream()));
+		        /*String inputLine;
+		        while ((inputLine = bReader.readLine()) != null) {
+		            System.out.println(inputLine);
+		        }*/
+		        json_string_twitter = breader.readLine();
+		        //if(is_debug)
+		        //	System.out.println(json_string_twitter);
+		        breader.close();
+			}
+			catch(Exception ex) {
+				json_string_twitter = "";
+				if(is_debug)
+	            	System.out.println("WoT Kit API not responding to HTTP request: " + ex.getMessage());
+			}
 		}
 	}
 	
-	public void getJsonFromWeb(web_type _type, double _lat, double _lng) throws Exception {
+	public void getJsonFromWeb(web_type _type, double _lat, double _lng){
 		
 		String url_1 = null, url_2 = null;
 		
@@ -88,15 +95,22 @@ public class DataManipulationProcessor {
 			url_1 = web_url_weather[0];
 			url_2 = web_url_weather[1];
 			
-			URL web_url = new URL(url_1 + _lat + url_2 + _lng);
-	        URLConnection con = web_url.openConnection();
-	        BufferedReader breader = new BufferedReader(
-	                                new InputStreamReader(
-	                                		con.getInputStream()));
-	        json_string_weather = breader.readLine();
-	        //if(is_debug)
-	        //	System.out.println(json_string_weather);
-	        breader.close();
+			try {
+				URL web_url = new URL(url_1 + _lat + url_2 + _lng);
+		        URLConnection con = web_url.openConnection();
+		        BufferedReader breader = new BufferedReader(
+		                                new InputStreamReader(
+		                                		con.getInputStream()));
+		        json_string_weather = breader.readLine();
+		        //if(is_debug)
+		        //	System.out.println(json_string_weather);
+		        breader.close();
+			}
+			catch(Exception ex) {
+				json_string_weather = "";
+				if(is_debug)
+	            	System.out.println("Weather API not responding to HTTP request: " + ex.getMessage());
+			}
 		}
 	}
 	
@@ -128,16 +142,23 @@ public class DataManipulationProcessor {
 		
         if(_type == web_type.weather) {
         	
+        	if((json_string_weather == "")||(json_string_weather == null)) {
+        		return new WeatherObject();
+        	}
         	JSONObject json = (JSONObject) JSONSerializer.toJSON(json_string_weather);
+        	int id = ((JSONObject)json.getJSONArray("weather").get(0)).getInt("id");
         	String weather = ((JSONObject)json.getJSONArray("weather").get(0)).getString("main");
         	String description = ((JSONObject)json.getJSONArray("weather").get(0)).getString("description");
+        	String icon = ((JSONObject)json.getJSONArray("weather").get(0)).getString("icon");
         	double temperature = json.getJSONObject("main").getDouble("temp");
         	double pressure = json.getJSONObject("main").getDouble("pressure");
         	
+        	weather_info.setId(id);
         	weather_info.setWeather(weather);
         	weather_info.setDescription(description);
         	weather_info.setTemperature(temperature - 273.0);
         	weather_info.setPressure(pressure);
+        	weather_info.setIcon(icon);
         	
         	return weather_info;
         }
