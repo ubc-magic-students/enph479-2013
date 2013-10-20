@@ -25,6 +25,7 @@ public class DB_Testing {
             
             //String mysql1 = "INSERT INTO tweet_data " + "VALUES (1, 1234, 'Jan 01 1800 23:59:59', 111, 111, 999, 'sensor_test', 'test test test', 999, -1)";
             String mysql2 = "SELECT * FROM tweet_data";
+            String mysql3 = "SELECT MAX(db_id) AS db_id FROM tweet_data";
             
             //st.executeUpdate(mysql1);
             rs = st.executeQuery(mysql2);
@@ -34,7 +35,7 @@ public class DB_Testing {
             }
 
         } catch (SQLException ex) {
-        	System.err.println(ex.getMessage());;
+        	System.err.println(ex.getMessage());
         } finally {
             try {
                 if (rs != null) {

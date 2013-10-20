@@ -67,6 +67,7 @@ public class WDF_Driver {
 			nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
 			nodejs.getOutputStream().flush();
 			System.out.println("Going through while loop.....");
+			Thread.sleep(3000);
 			//Thread.sleep((long) (fetch_interval * 1000 * 0.9));
 			} catch (IOException e){
 				System.err.println("No one is listening to Socket.");

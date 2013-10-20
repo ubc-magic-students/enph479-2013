@@ -145,22 +145,30 @@ public class DataManipulationProcessor {
         	if((json_string_weather == "")||(json_string_weather == null)) {
         		return new WeatherObject();
         	}
-        	JSONObject json = (JSONObject) JSONSerializer.toJSON(json_string_weather);
-        	int id = ((JSONObject)json.getJSONArray("weather").get(0)).getInt("id");
-        	String weather = ((JSONObject)json.getJSONArray("weather").get(0)).getString("main");
-        	String description = ((JSONObject)json.getJSONArray("weather").get(0)).getString("description");
-        	String icon = ((JSONObject)json.getJSONArray("weather").get(0)).getString("icon");
-        	double temperature = json.getJSONObject("main").getDouble("temp");
-        	double pressure = json.getJSONObject("main").getDouble("pressure");
-        	
-        	weather_info.setId(id);
-        	weather_info.setWeather(weather);
-        	weather_info.setDescription(description);
-        	weather_info.setTemperature(temperature - 273.0);
-        	weather_info.setPressure(pressure);
-        	weather_info.setIcon(icon);
-        	
-        	return weather_info;
+        	try {
+	        	JSONObject json = (JSONObject) JSONSerializer.toJSON(json_string_weather);
+	        	int id = ((JSONObject)json.getJSONArray("weather").get(0)).getInt("id");
+	        	String weather = ((JSONObject)json.getJSONArray("weather").get(0)).getString("main");
+	        	String description = ((JSONObject)json.getJSONArray("weather").get(0)).getString("description");
+	        	String icon = ((JSONObject)json.getJSONArray("weather").get(0)).getString("icon");
+	        	double temperature = json.getJSONObject("main").getDouble("temp");
+	        	double pressure = json.getJSONObject("main").getDouble("pressure");
+	        	
+	        	weather_info.setId(id);
+	        	weather_info.setWeather(weather);
+	        	weather_info.setDescription(description);
+	        	weather_info.setTemperature(temperature - 273.0);
+	        	weather_info.setPressure(pressure);
+	        	weather_info.setIcon(icon);
+	        	
+	        	return weather_info;
+        	}
+        	catch(Exception ex) {
+        		String tmp = json_string_weather;
+        		//{"message":"Error: Not found city","cod":"404"}
+        		System.out.println("Weather API not responding to lat lng request: Not found city code 404");
+        		return new WeatherObject();
+        	}
         }
         
         return weather_info;

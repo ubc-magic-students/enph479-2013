@@ -49,7 +49,7 @@ public class DB_Handler {
 		try {
 			Statement st = con.createStatement();
 			ArrayList<TwitterObject> ltweets = new ArrayList<TwitterObject>();
-            
+			
             String mysql_select_command = "SELECT * FROM tweet_data";
             ResultSet rs = st.executeQuery(mysql_select_command);
 
@@ -81,7 +81,7 @@ public class DB_Handler {
             return ltweets;
             
         } catch (SQLException ex) {
-        	System.err.println("DB Error: " + ex.getMessage());
+        	System.err.println("DB Retrieving Error: " + ex.getMessage());
         	return null;
         }
 	}
@@ -97,6 +97,19 @@ public class DB_Handler {
 				return true;
 			
 			Statement st = con.createStatement();
+			
+			//retrieve max id to be used
+			String mysql_maxID_command = "SELECT MAX(db_id) AS db_id FROM tweet_data";
+			ResultSet rs = st.executeQuery(mysql_maxID_command);
+
+			int max_id = 0;
+            if (rs.next()) {
+				max_id = rs.getInt("db_id");
+            }
+            else {
+            	max_id = 0;
+            }
+            int cur_id = max_id + 1;
             
 			//String mysql_insert_command = "INSERT INTO tweet_data " + "VALUES (1, 1234, 'Jan 01 1800 23:59:59', 111, 111, 999, 'sensor_test', 'test test test', 999, -1)";
 			String mysql_insert_command = "INSERT INTO tweet_data VALUES";
@@ -124,6 +137,7 @@ public class DB_Handler {
 				
 				
 				mysql_insert_command += " ("
+						+ (cur_id + i) + ","
 						+ _ltweets_incoming.get(i).getId() + ", "
 						+ _ltweets_incoming.get(i).getTimestamp() + ", "
 						+ _ltweets_incoming.get(i).getLatitude() + ", "
@@ -142,7 +156,7 @@ public class DB_Handler {
             return true;
             
         } catch (SQLException ex) {
-        	System.err.println("DB Error: " + ex.getMessage());
+        	System.err.println("DB Writting Error: " + ex.getMessage());
         	return false;
         }
 	}
