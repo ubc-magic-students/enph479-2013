@@ -27,17 +27,23 @@ public class TweetClusterer {
 	/**
 	 * The minimum increase of category utility to add a new node to the hierarchy.
 	 */
-	private final double CUTOFF = 0.002;
+	private double CUTOFF = 0.002;
 	
 	/**
 	 * The minimal standard deviation of a cluster attribute.
 	 */
-	private final double ACUITY = 0.01;
+	private double ACUITY = 0.01;
 	
 	public TweetClusterer() {
 		clusterer.prepareForUse();
 		clusterer.setCutoff(CUTOFF);
 		clusterer.setAcuity(ACUITY);
+	}
+	
+	public TweetClusterer(double acuity, double cutoff) {
+		clusterer.prepareForUse();
+		clusterer.setCutoff(cutoff);
+		clusterer.setAcuity(acuity);
 	}
 	
 	/**
@@ -73,6 +79,9 @@ public class TweetClusterer {
 			//TODO: figure out how to make this work with more than two attributes
 			tempTweetInst.setValue(new Attribute("latitude", 0), entry.getValue().getLatitude());
 			tempTweetInst.setValue(new Attribute("longitude", 1), entry.getValue().getLongitude());
+			if (numAtts == 3)
+				tempTweetInst.setValue(new Attribute("time", 2), entry.getValue().toEpochTime());
+			
 			tempTweetInst.setDataset(new Instances("Dataset" + tempTweetInst.getId(), atts , 0));
 			
 			int index = returnIndex(clusterer.getVotesForInstance(tempTweetInst));

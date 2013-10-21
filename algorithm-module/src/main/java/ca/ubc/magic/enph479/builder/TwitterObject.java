@@ -34,22 +34,22 @@ public class TwitterObject {
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
-	public String toEpochTime() {
+	public double toEpochTime() {
 		
 	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd HH:mm:ss zzz");
 	    Date date = null;
 	    if(timestamp == "undefined")
-	    	return "";
+	    	return -1;
 	    else{
 	    	try {
 				date = sdf.parse(timestamp + " UTC");
 			} catch (ParseException e) {
 				e.printStackTrace();
-				return "";
+				return -1;
 			}
 		    long epoch = date.getTime();
 		    
-		    return String.valueOf(epoch);
+		    return (double) epoch;
 	    }
 	}
 	public double getLatitude() {
