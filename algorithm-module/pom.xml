@@ -69,6 +69,9 @@
     <maven-jar-plugin-version>2.4</maven-jar-plugin-version>
     <maven-assembly-plugin-version>2.4</maven-assembly-plugin-version>
     <weka-dev-version>3.7.10</weka-dev-version>
+    <mysql-version>5.1.6</mysql-version>
+    <jaxen-version>1.1.4</jaxen-version>
+    <dom4j-version>1.6.1</dom4j-version>
   </properties>
   
   <dependencies>
@@ -116,11 +119,26 @@
   	<dependency>
 		<groupId>mysql</groupId>
 		<artifactId>mysql-connector-java</artifactId>
-		<version>5.1.6</version>
+		<version>${mysql-version}</version>
 	</dependency>
+	<dependency>
+		<groupId>dom4j</groupId>
+		<artifactId>dom4j</artifactId>
+		<version>${dom4j-version}</version>
+	</dependency>
+	<dependency>
+		<groupId>jaxen</groupId>
+		<artifactId>jaxen</artifactId>
+		<version>${jaxen-version}</version>
+	</dependency>              
   </dependencies>
   
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
   		<plugins>
  			<plugin>
     			<groupId>org.apache.maven.plugins</groupId>
