@@ -154,6 +154,10 @@ public class DataManipulationProcessor {
 	        	double temperature = json.getJSONObject("main").getDouble("temp");
 	        	double pressure = json.getJSONObject("main").getDouble("pressure");
 	        	
+	        	JSONObject precObject = json.getJSONObject("rain");
+	        	if (!precObject.isNullObject())
+	        		weather_info.setPrecipitation(precObject.getDouble("3h"));
+	        	
 	        	weather_info.setId(id);
 	        	weather_info.setWeather(weather);
 	        	weather_info.setDescription(description);

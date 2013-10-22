@@ -13,6 +13,7 @@ public class WeatherObject {
 	private String description = "undefined";
 	private double temperature = -1;
 	private double pressure = -1;
+	private double precipitation = 0;
 	private String icon = "undefined";
 	
 	
@@ -57,5 +58,11 @@ public class WeatherObject {
 				", description: " + this.getDescription() + 
 				", temperature: " + this.getTemperature() +
 				", pressure: " + this.getPressure();
+	}
+	public double getPrecipitation() {
+		return precipitation;
+	}
+	public void setPrecipitation(double precipitation) {
+		this.precipitation = precipitation;
 	}	
 }
