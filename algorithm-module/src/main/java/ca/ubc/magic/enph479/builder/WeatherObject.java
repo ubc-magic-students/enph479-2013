@@ -16,6 +16,9 @@ public class WeatherObject {
 	private double precipitation = 0;
 	private String icon = "undefined";
 	
+	private double temp_weight = 0.5;
+	private double prec_weight = 0.5;
+	
 	
 	public int getId() {
 		return id;
@@ -64,5 +67,8 @@ public class WeatherObject {
 	}
 	public void setPrecipitation(double precipitation) {
 		this.precipitation = precipitation;
-	}	
+	}
+	public double getWeatherScore() {
+		return (double) (temp_weight * this.temperature + prec_weight * this.precipitation);
+	}
 }

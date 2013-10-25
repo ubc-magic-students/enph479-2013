@@ -21,6 +21,7 @@ public class TwitterObject {
 	private String message = "undefined";
 	private int value = -1;
 	private int sentimentPolarity = -1;
+	private double weatherScore = -1;
 	
 	public int getId() {
 		return id;
@@ -101,5 +102,11 @@ public class TwitterObject {
 	}
 	public void setSentimentPolarity(int sentimentPolarity) {
 		this.sentimentPolarity = sentimentPolarity;
+	}
+	public double getWeatherScore() {
+		return weatherScore;
+	}
+	public void setWeatherScore(double weatherScore) {
+		this.weatherScore = weatherScore;
 	}	
 }

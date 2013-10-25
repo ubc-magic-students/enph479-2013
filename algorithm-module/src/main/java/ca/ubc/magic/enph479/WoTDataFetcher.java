@@ -47,6 +47,10 @@ public class WoTDataFetcher {
 		}
 	}
 	
+	public void prepareForFetchingLess() throws Exception  {
+		dmp = new DataManipulationProcessor();
+	}
+	
 	public void fetchDataExample() throws Exception {
 		String start_time = dmp.toEpochTime("2013 Sep 29 23:11:04 UTC");
 		String end_time = dmp.toEpochTime("2013 Sep 29 23:11:06 UTC");

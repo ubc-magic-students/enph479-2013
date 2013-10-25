@@ -23,12 +23,13 @@ public class DB_Testing {
             
             st = con.createStatement();
             
-            //String mysql1 = "INSERT INTO tweet_data " + "VALUES (1, 1234, 'Jan 01 1800 23:59:59', 111, 111, 999, 'sensor_test', 'test test test', 999, -1)";
-            String mysql2 = "SELECT * FROM tweet_data";
+            String mysql1 = "INSERT INTO tweet_data " + "VALUES (1, 1234, 'Jan 01 1800 23:59:59', 111, 111, 999, 'sensor_test', 'test test test', 999, -1, -1)";
+            //String mysql2 = "SELECT * FROM tweet_data";
             String mysql3 = "SELECT MAX(db_id) AS db_id FROM tweet_data";
+            //String mysql4 = "DELETE FROM tweet_data WHERE db_id=1";
             
-            //st.executeUpdate(mysql1);
-            rs = st.executeQuery(mysql2);
+            st.executeUpdate(mysql1);
+            //rs = st.executeQuery(mysql1);
 
             if (rs.next()) {
                 System.out.println(rs.getString(1) + rs.getString(2) + rs.getString(3));

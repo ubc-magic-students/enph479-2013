@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+
 import net.sf.json.JSONObject;
 
 /**
@@ -122,14 +123,23 @@ public class DataManipulationProcessor {
             JsonArray jarray = parser.parse(json_string_twitter).getAsJsonArray();
             Gson gson = new Gson();
             
+            WoTDataFetcher wdf = new WoTDataFetcher();
+            wdf.prepareForFetchingLess();
+            
 	        for(JsonElement obj : jarray )
 	        {
 	        	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
 	        	double lat = tweet.getLatitude();
 	        	double lon = tweet.getLongitude();
 	        	if ( (lon < -123.020 && lon > -123.27) && (lat < 49.315 && lat > 49.195)) {
+	        		//set sentiment polarity
 	        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
+	        		
+	        		//set weather
+	        		WeatherObject weatherScore = wdf.getWeatherFromLatLng(lat, lon);
+	        		tweet.setWeatherScore(weatherScore.getWeatherScore());
 	        		ltweets_incoming.add(tweet);
+	        		
 	        		if(is_debug)
 		            	System.out.println(tweet.printInfo());
 	        	}
