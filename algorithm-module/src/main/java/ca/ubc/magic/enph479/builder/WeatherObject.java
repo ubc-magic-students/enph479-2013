@@ -69,6 +69,11 @@ public class WeatherObject {
 		this.precipitation = precipitation;
 	}
 	public double getWeatherScore() {
-		return (double) (temp_weight * this.temperature + prec_weight * this.precipitation);
+		// happiness function for temperature
+		double temperature_happiness = 10*Math.exp(-Math.pow(this.temperature-21, 2)/150);
+		// happiness function for precipitation
+		double precipitation_happiness = 10*Math.exp(-1/5 * this.precipitation);
+		
+		return (double) (temp_weight * temperature_happiness + prec_weight * precipitation_happiness);
 	}
 }
