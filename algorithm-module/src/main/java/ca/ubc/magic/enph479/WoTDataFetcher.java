@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import ca.ubc.magic.enph479.DataManipulationProcessor.web_type;
 import ca.ubc.magic.enph479.DataManipulationProcessor.wot_type;
@@ -68,14 +69,15 @@ public class WoTDataFetcher {
 		DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
 		String start_time = date_format.format(date_start_time);
 		String end_time = date_format.format(date_end_time);
-		start_time += " UTC";
-		end_time += " UTC";
+		start_time += " PDT";
+		end_time += " PDT";
 		//update ref_date
 		Date date_ref_time = new Date(ref_datetime);
 		date_ref_time.setTime(date_ref_time.getTime() + fetch_interval * 1000);
 		//check if start time is greater than current time
 		//if it is, set current time to start time
 		Date date_current_time = new Date();
+		
 		if(date_ref_time.after(date_current_time))
 			date_ref_time = date_current_time;
 		String ref_time = date_format.format(date_ref_time);
@@ -83,6 +85,8 @@ public class WoTDataFetcher {
 		//get epoch time
 		String epoch_start_time = dmp.toEpochTime(start_time);
 		String epoch_end_time = dmp.toEpochTime(end_time);
+		date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
+		//String time_UTC = date_format.format(ref_datetime);
 		System.out.println("Fetching data @ " + ref_datetime);
 		//retrieve from WoT
 		dmp.getJsonFromWoT(wot_type.twitter, epoch_start_time, epoch_end_time);

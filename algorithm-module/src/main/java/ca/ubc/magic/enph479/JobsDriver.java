@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -35,6 +36,7 @@ public class JobsDriver {
 			else {
 				Date date_now = new Date();
 				DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
+				//date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
 				start_datetime = date_format.format(date_now);
 			}
 			

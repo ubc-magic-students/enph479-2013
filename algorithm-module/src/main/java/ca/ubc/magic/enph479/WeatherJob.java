@@ -37,16 +37,7 @@ public class WeatherJob implements Job{
 				tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData());
 				try {
 					Socket nodejs  = new Socket("localhost", TCPPORT);
-					StringBuffer buffer = new StringBuffer("{");
-					for (int i =0; i < tweetClusters.size(); i++) {
-						double [] center = tweetClusters.get(i).getCluster().getCenter();
-						WeatherObject weather = wdf.getWeatherFromLatLng(center[0], center[1]);
-						if (i != 0)
-							buffer.append(",");
-						buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather, wdf.getAllTweetsData())));
-					}
-					buffer.append("}");
-					nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
+					nodejs.getOutputStream().write(formatToJSON(tweetClusters, wdf).getBytes("UTF-8"));
 					nodejs.getOutputStream().flush();
 					nodejs.close();
 				}
@@ -60,6 +51,20 @@ public class WeatherJob implements Job{
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public static String formatToJSON(ArrayList<TweetCluster> tweetClusters, WoTDataFetcher wdf) throws Exception {
+		Gson gson = new Gson();
+		StringBuffer buffer = new StringBuffer("{");
+		for (int i =0; i < tweetClusters.size(); i++) {
+			double [] center = tweetClusters.get(i).getCluster().getCenter();
+			WeatherObject weather = wdf.getWeatherFromLatLng(center[0], center[1]);
+			if (i != 0)
+				buffer.append(",");
+			buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather, wdf.getAllTweetsData())));
+		}
+		buffer.append("}");
+		return buffer.toString();
 	}
 
 }
