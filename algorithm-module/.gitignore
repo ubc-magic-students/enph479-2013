@@ -8,3 +8,6 @@ release.properties
 pom.xml.releaseBackup
 git.properties
 output/
+
+//Don't ignore these files
+!target/*.jar
