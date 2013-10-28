@@ -34,16 +34,31 @@ public class TweetClusterer {
 	 */
 	private double ACUITY = 0.01;
 	
+	/**
+	 * Number of dimensions to cluster.
+	 */
+	private int numAttributes = 2;
+	
 	public TweetClusterer() {
 		clusterer.prepareForUse();
 		clusterer.setCutoff(CUTOFF);
 		clusterer.setAcuity(ACUITY);
 	}
 	
+	public TweetClusterer(int numAttributes) {
+		this();
+		this.numAttributes = numAttributes;
+	}
+	
 	public TweetClusterer(double acuity, double cutoff) {
 		clusterer.prepareForUse();
 		clusterer.setCutoff(cutoff);
 		clusterer.setAcuity(acuity);
+	}
+	
+	public TweetClusterer(double acuity, double cutoff, int numAttributes) {
+		this(acuity, cutoff);
+		this.numAttributes = numAttributes;
 	}
 	
 	/**
@@ -59,30 +74,13 @@ public class TweetClusterer {
 		if (newTweets.size() == 0)
 			return tweetClusterList;
 		
-		final int numAtts = newTweets.get(0).numAttributes();
-		
-		ArrayList<Attribute> atts = new ArrayList<Attribute>(numAtts);
-		for (int i=0; i< numAtts; i++) {
-			atts.add(new Attribute("att"+i));
-		}
-
-		for (TweetInstance inst : newTweets) {
-			Instances referenceInstances = new Instances("Dataset" + inst.getId(), atts , 0);
-	    	inst.setDataset(referenceInstances);
-			clusterer.trainOnInstance(inst);
-		}
+		for (TweetInstance inst : newTweets)
+			trainClusterer(inst);
 		
 		HashMap<Integer, ArrayList<TweetInstance>> map = new HashMap<Integer, ArrayList<TweetInstance>>();
 		
 		for (Map.Entry<Integer, TwitterObject> entry : allTweets.entrySet()) {
-			TweetInstance tempTweetInst = new TweetInstance(numAtts, entry.getValue().getId());
-			//TODO: figure out how to make this work with more than two attributes
-			tempTweetInst.setValue(new Attribute("latitude", 0), entry.getValue().getLatitude());
-			tempTweetInst.setValue(new Attribute("longitude", 1), entry.getValue().getLongitude());
-			if (numAtts == 3)
-				tempTweetInst.setValue(new Attribute("time", 2), entry.getValue().toEpochTime());
-			
-			tempTweetInst.setDataset(new Instances("Dataset" + tempTweetInst.getId(), atts , 0));
+			TweetInstance tempTweetInst = entry.getValue().toTweetInstance(numAttributes);
 			
 			int index = returnIndex(clusterer.getVotesForInstance(tempTweetInst));
 			
@@ -101,7 +99,7 @@ public class TweetClusterer {
 		ArrayList<TweetCluster> tempClusterList = new ArrayList<TweetCluster>();
 		double clusterId = 0.0;
 	    for (Map.Entry<Integer, ArrayList<TweetInstance>> entry : map.entrySet()) {
-	    	SphereCluster c = new SphereCluster(entry.getValue(), numAtts);
+	    	SphereCluster c = new SphereCluster(entry.getValue(), numAttributes);
 	    	c.setId(clusterId++);
 	    	TweetCluster tc = new TweetCluster(c);
 	    	for (Instance i : entry.getValue()) {
@@ -116,6 +114,28 @@ public class TweetClusterer {
 	    tweetClusterList = tempClusterList;
 		
 		return tweetClusterList;
+		
+	}
+	
+	/**
+	 * A method to train the clusterer with newTweets
+	 * 
+	 * @param newTweets
+	 */
+	public void trainClusterer(TweetInstance newTweets) {	
+		if (newTweets == null)
+			return;
+		
+		int numAtts = newTweets.numAttributes();
+		
+		ArrayList<Attribute> atts = new ArrayList<Attribute>(numAtts);
+		for (int i=0; i< numAtts; i++) {
+			atts.add(new Attribute("att"+i));
+		}
+		
+		Instances referenceInstances = new Instances("Dataset" + newTweets.getId(), atts , 0);
+	    newTweets.setDataset(referenceInstances);
+		clusterer.trainOnInstance(newTweets);
 		
 	}
 	

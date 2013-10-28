@@ -2,7 +2,9 @@ package ca.ubc.magic.enph479;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -11,6 +13,9 @@ import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
+
+import ca.ubc.magic.enph479.builder.TweetInstance;
+import ca.ubc.magic.enph479.builder.TwitterObject;
 
 public class JobsDriver {
 
@@ -40,6 +45,12 @@ public class JobsDriver {
 			}
 
 			TweetClusterer clusterer = new TweetClusterer();
+			
+			//If Tweet objects are found in the database, train the clusterer before executing jobs
+			for (Map.Entry<Integer, TwitterObject> entry : wdf.getAllTweetsData().entrySet()) {
+				TweetInstance inst = entry.getValue().toTweetInstance(2);
+				clusterer.trainClusterer(inst);
+			}
 		
 			JobDetail job = JobBuilder.newJob(WeatherJob.class)
 				.withIdentity("WeatherJob")
@@ -50,6 +61,7 @@ public class JobsDriver {
 				.build();
 		
 			Scheduler schedule = StdSchedulerFactory.getDefaultScheduler();
+			// Pass objects to Job
 			schedule.getContext().put("wdf", wdf);
 			schedule.getContext().put("clusterer", clusterer);
 			schedule.scheduleJob(job, trigger);
