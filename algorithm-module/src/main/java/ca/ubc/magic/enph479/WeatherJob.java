@@ -17,6 +17,8 @@ import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.WeatherObject;
 
 public class WeatherJob implements Job{
+	
+	private static final int TCPPORT = 8080;
 
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
@@ -34,7 +36,7 @@ public class WeatherJob implements Job{
 				System.out.println("new tweet instances found!");
 				tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData());
 				try {
-					Socket nodejs  = new Socket("localhost", 8080);
+					Socket nodejs  = new Socket("localhost", TCPPORT);
 					StringBuffer buffer = new StringBuffer("{");
 					for (int i =0; i < tweetClusters.size(); i++) {
 						double [] center = tweetClusters.get(i).getCluster().getCenter();

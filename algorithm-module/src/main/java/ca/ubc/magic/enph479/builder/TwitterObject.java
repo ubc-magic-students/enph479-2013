@@ -2,7 +2,11 @@ package ca.ubc.magic.enph479.builder;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import weka.core.Attribute;
+import weka.core.Instances;
 
 /**
  * TwitterObject is the object that contains all of the structured data of tweets fetched from WoTKit
@@ -109,4 +113,28 @@ public class TwitterObject {
 	public void setWeatherScore(double weatherScore) {
 		this.weatherScore = weatherScore;
 	}	
+	
+	/**
+	 * Converts TwitterObject to TweetInstance
+	 * 
+	 * @param numAtts number of attributes to be considered. (Latitude, Longitude and time)
+	 * @return A TweetInstance
+	 */
+	public TweetInstance toTweetInstance(int numAtts) {
+		TweetInstance tempTweetInst = new TweetInstance(numAtts, this.getId());
+		//TODO: figure out how to make this work with more than two attributes
+		tempTweetInst.setValue(new Attribute("latitude", 0), this.getLatitude());
+		tempTweetInst.setValue(new Attribute("longitude", 1), this.getLongitude());
+		if (numAtts == 3)
+			tempTweetInst.setValue(new Attribute("time", 2), this.toEpochTime());
+		
+		ArrayList<Attribute> atts = new ArrayList<Attribute>(numAtts);
+		for (int i=0; i< numAtts; i++) {
+			atts.add(new Attribute("att"+i));
+		}
+		
+		tempTweetInst.setDataset(new Instances("Dataset" + tempTweetInst.getId(), atts , 0));
+		
+		return tempTweetInst;
+	}
 }
