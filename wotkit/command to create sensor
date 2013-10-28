@@ -1,1 +1,1 @@
-curl --user 2013enph479:engphyssucks --request POST --header "Content-Type: application/json" --data-binary @test-weather-sensor.txt 'http://wotkit.sensetecnic.com/api/sensors'
+curl --user 2013enph479:engphyssucks --request POST --header "Content-Type: application/json" --data-binary @test-twitter-sensor.txt 'http://bennu.magic.ubc.ca/wotkit/api/sensors'
