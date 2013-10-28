@@ -12,11 +12,6 @@ server.listen(8090);
 // Import credentials for DB and Twitter
 var credentials = require('./credentials.js');
 
-// Connect to Twitter
-var Twit = require('twit');
-var T = new Twit(credentials.twitter_access);
-var stream = T.stream('statuses/sample');
-
 // Set application configuration details
 app.configure(function () {
     app.set('view engine', 'jade');
@@ -81,27 +76,3 @@ javaSocket.on('data', firstDataListenner);
  });
 });
  javaServer.listen(javaPort);
-
-
-
-
-var tweet_array = [];
-
-stream.on('tweet', function (tweet) {
-    if (tweet && tweet.text) {
-        //io.sockets.in('hashtagcloud').emit('hashtag tweet', { data: tweet.text });
-    }
-});
-
-stream.on('connect', function(request) {
-    console.log("TWITTER CONNECT");
-});
-
-stream.on('disconnect', function (disconnectMessage) {
-    console.log("TWITTER DISCONNECT MESSAGE: " + disconnectMessage);
-    stream.start();
-});
-
-stream.on('warning', function (warning) {
-    console.log("TWITTER WARNING:" + warning);
-});
