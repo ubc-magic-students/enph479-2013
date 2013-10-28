@@ -3,11 +3,11 @@
 .settings/
 .metadata/
 *.log
-target/
 release.properties
 pom.xml.releaseBackup
 git.properties
 output/
 
+target/*
 //Don't ignore these files
 !target/*.jar
