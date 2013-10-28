@@ -29,7 +29,7 @@ stream.on('connect', function(request) {
 });
 
 stream.on('disconnect', function (disconnectMessage) {
-    console.log("TWITTER DISCONNECT MESSAGE: " + disconnectMessage);
+    console.log("TWITTER DISCONNECT MESSAGE: " + JSON.stringify(disconnectMessage));
     stream.start();
 });
 
