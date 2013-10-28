@@ -19,16 +19,18 @@ public class WDF_Driver {
 	public static void main(String[] args) throws Exception {
 		
 		//declare variables
-		int fetch_interval = 180; //in seconds
+		int fetch_interval = 60; //in seconds
 		String start_datetime = "undefined";
-		boolean is_demo = true; //fetch from a custom defined starting time if true, current starting time is false
+		boolean is_testing = true; //fetch from a custom defined starting time if true, current starting time is false
 		
 		//initialize WoTDataFetcher
 		WoTDataFetcher wdf = new WoTDataFetcher();
+		System.setProperty("jsse.enableSNIExtension", "false");
 		
-		if(is_demo)
+		if(is_testing)
 		{
-			start_datetime = "2013 Oct 11 20:48:00";
+			//start_datetime = "2013 Oct 11 20:48:00";
+			start_datetime = "2013 Oct 28 19:19:20";
 		}
 		else {
 			Date date_now = new Date();
@@ -67,8 +69,12 @@ public class WDF_Driver {
 			nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
 			nodejs.getOutputStream().flush();
 			System.out.println("Going through while loop.....");
-			Thread.sleep(3000);
-			//Thread.sleep((long) (fetch_interval * 1000 * 0.9));
+			if(is_testing){
+				//Thread.sleep(3000);
+			}
+			else{
+				Thread.sleep((long) (fetch_interval * 1000 * 0.9));
+			}
 			} catch (IOException e){
 				System.err.println("No one is listening to Socket.");
 			}

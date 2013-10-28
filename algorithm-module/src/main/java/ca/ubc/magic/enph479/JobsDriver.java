@@ -21,7 +21,7 @@ public class JobsDriver {
 
 	public static void main(String[] args) {
 		try {
-			int fetch_interval = 60; //in seconds
+			int fetch_interval = 30; //in seconds
 			String start_datetime = "undefined";
 			boolean is_demo = true; //fetch from a custom defined starting time if true, current starting time is false
 			
@@ -57,7 +57,7 @@ public class JobsDriver {
 				.build();
 		
 			Trigger trigger = TriggerBuilder.newTrigger()
-				.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(5).repeatForever())
+				.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(15).repeatForever())
 				.build();
 		
 			Scheduler schedule = StdSchedulerFactory.getDefaultScheduler();
