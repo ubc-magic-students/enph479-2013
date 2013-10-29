@@ -86,8 +86,9 @@ public class WoTDataFetcher {
 		String epoch_start_time = dmp.toEpochTime(start_time);
 		String epoch_end_time = dmp.toEpochTime(end_time);
 		date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
-		//String time_UTC = date_format.format(ref_datetime);
-		System.out.println("Fetching data @ " + ref_datetime);
+		Date date_UTC = new Date(ref_datetime);
+		String time_UTC = date_format.format(date_UTC);
+		System.out.println("Fetching data @ " + ref_datetime + "(UTC: " + time_UTC + ")");
 		//retrieve from WoT
 		dmp.getJsonFromWoT(wot_type.twitter, epoch_start_time, epoch_end_time);
 		dmp.toListFromJsonParser(wot_type.twitter);
