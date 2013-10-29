@@ -20,7 +20,7 @@ public class WDF_Driver {
 	public static void main(String[] args) throws Exception {
 		
 		//declare variables
-		int fetch_interval = 60; //in seconds
+		int fetch_interval = 15; //in seconds
 		String start_datetime = "undefined";
 		boolean is_testing = false; //fetch from a custom defined starting time if true, current starting time is false
 		
@@ -36,7 +36,7 @@ public class WDF_Driver {
 		else {
 			Date date_now = new Date();
 			DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
-			date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
+			//date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
 			start_datetime = date_format.format(date_now);
 		}
 		
