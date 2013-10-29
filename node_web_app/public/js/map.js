@@ -1,7 +1,7 @@
 $(function() {
   
   var map;
-  var circles = [];
+  var clusters = [];
   var icons = [];
 
   function initialize() {
@@ -35,29 +35,52 @@ $(function() {
     icons.push(marker);
   }
 
-  function addCircle(location, size) {
-    var circle = new google.maps.Circle({
-      strokeColor: '#FF0000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FF0000',
-      fillOpacity: 0.35,
-      center: location,
-      radius: size*10000,
-      map: map
-    });
-    circles.push(circle);
+  function addSentimentIcon(location, sentiment) {
+    if (sentiment > 2.5) {
+      addIcon(location, '/img/smile.jpg');
+    } else if (sentiment < 1.5) {
+      addIcon(location, '/img/sad.png');
+    } else {
+      addIcon(location, '/img/neutral.png');
+    }
+  }
+
+  function addWeatherIcon(location, weather_icon) {
+    var icon_string = "http://openweathermap.org/img/w/"+weather_icon+".png";
+    addIcon(location, icon_string);
+  }
+
+  function addCluster(location, size) {
+    if (size > 0) {
+      var circle = new google.maps.Circle({
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FF0000',
+        fillOpacity: 0.35,
+        center: location,
+        radius: size*111000,
+        map: map
+      });
+      clusters.push(circle);
+    } else {
+      var marker = new google.maps.Marker({
+        position: location,
+        map: map
+      });
+      clusters.push(marker);
+    }
+    
   }
 
   function setAllMap(map) {
-    for (var i = 0; i < circles.length; i++) {
-      circles[i].setMap(map);
+    for (var i = 0; i < clusters.length; i++) {
+      clusters[i].setMap(map);
     }
     for (var i = 0; i < icons.length; i++) {
       icons[i].setMap(map);
     }
   }
-
 
   function clearMap() {
     setAllMap(null);
@@ -66,25 +89,19 @@ $(function() {
   function deleteMap() {
     clearMap();
     icons = [];
-    circles = [];
+    clusters = [];
   }
 
   function addNewTweet(tweet) {
     deleteMap();
-    //$('div#content').append('<div class="tweetbox">' + tweet + '</div>');
     clusterCollection = $.parseJSON(tweet);
     for (var cluster in clusterCollection) {
       if (clusterCollection.hasOwnProperty(cluster)) {
         //console.log("lat: "+clusterCollection[cluster].centerLat+", long: "+clusterCollection[cluster].centerLong+", rad: "+clusterCollection[cluster].clusterRadius);
         clusterLatLng = new google.maps.LatLng(clusterCollection[cluster].centerLat,clusterCollection[cluster].centerLong);
-        addCircle(clusterLatLng, clusterCollection[cluster].clusterRadius);
-        if (clusterCollection[cluster].overallSentiment > 2.5) {
-          addIcon(clusterLatLng, '/img/smile.jpg');
-        } else if (clusterCollection[cluster].overallSentiment < 1.5) {
-          addIcon(clusterLatLng, '/img/sad.png');
-        } else {
-          addIcon(clusterLatLng, '/img/neutral.png');
-        }
+        addCluster(clusterLatLng, clusterCollection[cluster].clusterRadius);
+        //addSentimentIcon(clusterLatLng, clusterCollection[cluster].overallSentiment);
+        addWeatherIcon(clusterLatLng, clusterCollection[cluster].weather.icon);
       }
     }
     setAllMap(map);
@@ -92,4 +109,3 @@ $(function() {
 
   google.maps.event.addDomListener(window, 'load', initialize);
 });
-  
