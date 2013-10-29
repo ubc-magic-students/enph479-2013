@@ -17,9 +17,34 @@ $(function() {
 
   var socket = io.connect('http://localhost');
   socket.emit('join hashtagcloud');
+  socket.emit('join latlong');
 
   socket.on('hashtag tweet', function(data) {
     addNewTweet(data.data);
+  });
+
+  var tweetlatlongs=[];
+
+  socket.on('tweet latlongs', function(data) {
+    //addTweetLatLongs(data.data);
+
+    function addTweetLatLongs(tweets) {
+      var length = tweets.length;
+      console.log('sup');
+        for (var i = 0; i < length; i++) {
+          var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(tweets[i].lat,tweets[i].lng),
+            map: map,
+            icon: {
+              url: '/img/neutral.png',
+            }
+          });
+          tweetlatlongs.push(marker);
+        }
+        for (var i = 0; i < icons.length; i++) {
+          tweetlatlongs[i].setMap(map);
+        }
+      }
   });
 
   var clusterLatLng;
@@ -70,7 +95,6 @@ $(function() {
       });
       clusters.push(marker);
     }
-    
   }
 
   function setAllMap(map) {
@@ -102,6 +126,10 @@ $(function() {
         addCluster(clusterLatLng, clusterCollection[cluster].clusterRadius);
         //addSentimentIcon(clusterLatLng, clusterCollection[cluster].overallSentiment);
         addWeatherIcon(clusterLatLng, clusterCollection[cluster].weather.icon);
+        /*var length = clusterCollection[cluster].tweetIDs.length;
+        for (var i = 0) {
+          clusterCollection[cluster].tweetIDs[i];
+        }*/
       }
     }
     setAllMap(map);
