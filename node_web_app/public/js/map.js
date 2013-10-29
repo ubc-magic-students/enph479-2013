@@ -30,11 +30,11 @@ $(function() {
         if (clusterCollection.hasOwnProperty(cluster)) {
           //console.log("lat: "+clusterCollection[cluster].centerLat+", long: "+clusterCollection[cluster].centerLong+", rad: "+clusterCollection[cluster].clusterRadius);
           clusterLatLng = new google.maps.LatLng(clusterCollection[cluster].centerLat,clusterCollection[cluster].centerLong);
-          addCluster(clusterLatLng, clusterCollection[cluster].clusterRadius);
+          addCluster(clusterLatLng, clusterCollection[cluster].clusterRadius, clusterCollection[cluster].overallSentiment);
           //addSentimentIcon(clusterLatLng, clusterCollection[cluster].overallSentiment);
           addWeatherIcon(clusterLatLng, clusterCollection[cluster].weather.icon);
-          console.log("get cluster tweets: " + clusterCollection[cluster].tweetIDs);
-          socket.emit('get cluster tweets', { data: clusterCollection[cluster].tweetIDs });
+          //console.log("get cluster tweets: " + clusterCollection[cluster].tweetIDs);
+          //socket.emit('get cluster tweets', { data: clusterCollection[cluster].tweetIDs });
         }
       }
       setAllMap(map);
@@ -123,13 +123,24 @@ $(function() {
     addIcon(location, icon_string);
   }
 
-  function addCluster(location, size) {
+  function getColor(sentiment) {
+    if (sentiment > 2.5) {
+      return 'FF0000';
+    } else if (sentiment < 1.5) {
+      return '0000FF';
+    } else {
+      return '800080';
+    }
+  }
+
+  function addCluster(location, size, sentiment) {
+    color = getColor(sentiment); //'FF0000'
     if (size > 0) {
       var circle = new google.maps.Circle({
-        strokeColor: '#FF0000',
+        strokeColor: '#'+color,
         strokeOpacity: 0.8,
         strokeWeight: 2,
-        fillColor: '#FF0000',
+        fillColor: '#'+color,
         fillOpacity: 0.35,
         center: location,
         radius: size*111000,
@@ -137,9 +148,14 @@ $(function() {
       });
       clusters.push(circle);
     } else {
+      var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + color,
+                      new google.maps.Size(21, 34),
+                      new google.maps.Point(0,0),
+                      new google.maps.Point(10, 34));
       var marker = new google.maps.Marker({
         position: location,
-        map: map
+        map: map,
+        icon: pinImage
       });
       clusters.push(marker);
     }
