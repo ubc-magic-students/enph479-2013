@@ -124,9 +124,15 @@ $(function() {
   }
 
   function getColor(sentiment) {
-    var red_sentiment = (Math.floor(sentiment / 4.0 * 256)).toString(16);
+    var red_sentiment = (Math.floor(sentiment / 4.0 * 255)).toString(16);
     console.log('red_sentiment: '+red_sentiment);
-    var blue_sentiment = (Math.floor(256 - sentiment / 4.0 * 256)).toString(16);
+    if (red_sentiment === '0') {
+      red_sentiment = '00';
+    }
+    var blue_sentiment = (Math.floor(255 - sentiment / 4.0 * 255)).toString(16);
+    if (blue_sentiment === '0') {
+      blue_sentiment = '00';
+    }
     console.log('blue_sentiment: '+blue_sentiment);
     return red_sentiment + '00' + blue_sentiment;
   }

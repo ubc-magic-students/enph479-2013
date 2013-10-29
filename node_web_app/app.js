@@ -59,6 +59,20 @@ io.sockets.on('connection', function (socket) {
         }
       })
     });
+
+    socket.on('join graph', function(data) {
+      socket.join('graph');
+
+      connection.query("SELECT sentimentPolarity, weatherScore FROM ENPH479.tweet_data_clone", function(err, rows) {
+        // There was a error or not?
+        if(err != null) {
+            console.log("Query error:" + err);
+        } else {
+            // Shows the result on console window
+            io.sockets.in('graph').emit('return graph points', { data: rows });
+        }
+      });
+    });
   });
 
 process.on('uncaughtException', function(err) {
@@ -75,6 +89,10 @@ app.get('/map', function (req, res) {
 // Tag Cloud Page
 app.get('/', function (req, res) {
     res.render('index.jade');
+});
+
+app.get('/graph', function(req, res) {
+  res.render('graph.jade');
 });
 
 /********** Cluster Import Process ************/
