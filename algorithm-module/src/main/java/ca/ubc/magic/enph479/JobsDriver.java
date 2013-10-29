@@ -1,5 +1,7 @@
 package ca.ubc.magic.enph479;
 
+import java.net.ConnectException;
+import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
+import ca.ubc.magic.enph479.builder.TweetCluster;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 
@@ -47,13 +50,25 @@ public class JobsDriver {
 			}
 
 			TweetClusterer clusterer = new TweetClusterer();
-			
+			ArrayList<TweetInstance> tweetInstanceList = new ArrayList<TweetInstance>();
 			//If Tweet objects are found in the database, train the clusterer before executing jobs
 			for (Map.Entry<Integer, TwitterObject> entry : wdf.getAllTweetsData().entrySet()) {
-				TweetInstance inst = entry.getValue().toTweetInstance(2);
-				clusterer.trainClusterer(inst);
+				tweetInstanceList.add(entry.getValue().toTweetInstance(2));
 			}
-		
+			
+			ArrayList<TweetCluster> tweetClusters = clusterer.cluster(tweetInstanceList, wdf.getAllTweetsData());
+			//TODO: make the socket connection cleaner
+			try {
+				Socket nodejs  = new Socket("localhost", 8080);
+				nodejs.getOutputStream().write(WeatherJob.formatToJSON(tweetClusters, wdf).getBytes("UTF-8"));
+				nodejs.getOutputStream().flush();
+				nodejs.close();
+			}
+			catch (ConnectException c) {
+				System.err.println("No one is listening to the port");
+			}
+			
+			//Initialize Jobs
 			JobDetail job = JobBuilder.newJob(WeatherJob.class)
 				.withIdentity("WeatherJob")
 				.build();
