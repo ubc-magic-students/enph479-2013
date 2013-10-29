@@ -6,7 +6,8 @@ var javaServer = require('net').createServer();
 var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
-  , io = require('socket.io').listen(server);
+  , io = require('socket.io').listen(server)
+  , mysql = require('mysql');
 server.listen(8090);
 
 // Import credentials for DB and Twitter
@@ -27,6 +28,21 @@ io.sockets.on('connection', function (socket) {
   socket.on('join hashtagcloud', function (data) {
     socket.join('hashtagcloud');
   });
+
+  socket.on('join latlong', function(data) {
+    socket.join('latlong');
+
+    connection.query("SELECT * from ENPH479.tweet_data", function(err, rows){
+        // There was a error or not?
+        if(err != null) {
+            console.log("Query error:" + err);
+        } else {
+            // Shows the result on console window
+            console.log(rows[0].lat);
+            io.sockets.in('latlong').emit('tweet latlongs', { data: rows });
+        }
+      })
+  })
 });
 
 process.on('uncaughtException', function(err) {
@@ -45,7 +61,7 @@ app.get('/', function (req, res) {
     res.render('index.jade');
 });
 
-/********** Tweets Import and Hashtag Count Calculation ************/
+/********** Cluster Import Process ************/
 javaServer.on('listening', function () {
    console.log('Server is listening on ' + javaPort);
 });
@@ -76,3 +92,21 @@ javaSocket.on('data', firstDataListenner);
  });
 });
  javaServer.listen(javaPort);
+
+/********** DB Access Process ************/
+var connection = mysql.createConnection({
+  host : 'localhost',
+  port : 3306,
+  database: 'ENPH479',
+  user : 'root',
+  password : ''
+});
+
+connection.connect(function(err){
+  if(err != null) {
+    console.log('Error connecting to mysql:' + err+'\n');
+  }
+});
+
+
+/*connection.end();*/
