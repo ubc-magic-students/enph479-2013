@@ -11,3 +11,4 @@ output/
 target/*
 //Don't ignore these files
 !target/*.jar
+/target
