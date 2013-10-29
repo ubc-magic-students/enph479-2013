@@ -13,6 +13,7 @@ var stream = T.stream('statuses/filter', { locations: vancouver });
 var command;
 stream.on('tweet', function (tweet) {
 		if (tweet && tweet.text && tweet.coordinates && tweet.coordinates.coordinates) {
+			console.log(tweet.text);
 			command = "curl --user "+credentials.wotkit_access.user+":"+credentials.wotkit_access.password+" --request POST -d value="+tweet.id+" -d lng="+tweet.coordinates.coordinates[0]+" -d lat="+tweet.coordinates.coordinates[1]+" -d message=\""+tweet.text+"\" 'http://bennu.magic.ubc.ca/wotkit/api/sensors/tweets-in-vancouver/data'";
 			child = exec(command, function (error, stdout, stderr) {
 				sys.print('stdout: ' + stdout);
