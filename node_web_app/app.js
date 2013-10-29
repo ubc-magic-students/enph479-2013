@@ -27,6 +27,22 @@ app.configure(function () {
 io.sockets.on('connection', function (socket) {
   socket.on('join hashtagcloud', function (data) {
     socket.join('hashtagcloud');
+
+    // query for cluster tweet ids
+    socket.on('get cluster tweets', function(data) {
+      var query_string = "SELECT lat, lng FROM ENPH479.tweet_data WHERE id in ("+data.data+")";
+      console.log("query_string: " + query_string);
+      connection.query(query_string, function(err, rows){
+        // There was a error or not?
+        if(err != null) {
+          console.log("Query error:" + err);
+        } else {
+          // Shows the result on console window
+          //console.log(rows[0].lat);
+          socket.emit('return tweet latlng', { data: rows });
+        }
+      });
+    });
   });
 
   socket.on('join latlong', function(data) {
@@ -38,12 +54,12 @@ io.sockets.on('connection', function (socket) {
             console.log("Query error:" + err);
         } else {
             // Shows the result on console window
-            console.log(rows[0].lat);
-            io.sockets.in('latlong').emit('tweet latlongs', { data: rows });
+            //console.log(rows[0].lat);
+            //io.sockets.in('latlong').emit('tweet latlongs', { data: rows });
         }
       })
-  })
-});
+    });
+  });
 
 process.on('uncaughtException', function(err) {
     console.log(err);

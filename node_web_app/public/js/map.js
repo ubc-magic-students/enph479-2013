@@ -20,7 +20,56 @@ $(function() {
   socket.emit('join latlong');
 
   socket.on('hashtag tweet', function(data) {
+    console.log(data.data);
     addNewTweet(data.data);
+
+    function addNewTweet(tweet) {
+      deleteMap();
+      clusterCollection = $.parseJSON(tweet);
+      for (var cluster in clusterCollection) {
+        if (clusterCollection.hasOwnProperty(cluster)) {
+          //console.log("lat: "+clusterCollection[cluster].centerLat+", long: "+clusterCollection[cluster].centerLong+", rad: "+clusterCollection[cluster].clusterRadius);
+          clusterLatLng = new google.maps.LatLng(clusterCollection[cluster].centerLat,clusterCollection[cluster].centerLong);
+          addCluster(clusterLatLng, clusterCollection[cluster].clusterRadius);
+          //addSentimentIcon(clusterLatLng, clusterCollection[cluster].overallSentiment);
+          addWeatherIcon(clusterLatLng, clusterCollection[cluster].weather.icon);
+          console.log("get cluster tweets: " + clusterCollection[cluster].tweetIDs);
+          socket.emit('get cluster tweets', { data: clusterCollection[cluster].tweetIDs });
+        }
+      }
+      setAllMap(map);
+    }
+  });
+  
+  function get_random_color() {
+      var letters = '0123456789ABCDEF'.split('');
+      var color = '';
+      for (var i = 0; i < 6; i++ ) {
+          color += letters[Math.round(Math.random() * 15)];
+      }
+      return color;
+  }
+
+  socket.on('return tweet latlng', function(data) {
+    var length = data.data.length;
+    var pinColor = get_random_color(); // a random blue color that i picked
+        for (var i = 0; i < length; i++) {
+
+          var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
+                      new google.maps.Size(21, 34),
+                      new google.maps.Point(0,0),
+                      new google.maps.Point(10, 34));
+
+          var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(data.data[i].lat,data.data[i].lng),
+            map: map,
+            icon: pinImage
+          });
+          tweetlatlongs.push(marker);
+        }
+        for (var i = 0; i < tweetlatlongs.length; i++) {
+          tweetlatlongs[i].setMap(map);
+        }
   });
 
   var tweetlatlongs=[];
@@ -30,7 +79,6 @@ $(function() {
 
     function addTweetLatLongs(tweets) {
       var length = tweets.length;
-      console.log('sup');
         for (var i = 0; i < length; i++) {
           var marker = new google.maps.Marker({
             position: new google.maps.LatLng(tweets[i].lat,tweets[i].lng),
@@ -114,25 +162,7 @@ $(function() {
     clearMap();
     icons = [];
     clusters = [];
-  }
-
-  function addNewTweet(tweet) {
-    deleteMap();
-    clusterCollection = $.parseJSON(tweet);
-    for (var cluster in clusterCollection) {
-      if (clusterCollection.hasOwnProperty(cluster)) {
-        //console.log("lat: "+clusterCollection[cluster].centerLat+", long: "+clusterCollection[cluster].centerLong+", rad: "+clusterCollection[cluster].clusterRadius);
-        clusterLatLng = new google.maps.LatLng(clusterCollection[cluster].centerLat,clusterCollection[cluster].centerLong);
-        addCluster(clusterLatLng, clusterCollection[cluster].clusterRadius);
-        //addSentimentIcon(clusterLatLng, clusterCollection[cluster].overallSentiment);
-        addWeatherIcon(clusterLatLng, clusterCollection[cluster].weather.icon);
-        /*var length = clusterCollection[cluster].tweetIDs.length;
-        for (var i = 0) {
-          clusterCollection[cluster].tweetIDs[i];
-        }*/
-      }
-    }
-    setAllMap(map);
+    tweetlatlongs = [];
   }
 
   google.maps.event.addDomListener(window, 'load', initialize);
