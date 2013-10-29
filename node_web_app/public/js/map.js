@@ -124,13 +124,11 @@ $(function() {
   }
 
   function getColor(sentiment) {
-    if (sentiment > 2.5) {
-      return 'FF0000';
-    } else if (sentiment < 1.5) {
-      return '0000FF';
-    } else {
-      return '800080';
-    }
+    var red_sentiment = (Math.floor(sentiment / 4.0 * 256)).toString(16);
+    console.log('red_sentiment: '+red_sentiment);
+    var blue_sentiment = (Math.floor(256 - sentiment / 4.0 * 256)).toString(16);
+    console.log('blue_sentiment: '+blue_sentiment);
+    return red_sentiment + '00' + blue_sentiment;
   }
 
   function addCluster(location, size, sentiment) {
