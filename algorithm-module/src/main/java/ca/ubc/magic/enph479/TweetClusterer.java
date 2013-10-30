@@ -27,12 +27,12 @@ public class TweetClusterer {
 	/**
 	 * The minimum increase of category utility to add a new node to the hierarchy.
 	 */
-	private double CUTOFF = 0.002;
+	private double CUTOFF = 0.08;
 	
 	/**
 	 * The minimal standard deviation of a cluster attribute.
 	 */
-	private double ACUITY = 0.01;
+	private double ACUITY = 0.005;
 	
 	/**
 	 * Number of dimensions to cluster.
