@@ -1,13 +1,10 @@
 package ca.ubc.magic.enph479;
 
-import java.net.ConnectException;
-import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.List;
 
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -17,11 +14,11 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
-import ca.ubc.magic.enph479.builder.TweetCluster;
-import ca.ubc.magic.enph479.builder.TweetInstance;
-import ca.ubc.magic.enph479.builder.TwitterObject;
+import ca.ubc.magic.enph479.builder.Region;
 
-public class JobsDriver {
+public class JobDriver {
+	
+	private static int NUMREGIONS = 3;
 
 	public static void main(String[] args) {
 		try {
@@ -48,24 +45,10 @@ public class JobsDriver {
 				System.out.println("Error while initializing WotDataFetcher...");
 				return;
 			}
-
-			TweetClusterer clusterer = new TweetClusterer();
-			ArrayList<TweetInstance> tweetInstanceList = new ArrayList<TweetInstance>();
-			//If Tweet objects are found in the database, train the clusterer before executing jobs
-			for (Map.Entry<Integer, TwitterObject> entry : wdf.getAllTweetsData().entrySet()) {
-				tweetInstanceList.add(entry.getValue().toTweetInstance(2));
-			}
 			
-			ArrayList<TweetCluster> tweetClusters = clusterer.cluster(tweetInstanceList, wdf.getAllTweetsData());
-			//TODO: make the socket connection cleaner
-			try {
-				Socket nodejs  = new Socket("localhost", 8080);
-				nodejs.getOutputStream().write(WeatherJob.formatToJSON(tweetClusters, wdf).getBytes("UTF-8"));
-				nodejs.getOutputStream().flush();
-				nodejs.close();
-			}
-			catch (ConnectException c) {
-				System.err.println("No one is listening to the port");
+			List<Region> regionList = new ArrayList<Region>();
+			for (int i = 0; i < NUMREGIONS; i++) {
+				regionList.add(new Region("region" + i));
 			}
 			
 			//Initialize Jobs
@@ -80,7 +63,7 @@ public class JobsDriver {
 			Scheduler schedule = StdSchedulerFactory.getDefaultScheduler();
 			// Pass objects to Job
 			schedule.getContext().put("wdf", wdf);
-			schedule.getContext().put("clusterer", clusterer);
+			schedule.getContext().put("regionList", regionList);
 			schedule.scheduleJob(job, trigger);
 			schedule.start();
 			
