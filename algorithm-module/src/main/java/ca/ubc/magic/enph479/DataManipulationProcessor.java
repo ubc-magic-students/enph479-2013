@@ -41,6 +41,7 @@ public class DataManipulationProcessor {
 	private int westVancouver = 0;
 	private int centralVancouver = 1;
 	private int eastVancouver = 2;
+	private int region_count = 3;
 	
 	private boolean is_debug = true;
 	/*private String[] wot_url_tweet = new String[] {"http://wotkit.sensetecnic.com/api/sensors/2013enph479.tweets-in-vancouver/data?start=",
@@ -261,6 +262,14 @@ public class DataManipulationProcessor {
 	
 	public ArrayList<TwitterObject> gettweets_incoming() {
 		return ltweets_incoming;
+	}
+
+	public int getRegion_count() {
+		return region_count;
+	}
+
+	public void setRegion_count(int region_count) {
+		this.region_count = region_count;
 	}
 
 }

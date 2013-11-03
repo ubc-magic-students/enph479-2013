@@ -29,6 +29,10 @@ public class WoTDataFetcher {
 	public HashMap<Integer, TwitterObject> getAllTweetsData() throws Exception {
 		return dmp.gettweets_all();
 	}
+	
+	public int getTweetRegionCount() {
+		return dmp.getRegion_count();
+	}
 
 	public boolean prepareForFetching(int _fetch_interval, String _start_time) throws Exception  {
 		dmp = new DataManipulationProcessor();
