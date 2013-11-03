@@ -44,7 +44,7 @@ public class TweetClusterer {
 	/**
 	 * The minimal standard deviation of a cluster attribute.
 	 */
-	private double ACUITY = 0.005;
+	private double ACUITY = 0.009;
 	
 	/**
 	 * Number of dimensions to cluster.
@@ -98,8 +98,6 @@ public class TweetClusterer {
 			TweetInstance tempTweetInst = entry.getValue().toTweetInstance(numAttributes);
 			
 			int index = returnIndex(cobwebClusterer.getVotesForInstance(tempTweetInst));
-
-			System.out.println();
 			
 	    	if (index == -1)
 	    		continue;
@@ -127,9 +125,9 @@ public class TweetClusterer {
         
         for (int i = 0; i < clustering.getClustering().size(); i++) {
             clustering.getClustering().get(i).setId(i);
-            for (double d: clustering.getClustering().get(i).getCenter())
+            /*for (double d: clustering.getClustering().get(i).getCenter())
             	System.out.print(d + ", ");
-            System.out.println();
+            System.out.println();*/
         }
          
 		/*ArrayList<TweetCluster> tempClusterList = new ArrayList<TweetCluster>();
