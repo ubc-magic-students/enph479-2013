@@ -36,6 +36,11 @@ public class DataManipulationProcessor {
 	private ArrayList<TwitterObject> ltweets_incoming = new ArrayList<TwitterObject>();
 	private HashMap<Integer, TwitterObject> ltweets_all = new HashMap<Integer, TwitterObject>(); //stores all of the tweets
 	private WeatherObject weather_info = new WeatherObject();
+	private double region_lng1 = -123.16772;
+	private double region_lng2 = -123.05717;
+	private int westVancouver = 0;
+	private int centralVancouver = 1;
+	private int eastVancouver = 2;
 	
 	private boolean is_debug = true;
 	/*private String[] wot_url_tweet = new String[] {"http://wotkit.sensetecnic.com/api/sensors/2013enph479.tweets-in-vancouver/data?start=",
@@ -141,6 +146,19 @@ public class DataManipulationProcessor {
 	        		//set weather
 	        		WeatherObject weatherScore = wdf.getWeatherFromLatLng(lat, lon);
 	        		tweet.setWeatherScore(weatherScore.getWeatherScore());
+	        		
+	        		//set region
+	        		if(lon<region_lng1) {
+	        			tweet.setRegion(westVancouver);
+	        		}
+	        		else if(lon<region_lng2) {
+	        			tweet.setRegion(centralVancouver);
+	        		}
+	        		else {
+	        			tweet.setRegion(eastVancouver);
+	        		}
+	        		
+	        		//add current tweet to list
 	        		ltweets_incoming.add(tweet);
 	        		
 	        		if(is_debug)

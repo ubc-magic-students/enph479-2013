@@ -26,6 +26,7 @@ public class TwitterObject {
 	private int value = -1;
 	private int sentimentPolarity = -1;
 	private double weatherScore = -1;
+	private int region = -1;
 	
 	public int getId() {
 		return id;
@@ -112,7 +113,13 @@ public class TwitterObject {
 	}
 	public void setWeatherScore(double weatherScore) {
 		this.weatherScore = weatherScore;
-	}	
+	}
+	public int getRegion() {
+		return region;
+	}
+	public void setRegion(int region) {
+		this.region = region;
+	}
 	
 	/**
 	 * Converts TwitterObject to TweetInstance
