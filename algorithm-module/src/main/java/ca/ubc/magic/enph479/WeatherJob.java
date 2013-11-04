@@ -3,10 +3,7 @@ package ca.ubc.magic.enph479;
 import java.io.DataOutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -14,7 +11,6 @@ import org.quartz.JobExecutionException;
 import org.quartz.SchedulerContext;
 
 import ca.ubc.magic.enph479.builder.Region;
-import ca.ubc.magic.enph479.builder.TwitterObject;
 
 public class WeatherJob implements Job{
 	private static final int TCPPORT = 8080;
@@ -24,32 +20,16 @@ public class WeatherJob implements Job{
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		try {
 			SchedulerContext schedulerContext = arg0.getScheduler().getContext();
-			List<Region> regionList = (ArrayList<Region>) schedulerContext.get("regionList");
 			WoTDataFetcher wdf = (WoTDataFetcher) schedulerContext.get("wdf");
 			
-			ArrayList<TwitterObject> linstance = wdf.fetchNewData();
-			HashMap<Integer, ArrayList<TwitterObject>> map = new HashMap<Integer, ArrayList<TwitterObject>>();
-			if (!linstance.isEmpty()) {	
+			String message = wdf.fetchNewData();
+			if (message.length() != 0) {	
 				System.out.println("New Tweets detected!");
-				
-				for (TwitterObject o : linstance) {
-					if (map.containsKey(o.getId())) {
-						map.get(o.getRegion()).add(o);
-					} else {
-						ArrayList<TwitterObject> tempList = new ArrayList<TwitterObject>();
-						tempList.add(o);
-						map.put(o.getRegion(),tempList);
-					}
-				}
-				
-				for (Map.Entry<Integer, ArrayList<TwitterObject>> entry : map.entrySet()) {
-					System.out.println(entry.getKey());
-					regionList.get(entry.getKey()).setAverages(entry.getValue());
-				}
 				
 				try {
 					Socket nodejs  = new Socket("localhost", TCPPORT);
-					sendInChunks(nodejs, toJSONFormat(regionList));
+					DataOutputStream outbound = new DataOutputStream(nodejs.getOutputStream());
+					outbound.write(message.getBytes("UTF-8"));
 					nodejs.close();
 				}
 				catch (ConnectException c) {
