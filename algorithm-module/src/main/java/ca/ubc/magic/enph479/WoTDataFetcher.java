@@ -147,6 +147,8 @@ public class WoTDataFetcher {
 		dmp.removeDuplicates(wot_type.twitter);
 		//get all new incoming tweets
 		ArrayList<TwitterObject> ltweets_new = dmp.gettweets_incoming();
+		if(ltweets_new.size() == 0)
+			return "";
 		//update current all list
 		dmp.updateAllList(wot_type.twitter);
 		//write to DB
