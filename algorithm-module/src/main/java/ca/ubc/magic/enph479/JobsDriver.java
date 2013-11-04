@@ -16,7 +16,7 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import ca.ubc.magic.enph479.builder.Region;
 
-public class JobDriver {
+public class JobsDriver {
 
 	public static void main(String[] args) {
 		try {
