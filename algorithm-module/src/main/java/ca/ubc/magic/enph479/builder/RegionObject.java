@@ -152,7 +152,7 @@ public class RegionObject {
 		String json = "{";
 		json += region1.toJSONFormat() + ",";
 		json += region2.toJSONFormat() + ",";
-		json += region3.toJSONFormat() + ",";
+		json += region3.toJSONFormat();
 		json += "}";
 		
 		return json;
