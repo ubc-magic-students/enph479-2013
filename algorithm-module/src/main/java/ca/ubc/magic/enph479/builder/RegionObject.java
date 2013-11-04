@@ -28,8 +28,8 @@ public class RegionObject {
 		private double sentiment_score = 0;
 		
 		public int region_name = -1;
-		public double weather_ave = -1;
-		public double sentiment_ave = -1;
+		public double weather_ave = 0;
+		public double sentiment_ave = 0;
 		
 		private regionX(double _lat_min, double _lat_max, double _lng_min, double _lng_max, eRegion _r, int _name) {
 			this.lat_min = _lat_min;
@@ -50,8 +50,14 @@ public class RegionObject {
 		}
 		
 		private void computeAverages() {
-			this.weather_ave = this.weather_score / this.tweet_count;
-			this.sentiment_ave = this.sentiment_score / this.tweet_count;
+			if(this.tweet_count == 0){
+				this.weather_ave = 0;
+				this.sentiment_ave = 0;
+			}
+			else {
+				this.weather_ave = this.weather_score / this.tweet_count;
+				this.sentiment_ave = this.sentiment_score / this.tweet_count;
+			}
 		}
 		
 		public String toJSONFormat() {
