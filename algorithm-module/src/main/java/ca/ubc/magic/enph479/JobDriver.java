@@ -17,8 +17,6 @@ import org.quartz.impl.StdSchedulerFactory;
 import ca.ubc.magic.enph479.builder.Region;
 
 public class JobDriver {
-	
-	private static int NUMREGIONS = 3;
 
 	public static void main(String[] args) {
 		try {
@@ -47,7 +45,7 @@ public class JobDriver {
 			}
 			
 			List<Region> regionList = new ArrayList<Region>();
-			for (int i = 0; i < NUMREGIONS; i++) {
+			for (int i = 0; i < wdf.getTweetRegionCount(); i++) {
 				regionList.add(new Region("region" + i));
 			}
 			
