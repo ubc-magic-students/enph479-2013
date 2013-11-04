@@ -14,6 +14,7 @@ import ca.ubc.magic.enph479.builder.RegionObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.WeatherObject;
+import ca.ubc.magic.enph479.builder.RegionObject.regionX;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -145,7 +146,8 @@ public class DataManipulationProcessor {
 	        		tweet.setWeatherScore(weatherScore.getWeatherScore());
 	        		
 	        		//set region
-	        		tweet.setRegion(region_info.classifyIntoRegion(lat, lng));
+	        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeatherScore(), tweet.getSentimentPolarity());
+	        		tweet.setRegion(region_index);
 	        		
 	        		//add current tweet to list
 	        		ltweets_incoming.add(tweet);
@@ -254,6 +256,10 @@ public class DataManipulationProcessor {
 
 	public int getRegion_count() {
 		return region_info.getRegionCount();
+	}
+	
+	public ArrayList<regionX> getlRegionObject() {
+		return region_info.getCurrentListRegionObject();
 	}
 
 }
