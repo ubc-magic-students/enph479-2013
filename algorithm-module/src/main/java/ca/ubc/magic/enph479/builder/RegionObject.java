@@ -16,7 +16,7 @@ import weka.core.Instances;
  */
 public class RegionObject {
 
-	public class regionX {
+	class regionX {
 		private double lat_min = -1;
 		private double lat_max = -1;
 		private double lng_min = -1;
@@ -52,6 +52,16 @@ public class RegionObject {
 		private void computeAverages() {
 			this.weather_ave = this.weather_score / this.tweet_count;
 			this.sentiment_ave = this.sentiment_score / this.tweet_count;
+		}
+		
+		public String toJSONFormat() {
+			StringBuffer buffer = new StringBuffer("");
+			buffer.append("\"" + this.region_name + "\": {")
+				.append("\"currentWeatherAverage\":" + this.weather_ave + ",")
+				.append("\"currentSentimentAverage\":" + this.sentiment_ave + ",")
+				.append("\"tweetCount\":" + this.tweet_count)
+				.append("}");
+			return buffer.toString();
 		}
 	}
 	
@@ -127,17 +137,19 @@ public class RegionObject {
 			return -1;
 	}
 	
-	public ArrayList<regionX> getCurrentListRegionObject() {
+	public String getJsonRegionObject() {
 		
 		region1.computeAverages();
 		region2.computeAverages();
 		region3.computeAverages();
 		
-		lRegionObject.add(region1);
-		lRegionObject.add(region2);
-		lRegionObject.add(region3);
+		String json = "{";
+		json += region1.toJSONFormat() + ",";
+		json += region2.toJSONFormat() + ",";
+		json += region3.toJSONFormat() + ",";
+		json += "}";
 		
-		return lRegionObject;
+		return json;
 	}
 	
 }

@@ -14,7 +14,6 @@ import ca.ubc.magic.enph479.builder.RegionObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.WeatherObject;
-import ca.ubc.magic.enph479.builder.RegionObject.regionX;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -258,8 +257,8 @@ public class DataManipulationProcessor {
 		return region_info.getRegionCount();
 	}
 	
-	public ArrayList<regionX> getlRegionObject() {
-		return region_info.getCurrentListRegionObject();
+	public String getlJsonRegionObject() {
+		return region_info.getJsonRegionObject();
 	}
 
 }
