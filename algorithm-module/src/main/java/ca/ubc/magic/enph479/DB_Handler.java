@@ -64,6 +64,7 @@ public class DB_Handler {
 				int value = rs.getInt("value");
 				int sentimentPolarity = rs.getInt("sentimentPolarity");
 				double weatherScore = rs.getDouble("weatherScore");
+				int region = rs.getInt("region");
 				
 				TwitterObject tweet = new TwitterObject();
 				tweet.setId(id);
@@ -76,6 +77,7 @@ public class DB_Handler {
 				tweet.setValue(value);
 				tweet.setSentimentPolarity(sentimentPolarity);
 				tweet.setWeatherScore(weatherScore);
+				tweet.setRegion(region);
 				
 				ltweets.add(tweet);
 			}
@@ -149,7 +151,8 @@ public class DB_Handler {
 						+ _ltweets_incoming.get(i).getMessage() + ", "
 						+ _ltweets_incoming.get(i).getValue() + ", "
 						+ _ltweets_incoming.get(i).getSentimentPolarity() + ", "
-						+ _ltweets_incoming.get(i).getWeatherScore() + ")";
+						+ _ltweets_incoming.get(i).getWeatherScore() + ", "
+						+ _ltweets_incoming.get(i).getRegion() + ")";
 						
 				if(i < _ltweets_incoming.size()-1)
 					mysql_insert_command += ",";

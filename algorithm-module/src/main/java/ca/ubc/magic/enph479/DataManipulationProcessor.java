@@ -10,6 +10,7 @@ import java.util.TimeZone;
 import java.io.*;
 
 import net.sf.json.JSONSerializer;
+import ca.ubc.magic.enph479.builder.RegionObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.WeatherObject;
@@ -36,6 +37,7 @@ public class DataManipulationProcessor {
 	private ArrayList<TwitterObject> ltweets_incoming = new ArrayList<TwitterObject>();
 	private HashMap<Integer, TwitterObject> ltweets_all = new HashMap<Integer, TwitterObject>(); //stores all of the tweets
 	private WeatherObject weather_info = new WeatherObject();
+	private RegionObject region_info = new RegionObject();
 	
 	private boolean is_debug = true;
 	/*private String[] wot_url_tweet = new String[] {"http://wotkit.sensetecnic.com/api/sensors/2013enph479.tweets-in-vancouver/data?start=",
@@ -133,14 +135,19 @@ public class DataManipulationProcessor {
 	        {
 	        	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
 	        	double lat = tweet.getLatitude();
-	        	double lon = tweet.getLongitude();
-	        	if ( (lon < -123.020 && lon > -123.27) && (lat < 49.315 && lat > 49.195)) {
+	        	double lng = tweet.getLongitude();
+	        	if (region_info.isVancouver(lat, lng)) {
 	        		//set sentiment polarity
 	        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
 	        		
 	        		//set weather
-	        		WeatherObject weatherScore = wdf.getWeatherFromLatLng(lat, lon);
+	        		WeatherObject weatherScore = wdf.getWeatherFromLatLng(lat, lng);
 	        		tweet.setWeatherScore(weatherScore.getWeatherScore());
+	        		
+	        		//set region
+	        		tweet.setRegion(region_info.classifyIntoRegion(lat, lng));
+	        		
+	        		//add current tweet to list
 	        		ltweets_incoming.add(tweet);
 	        		
 	        		if(is_debug)
@@ -243,6 +250,10 @@ public class DataManipulationProcessor {
 	
 	public ArrayList<TwitterObject> gettweets_incoming() {
 		return ltweets_incoming;
+	}
+
+	public int getRegion_count() {
+		return region_info.getRegionCount();
 	}
 
 }
