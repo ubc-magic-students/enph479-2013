@@ -6,8 +6,8 @@ var javaServer = require('net').createServer();
 var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
-  , io = require('socket.io').listen(server)
-  , mysql = require('mysql');
+  , io = require('socket.io').listen(server);
+  //, mysql = require('mysql');
 server.listen(8090);
 
 // Import credentials for DB and Twitter
@@ -29,7 +29,9 @@ io.sockets.on('connection', function (socket) {
     socket.join('hashtagcloud');
   });
 
-  socket.on('join latlong', function(data) {
+
+
+  /*socket.on('join latlong', function(data) {
     socket.join('latlong');
 
     connection.query("SELECT * from ENPH479.tweet_data", function(err, rows){
@@ -42,8 +44,14 @@ io.sockets.on('connection', function (socket) {
             io.sockets.in('latlong').emit('tweet latlongs', { data: rows });
         }
       })
-  })
+  })*/
 });
+
+// fake a socket connection for now
+/*setInterval(function () {
+  io.sockets.in('hashtagcloud').emit('hashtag tweet', { data: String.fromCharCode.apply(String, data) });
+}, 15000);*/
+
 
 process.on('uncaughtException', function(err) {
     console.log(err);
@@ -62,7 +70,7 @@ app.get('/', function (req, res) {
 });
 
 /********** Cluster Import Process ************/
-javaServer.on('listening', function () {
+/*javaServer.on('listening', function () {
    console.log('Server is listening on ' + javaPort);
 });
 
@@ -91,7 +99,7 @@ javaSocket.on('data', firstDataListenner);
         console.log('Java ' + clientAddress + ' disconnected');
  });
 });
- javaServer.listen(javaPort);
+ javaServer.listen(javaPort);*/
 
 /********** DB Access Process ************/
 var connection = mysql.createConnection({
