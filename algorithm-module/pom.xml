@@ -160,7 +160,7 @@
       				</descriptorRefs>
       				<archive>
         				<manifest>
-          					<mainClass>ca.ubc.magic.enph479.JobsDriver</mainClass>
+          					<mainClass>ca.ubc.magic.enph479.JobDriver</mainClass>
         				</manifest>
       				</archive>
     			</configuration>
