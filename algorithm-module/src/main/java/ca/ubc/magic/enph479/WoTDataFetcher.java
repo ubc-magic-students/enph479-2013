@@ -108,7 +108,8 @@ public class WoTDataFetcher {
 		return linstance;
 	}
 	
-	public ArrayList<TwitterObject> fetchNewData() throws Exception {
+	//public ArrayList<TwitterObject> fetchNewData() throws Exception {
+	public String fetchNewData() throws Exception {
 		//calculate start time and end time from ref_datetime
 		Date date_start_time = new Date(ref_datetime);
 		Date date_end_time = new Date(ref_datetime);
@@ -150,7 +151,8 @@ public class WoTDataFetcher {
 		//write to DB
 		dbh.writeToDBTweet(dmp.gettweets_incoming());
 		
-		return ltweets_new;
+		//return ltweets_new;
+		return dmp.getlJsonRegionObject();
 	}
 	
 	public WeatherObject getWeatherFromLatLng(double _lat, double _lng) throws Exception {
