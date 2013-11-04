@@ -23,7 +23,7 @@ public class RegionObject {
 		private double lng_max = -1;
 		private eRegion reg;
 		
-		private double tweet_count = 0;
+		private int tweet_count = 0;
 		private double weather_score = 0;
 		private double sentiment_score = 0;
 		
