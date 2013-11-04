@@ -44,6 +44,7 @@ public class WoTDataFetcher {
 			//retrieve existing tweet data from DB before fetching any new data
 			ArrayList<TwitterObject> ltweets = dbh.retrieveDBTweet();
 			dmp.addToTweets_all(ltweets);
+			dmp.updateRegionScoreForDBData();
 			return true;
 		}
 		else {
