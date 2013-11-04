@@ -34,21 +34,22 @@ public class WeatherJob implements Job{
 				
 				for (TwitterObject o : linstance) {
 					if (map.containsKey(o.getId())) {
-						map.get(o.getId()).add(o);
+						map.get(o.getRegion()).add(o);
 					} else {
 						ArrayList<TwitterObject> tempList = new ArrayList<TwitterObject>();
 						tempList.add(o);
-						map.put(o.getId(),tempList);
+						map.put(o.getRegion(),tempList);
 					}
 				}
 				
 				for (Map.Entry<Integer, ArrayList<TwitterObject>> entry : map.entrySet()) {
+					System.out.println(entry.getKey());
 					regionList.get(entry.getKey()).setAverages(entry.getValue());
 				}
 				
 				try {
 					Socket nodejs  = new Socket("localhost", TCPPORT);
-					nodejs.getOutputStream().write(toJSONFormat(regionList).getBytes("UTF-8"));
+					sendInChunks(nodejs, toJSONFormat(regionList));
 					nodejs.close();
 				}
 				catch (ConnectException c) {
@@ -68,7 +69,7 @@ public class WeatherJob implements Job{
 		for (Region r : regionList) {
 			buffer.append(r.toJSONFormat() + ",");
 		}
-		buffer.deleteCharAt(buffer.capacity()-1);
+		buffer.deleteCharAt(buffer.length()-1);
 		buffer.append("}");
 		return buffer.toString();
 	}

@@ -45,14 +45,4 @@ public class TestRegionClass {
 		
 	}
 	
-	@Test
-	public void test() {
-		String test = "123";
-		int start = 2;
-		int end = 5;
-		if (end > test.length())
-			System.out.println(test.substring(start));
-		else
-			System.out.println("12".substring(start, end));
-	}
 }
