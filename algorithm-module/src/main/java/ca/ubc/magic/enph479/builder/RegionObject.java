@@ -207,7 +207,7 @@ public class RegionObject {
 	private double region25_lng_min = region24_lng_max;
 	private double region25_lng_max = vancouver_lng_max;
 	
-	private int regionCount = 3;
+	private int regionCount = 24;
 	public ArrayList<regionX> lRegionObject = new ArrayList<regionX>(regionCount);
 	
 	private regionX regionVancouver = new regionX(vancouver_lat_min, vancouver_lat_max, vancouver_lng_min, vancouver_lng_max, eRegion.Vancouver.regionIndex);
