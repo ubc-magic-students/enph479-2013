@@ -30,7 +30,6 @@ io.sockets.on('connection', function (socket) {
   });
 
 
-
   /*socket.on('join latlong', function(data) {
     socket.join('latlong');
 
@@ -56,6 +55,7 @@ io.sockets.on('connection', function (socket) {
 process.on('uncaughtException', function(err) {
     console.log(err);
 });
+
 
 /*************************** Pages *********************************/
 
@@ -101,6 +101,110 @@ javaSocket.on('data', firstDataListenner);
 });
  javaServer.listen(javaPort);*/
 
+/* Testing backend by Chris.*/
+var interval = 5000;
+var mongoose = require("mongoose");
+mongoose.connect('mongodb://localhost/test');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function callback () {
+  console.log("Connected to db")
+});
+
+var tweetObject = mongoose.Schema({
+  id: { type: Number, unique: true },
+  timestamp: {type: String, default: new Date().toString()},
+  message: {type: String, default: "" },
+  longitude: {type: Number, default: -1},
+  latitude: {type: Number, default: -1},
+  polarity: {type: Number, default: -1},
+  weather: {type: Number, default: -1}
+})
+
+var Tweet = mongoose.model('Tweet', tweetObject)
+
+setInterval(function() {
+  var epochNow = new Date().getTime();
+  var testURL = "http://bennu.magic.ubc.ca/wotkit/api/sensors/2013enph479.tweets-in-vancouver/data?start=" + (epochNow - interval) + "&end=" + epochNow;
+  console.log(testURL);
+  require('http').get(testURL, function(res) {
+    var body = "";
+    console.log("WOTKIT STATUS: " + res.statusCode);
+    res.setEncoding('utf8');
+    res.on('data', function(chunk) {
+      body += chunk;
+    })
+    res.on('end', function() {
+      var bodyInJSON = JSON.parse(body)
+      console.log(bodyInJSON)
+      bodyInJSON.forEach(function(o) {
+        // Sentiment request
+        var sentimentRequestJSON = {
+          data: [{"text": o.message}]
+        }
+        var sentimentRequest ={
+          hostname: 'www.sentiment140.com',
+          path: '/api/bulkClassifyJson?appid="' + require('./credentials.js').sentiment140_key,
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+            "Content-Length": Buffer.byteLength(JSON.stringify(sentimentRequestJSON))
+          }
+        }
+
+        require('http').request(sentimentRequest, function(res) {
+          var body = ""
+          console.log('SENTIMENT API STATUS: ' + res.statusCode)
+          res.setEncoding('utf8')
+          res.on('data', function(chunk) {
+            body += chunk
+          })
+          res.on('end', function() {
+            var bodyInJSON = JSON.parse(body)
+            new Tweet( {
+              id: o.id,
+              timestamp: o.timestamp,
+              message: o.message,
+              longitude: o.lng,
+              latitude: o.lat,
+              polarity: bodyInJSON.data[0].polarity
+            }).save(function(err, tweet) {
+                if(err) {
+                  console.log("error while saving tweet")
+                }
+                console.log("Successfully saved Tweet " + o.id)
+             })
+          })
+        }).end(JSON.stringify(sentimentRequestJSON))
+
+        //Weather Request
+        var weatherURL = 'http://api.openweathermap.org/data/2.5/weather?lat=' + o.lat + '&lon=' + o.lng
+        require('http').get(weatherURL, function(res) {
+          var body = "";
+          console.log("WEATHER STATUS: " + res.statusCode);
+          res.setEncoding('utf8');
+          res.on('data', function(chunk) {
+            body += chunk;
+          })
+          res.on('end', function() {
+            var parsedWeather = JSON.parse(body);
+            console.log(parsedWeather)
+            console.log("temp: " + (parsedWeather.main.temp - 273.0))
+            if (parsedWeather.rain) {
+              console.log("precipitaion: " + parsedWeather.rain['3h'])
+            }
+            
+          })
+        })
+
+      })
+    })
+  })
+  
+}, interval);
+
+
+
 /********** DB Access Process ************/
 var connection = mysql.createConnection({
   host : 'localhost',
@@ -118,3 +222,4 @@ connection.connect(function(err){
 
 
 /*connection.end();*/
+
