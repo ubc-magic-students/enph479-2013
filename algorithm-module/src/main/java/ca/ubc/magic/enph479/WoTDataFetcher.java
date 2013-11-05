@@ -48,6 +48,8 @@ public class WoTDataFetcher {
 		if(this.fetch_count_max > 30)
 			this.fetch_count_max = 30;
 		
+		this.fetch_count_max = 1;
+		
 		dbh = new DB_Handler();
 		if(dbh.prepareDB()) {
 			//retrieve existing tweet data from DB before fetching any new data
