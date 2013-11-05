@@ -1,8 +1,8 @@
 $(function() {
-  
   var regions = [
     {
       name: "West Vancouver",
+      id: "0",
       bb: [
             { lat: 49.195, lng: -123.27},
             { lat: 49.315, lng: -123.16772}
@@ -10,6 +10,7 @@ $(function() {
     },
     {
       name: "Central Vancouver",
+      id: "1",
       bb: [
             { lat: 49.195, lng: -123.16772},
             { lat: 49.315, lng: -123.05717}
@@ -17,6 +18,7 @@ $(function() {
     },
     {
       name: "East Vancouver",
+      id: "2",
       bb: [
             { lat: 49.195, lng: -123.05717},
             { lat: 49.315, lng: -123.020}
@@ -26,40 +28,78 @@ $(function() {
 
   var appManager = new AppManager(regions);
   appManager.initializeApp();
-
-  setInterval(function() {
-    appManager.timeManager.showNow();
-  }, 1000);
 });
 
 // The App Manager object orchestrates the operations of the entire application
 function AppManager(regions) {
-  this.mapManager = new MapManager(regions);
-  this.tableManager = new TableManager();
-  this.tweetbox;
+  this.mapManager = new MapManager(regions, this);
+  this.tableManager = new TableManager(regions);
+  this.tweetManager = new TweetBoxManager();
   this.timeManager = new TimeManager();
+  this.socketManager = new SocketManager(this);
+  this.regions = regions;
   
   this.initializeApp = function() {
     google.maps.event.addDomListener(window, 'load', this.mapManager.initializeMap());
 
-    // Usage ////////////////////////////////////                        
-    var dataset = {
-        columnLabel: ['Region', 'Sentiment', 'Weather'],
-        rowLabel: ['EV', 'CV', 'WV'],
-        value: [[1, 2], [5, 6], [9, 10]]
-    };
-                        
-    var width = 400;
-    var height = 300;
+    this.socketManager.initializeSocketConnections();
+    this.socketManager.initializeSocketEvents();
+    this.tableManager.initializeDataset();
+    this.tableManager.renderTable();
+    this.timeManager.initializeTime();
+    this.tweetManager.initializeTweet();
 
-    var table = Table().width(width).height(height);
+    $("#slider").slider();
+  }
 
-    d3.select('#table')
-        .append("svg:svg")
-        .datum(dataset)
-        .call(table);
+  this.updateData = function(data) {
+    data = $.parseJSON(data);
 
-    }
+    // update Time
+    this.timeManager.showNow();
+    
+    // update Table
+    this.tableManager.updateTable(data);
+
+    // update Region Counts
+    this.mapManager.updateRegionCounts(data);
+  }
+}
+
+// The SocketManager object manages socket data transfers
+function SocketManager(appManager) {
+  this.socket = io.connect('http://localhost');
+
+  this.initializeSocketConnections = function() {
+    this.socket.emit('join hashtagcloud');
+    this.socket.emit('join dbconnect');
+  }
+
+  this.initializeSocketEvents = function() {
+    this.socket.on('hashtag tweet', function(data) {
+      appManager.updateData(data.data);
+    });
+
+    /*this.socket.on('dbconnect response', function(data) {
+      appManager.mapManager.regionObjects[data.regionId].createTweets(data.data);
+    });*/
+
+    this.socket.on('new tweets', function(data) {
+      var regionTweets = [];
+      appManager.regions.forEach(function(element) {
+          regionTweets.push([]);
+      }, this);
+      
+      data.data.forEach(function(element, index){
+        regionTweets[element.region].push(element);
+      }, this)
+      
+      // add tweets to each region
+      regionTweets.forEach(function(element, index){
+        appManager.mapManager.regionObjects[index].createTweets(element);
+      }, this);
+    });
+  }
 }
 
 // The TimeManager object manages the time-date display
@@ -68,26 +108,96 @@ function TimeManager() {
 
   this.showNow = function() {
     this.datetime = new Date();
-    $('#time-date').text(this.datetime.toLocaleTimeString() + ' ' + this.datetime.toLocaleDateString());
+    $('#time-date').text('Last Updated: ' + this.datetime.toLocaleTimeString() + ' ' + this.datetime.toLocaleDateString());
+  }
+
+  this.initializeTime = function() {
+    $('#time-date').text('Not updated');
   }
 }
 
-function TableManager() {
+function TweetBoxManager() {
+  this.initializeTweet = function() {
+    $('#tweet-box').text('No tweets');
+  }
 
+  this.showTweet = function(tweet) {
+    $('#tweet-box').text(tweet);
+  }
+}
+
+function TableManager(regions) {
+  this.dataset = [];
+  this.rowHeader = [];
+  this.columnHeader = ['', 'Sentiment', 'Weather'];
+
+  this.initializeRowHeader = function() {
+    regions.forEach(function(element) {
+      this.rowHeader.push(element.name);
+    }, this);
+  }
+
+  this.initializeDataset = function() {
+    this.initializeRowHeader();
+
+    this.dataset.push(this.columnHeader);
+
+    this.rowHeader.forEach(function(element) {
+      this.dataset.push([element, '-', '-']);
+    }, this);
+  }
+
+  this.updateDataset = function(data) {
+    this.dataset = [];
+    this.dataset.push(this.columnHeader);
+
+    this.rowHeader.forEach(function(element, index) {
+      this.dataset.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage]);
+    }, this);
+  }
+
+  this.updateTable = function(data) {
+    this.updateDataset(data);
+    this.renderTable();
+  }
+
+  this.renderTable = function() {
+    $("#table").empty();
+    d3.select("#table")
+        .append("table")
+        .style("border-collapse", "collapse")
+        .style("border", "2px black solid")
+        
+        .selectAll("tr")
+        .data(this.dataset)
+        .enter().append("tr")
+        
+        .selectAll("td")
+        .data(function(d){return d;})
+        .enter().append("td")
+        .style("border", "1px black solid")
+        .style("padding", "10px")
+        .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) 
+        .on("mouseout", function(){d3.select(this).style("background-color", "white")}) 
+        .text(function(d){return d;})
+        .style("font-size", "12px")
+        .style("text-align", "center");
+  }
 }
 
   // The Map Manager object holds a MapMaker and all the Region objects, orchestrating the map operations
-  function MapManager(regions) {
+  function MapManager(regions, appManager) {
     this.map;
     this.regionInfos = regions;
     this.regionObjects = [];
     this.mapMaker = new MapMaker();
+    this.appManager = appManager;
 
     this.initializeMap = function() {
       this.map = this.mapMaker.makeMap();
       this.initializeRegions();
       this.initializeButtons();
-    },
+    }
 
     this.initializeRegions = function() {
       this.regionInfos.forEach(function(element) {
@@ -95,30 +205,30 @@ function TableManager() {
       }, this);
 
       this.regionObjects.forEach(function(element) {
-        element.showRegion();
+        element.showPublicRegion();
       }, this);
-    },
+    }
 
     this.initializeButtons = function() {
       var homeControlDiv = document.createElement('div');
       var homeControl = new HomeControl(homeControlDiv, this.map);
       homeControlDiv.index = 1;
       this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(homeControlDiv);
-    },
+    }
 
     this.showRegions = function() {
       this.regionObjects.forEach(function(element) {
-        element.showRegion();
+        element.showPublicRegion();
       }, this);
     }
 
     this.showButtons = function() {
       $('div#backbutton').css('visibility', 'visible');
-    },
+    }
 
     this.hideButtons = function() {
       $('div#backbutton').css('visibility', 'hidden');
-    },
+    }
 
     this.addButtonClickEvents = function() {
       var that = this;
@@ -126,18 +236,25 @@ function TableManager() {
         that.map.setCenter(new google.maps.LatLng(49.255, -123.125));
         that.map.setZoom(12);
         that.hideButtons();
+        that.removeRegions();
         that.showRegions();
       });
-    },
+    }
 
     this.goToRegion = function(regionBoundary) {
       this.map.setCenter(regionBoundary.bounds.getCenter());
       this.map.setZoom(12);
-    },
+    }
 
     this.removeRegions = function() {
       this.regionObjects.forEach(function(element) {
         element.hideRegion();
+      }, this);
+    }
+
+    this.updateRegionCounts = function(data) {
+      this.regionObjects.forEach(function(element, index) {
+        element.updateCountLabel(data[index].tweetCount);
       }, this);
     }
   }
@@ -145,7 +262,12 @@ function TableManager() {
 // The Region object holds all the map elements and information specific to a region
 function Region(regionInfo, mapManager) {
   var that = this;
-  this.count = '0';
+  this.count = '-';
+  this.tweets = [];
+  this.regionId = regionInfo.id;
+  this.mapManager = mapManager;
+  this.printCount = true;
+  this.printTweets = false;
 
   this.regionBoundary = mapManager.mapMaker.makeRegionBorder(
     new google.maps.LatLng(regionInfo.bb[0].lat, regionInfo.bb[0].lng),
@@ -157,7 +279,7 @@ function Region(regionInfo, mapManager) {
     mapManager.showButtons();
     mapManager.addButtonClickEvents();
     mapManager.removeRegions();
-    that.showRegion();
+    that.showPrivateRegion();
   });
 
   this.regionLabel = mapManager.mapMaker.makeRegionLabel(
@@ -173,12 +295,16 @@ function Region(regionInfo, mapManager) {
 
   this.updateCountLabel = function(count) {
     this.count = count;
-    mapManager.mapMaker.makeCountLabel(
-      this.count, 
+    //console.log("count: " + count);
+    this.regionCountLabel.setMap(null);
+    this.regionCountLabel = mapManager.mapMaker.makeCountLabel(
+      this.count,
       new google.maps.LatLng(this.regionBoundary.bounds.getCenter().lat()-0.0125,
         this.regionBoundary.bounds.getCenter().lng())
     );
-    this.regionCountLabel.setMap(mapManager.map);
+    if (this.printCount == true) {
+      this.regionCountLabel.setMap(mapManager.map);
+    }
   }
 
   this.regionCountCircle = mapManager.mapMaker.makeCountCircle(
@@ -186,18 +312,72 @@ function Region(regionInfo, mapManager) {
       this.regionBoundary.bounds.getCenter().lng())
   );
 
-  this.showRegion = function() {
+  this.showPublicRegion = function() {
     this.regionBoundary.setMap(mapManager.map);
     this.regionLabel.setMap(mapManager.map);
     this.regionCountLabel.setMap(mapManager.map);
     this.regionCountCircle.setMap(mapManager.map);
-  },
+    this.printCount = true;
+    this.printTweets = false;
+  }
+
+  this.showPrivateRegion = function() {
+    this.regionBoundary.setMap(mapManager.map);
+    this.regionLabel.setMap(mapManager.map);
+    this.regionCountLabel.setMap(mapManager.map);
+    this.regionCountCircle.setMap(mapManager.map);
+    this.showTweets();
+    this.printCount = true;
+    this.printTweets = true;
+  }
 
   this.hideRegion = function() {
     this.regionBoundary.setMap(null);
     this.regionLabel.setMap(null);
     this.regionCountLabel.setMap(null);
     this.regionCountCircle.setMap(null);
+    this.tweets.forEach(function(element, index) {
+      element.hide();
+    }, this);
+    this.printCount = false;
+    this.printTweets = false;
+  }
+
+  this.createTweets = function(data) {
+    var tweet;
+    data.forEach(function(element, index) {
+      tweet = new Tweet(this, new google.maps.LatLng(element.lat, element.lng), element.message);
+      this.tweets.push(tweet);
+      console.log('count ' + this.tweets.length);
+    }, this);
+    if (this.printTweets == true) {
+      this.showTweets();
+    } else {
+      console.log('DIDNT PRINT');
+    }
+  }
+
+  this.showTweets = function() {
+    this.tweets.forEach(function(element, index) {
+      element.show();
+    });
+  }
+}
+
+
+// The Tweet object holds all the tweet information
+function Tweet(region, pos, text) {
+  this.marker = region.mapManager.mapMaker.makeTweetMarker(pos);
+  this.message = text;
+  var that = this;
+  this.listener = google.maps.event.addListener(this.marker, 'click', function() {
+      region.mapManager.appManager.tweetManager.showTweet(that.message);
+  }, this);
+  this.show = function() {
+    this.marker.setMap(region.mapManager.map);
+  }
+  this.hide = function() {
+    this.marker.setMap(null);
   }
 }
 
@@ -216,6 +396,12 @@ function MapMaker() {
     
     return new google.maps.Map(document.getElementById("map-canvas"),
       mapOptions);
+  }
+
+  this.makeTweetMarker = function(pos) {
+    return new google.maps.Marker({
+        position: pos
+    });
   }
 
   this.makeRegionBorder = function(sw, ne) {
@@ -276,7 +462,7 @@ function MapMaker() {
           fillColor: '#FF0000',
           fillOpacity: 0.35,
           center: pos,
-          radius: 400
+          radius: 450
     });
   }
 }
@@ -310,272 +496,3 @@ function HomeControl(controlDiv, map) {
   controlText.innerHTML = '<b>Overview</b>';
   controlUI.appendChild(controlText);
 }
-
-
-
-// Table module ////////////////////////////////////
-var Table = function module() {
-    var opts = {
-        width: 100,
-        height: 100,
-        margins: {top: 0, right: 0, bottom: 0, left: 0}
-    };
-
-    function exports(selection) {
-        selection.each(function (dataset) {
-
-            //________________________________________________
-            // Data
-            //________________________________________________
-            var columnLabel = dataset.columnLabel;
-            var rowLabel = dataset.rowLabel;
-            var value = dataset.value;
-
-            //________________________________________________
-            // DOM preparation
-            //________________________________________________
-            // Size
-            var chartW = Math.max(opts.width - opts.margins.left - opts.margins.right, 0.1);
-            var chartH = Math.max(opts.height - opts.margins.top - opts.margins.bottom, 0.1);
-
-            // SVG
-            var parentDiv = d3.select(this).html('');
-            var svg = parentDiv.append('svg').attr('width', opts.width).attr('height', opts.height);
-            var visSvg = svg.append('g').attr('class', 'vis-group').attr('transform', 'translate(' + opts.margins.left + ',' + opts.margins.top + ')');
-            var tableBodySvg = visSvg.append('g').attr('class', 'chart-group');
-            var tableHeaderSvg = visSvg.append('g').attr('class', 'chart-group');
-            var rowHeaderSvg = tableHeaderSvg.append('g').attr('class', 'row-header');
-            var colHeaderSvg = tableHeaderSvg.append('g').attr('class', 'col-header');
-
-            //________________________________________________
-            // Table
-            //________________________________________________
-            var rowHeaderLevelNum = 1;
-            var colHeaderLevelNum = 1;
-            var cellH = chartH / (value.length + rowHeaderLevelNum);
-            var cellW = chartW / (value[0].length + colHeaderLevelNum);
-
-            // Row header
-            var rowHeaderCell = rowHeaderSvg.selectAll('rect.row-header-cell')
-                .data(rowLabel);
-            rowHeaderCell.enter().append('rect')
-                .attr({
-                    class:'row-header-cell',
-                    width:cellW, height:cellH,
-                    x: 0,
-                    y: function(d, i){return i * cellH + (cellH * colHeaderLevelNum)}
-                })
-                .style({fill:'#eee', stroke:'silver'});
-
-            // Row header text
-            rowHeaderCell.enter().append('text')
-                .attr({
-                    class:'row-header-content',
-                    x: 0,
-                    y: function(d, i){return i * cellH + (cellH * colHeaderLevelNum)},
-                    dx: cellW/2,
-                    dy: cellH/2
-                })
-                .style({fill:'black', 'text-anchor':'middle'})
-                .text(function(d, i){return d;});
-
-            // Col header
-            var colHeaderCell = colHeaderSvg.selectAll('rect.col-header-cell')
-                .data(columnLabel);
-            colHeaderCell.enter().append('rect')
-                .attr({
-                    class:'col-header-cell',
-                    width:cellW, height:cellH,
-                    x: function(d, i){return i * cellW + (cellW * rowHeaderLevelNum)},
-                    y: 0
-                })
-                .style({fill:'#eee', stroke:'silver'});
-
-            // Col header text
-            colHeaderCell.enter().append('text')
-                .attr({
-                    class:'col-header-content',
-                    x: function(d, i){return i * cellW + (cellW * rowHeaderLevelNum)},
-                    y: 0,
-                    dx: cellW/2,
-                    dy: cellH/2
-                })
-                .style({fill:'black', 'text-anchor':'middle'})
-                .text(function(d, i){return d;});
-
-            // Body
-            var row = tableBodySvg.selectAll('g.row')
-                .data(value);
-            row.enter().append('g')
-                .attr('class', 'cell row')
-                .each(function(pD, pI){
-                    // Cells
-                    var cell = d3.select(this)
-                        .selectAll('rect.cell')
-                        .data(pD);
-                    cell.enter().append('rect')
-                        .attr({
-                            class:'cell', width:cellW, height:cellH,
-                            x: function(d, i){return i * cellW + (cellW * rowHeaderLevelNum)},
-                            y: function(d, i){return pI * cellH + cellH}
-                        })
-                        .style({fill:'white', stroke:'silver'});
-                    // Text
-                    cell.enter().append('text')
-                        .attr({
-                            class:'cell-content', width:cellW, height:cellH,
-                            x: function(d, i){return i * cellW + (cellW * rowHeaderLevelNum)},
-                            y: function(d, i){return pI * cellH + cellH},
-                            dx: cellW/2,
-                            dy: cellH/2
-                        })
-                        .style({fill:'black', 'text-anchor':'middle'})
-                        .text(function(d, i){return d;});
-                });
-        });
-    }
-
-    exports.opts = opts;
-    createAccessors(exports, opts);
-    return exports;
-};
-  
-// Helper function ////////////////////////////////////                       
-var createAccessors = function(visExport) {
-    for (var n in visExport.opts) {
-        if (!visExport.opts.hasOwnProperty(n)) continue;
-        visExport[n] = (function(n) {
-            return function(v) {
-                return arguments.length ? (visExport.opts[n] = v, this) : visExport.opts[n];
-            }
-        })(n);
-    }
-};                        
- 
-
-
-  /*var socket = io.connect('http://localhost');
-  socket.emit('join hashtagcloud');
-  socket.emit('join latlong');
-
-  socket.on('hashtag tweet', function(data) {
-    addNewTweet(data.data);
-  });
-
-  var tweetlatlongs=[];
-
-  socket.on('tweet latlongs', function(data) {
-    //addTweetLatLongs(data.data);
-
-    function addTweetLatLongs(tweets) {
-      var length = tweets.length;
-      console.log('sup');
-        for (var i = 0; i < length; i++) {
-          var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(tweets[i].lat,tweets[i].lng),
-            map: map,
-            icon: {
-              url: '/img/neutral.png',
-            }
-          });
-          tweetlatlongs.push(marker);
-        }
-        for (var i = 0; i < icons.length; i++) {
-          tweetlatlongs[i].setMap(map);
-        }
-      }
-  });
-
-  var clusterLatLng;
-
-  function addIcon(location, icon_path) {
-    var marker = new google.maps.Marker({
-      position: location,
-      map: map,
-      icon: {
-        url: icon_path,
-      }
-    });
-    icons.push(marker);
-  }
-
-  function addSentimentIcon(location, sentiment) {
-    if (sentiment > 2.5) {
-      addIcon(location, '/img/smile.jpg');
-    } else if (sentiment < 1.5) {
-      addIcon(location, '/img/sad.png');
-    } else {
-      addIcon(location, '/img/neutral.png');
-    }
-  }
-
-  function addWeatherIcon(location, weather_icon) {
-    var icon_string = "http://openweathermap.org/img/w/"+weather_icon+".png";
-    addIcon(location, icon_string);
-  }
-
-  function addCluster(location, size) {
-    if (size > 0) {
-      var circle = new google.maps.Circle({
-        strokeColor: '#FF0000',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: '#FF0000',
-        fillOpacity: 0.35,
-        center: location,
-        radius: size*111000,
-        map: map
-      });
-      clusters.push(circle);
-    } else {
-      var marker = new google.maps.Marker({
-        position: location,
-        map: map
-      });
-      clusters.push(marker);
-    }
-  }
-
-  function setAllMap(map) {
-    for (var i = 0; i < clusters.length; i++) {
-      clusters[i].setMap(map);
-    }
-    for (var i = 0; i < icons.length; i++) {
-      icons[i].setMap(map);
-    }
-  }
-
-  function clearMap() {
-    setAllMap(null);
-  }
-
-  function deleteMap() {
-    clearMap();
-    icons = [];
-    clusters = [];
-  }
-
-  function addNewTweet(tweet) {
-    deleteMap();
-    clusterCollection = $.parseJSON(tweet);
-    for (var cluster in clusterCollection) {
-      if (clusterCollection.hasOwnProperty(cluster)) {
-        //console.log("lat: "+clusterCollection[cluster].centerLat+", long: "+clusterCollection[cluster].centerLong+", rad: "+clusterCollection[cluster].clusterRadius);
-        clusterLatLng = new google.maps.LatLng(clusterCollection[cluster].centerLat,clusterCollection[cluster].centerLong);
-        addCluster(clusterLatLng, clusterCollection[cluster].clusterRadius);
-        //addSentimentIcon(clusterLatLng, clusterCollection[cluster].overallSentiment);
-        addWeatherIcon(clusterLatLng, clusterCollection[cluster].weather.icon);
-
-      }
-    }
-    setAllMap(map);
-  }*/
-
-  
-
-
-
-        /*var length = clusterCollection[cluster].tweetIDs.length;
-        for (var i = 0) {
-          clusterCollection[cluster].tweetIDs[i];
-        }*/
