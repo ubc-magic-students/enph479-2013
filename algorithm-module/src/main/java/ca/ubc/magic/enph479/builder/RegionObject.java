@@ -99,7 +99,7 @@ public class RegionObject {
 	//kitsilano
 	private double region4_lat_min = region2_lat_min;
 	private double region4_lat_max = region2_lat_max;
-	private double region4_lng_min = region2_lng_min;
+	private double region4_lng_min = region2_lng_max;
 	private double region4_lng_max = -123.14610;
 	//fairview
 	private double region5_lat_min = region4_lat_min;
