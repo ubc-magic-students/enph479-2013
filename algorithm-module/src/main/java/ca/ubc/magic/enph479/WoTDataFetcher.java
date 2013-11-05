@@ -115,6 +115,7 @@ public class WoTDataFetcher {
 	
 	//public ArrayList<TwitterObject> fetchNewData() throws Exception {
 	public String fetchNewData() throws Exception {
+		
 		//calculate start time and end time from ref_datetime
 		Date date_start_time = new Date(ref_datetime);
 		Date date_end_time = new Date(ref_datetime);
@@ -149,6 +150,16 @@ public class WoTDataFetcher {
 		dmp.toListFromJsonParser(wot_type.twitter);
 		//remove duplicates
 		dmp.removeDuplicates(wot_type.twitter);
+		
+		System.out.println("fetch count: " + fetch_count);
+		//write average scores to database every n fetches for timeplay feature
+		fetch_count++;
+		if(fetch_count == 1) {
+			fetch_count=0;
+			ArrayList<regionX> lRegions = dmp.getCurrentlRegionObjectsForTimePlay();
+			dbh.writeToDBScores(lRegions);
+		}
+		
 		//get all new incoming tweets
 		ArrayList<TwitterObject> ltweets_new = dmp.gettweets_incoming();
 		if(ltweets_new.size() == 0)
@@ -157,16 +168,6 @@ public class WoTDataFetcher {
 		dmp.updateAllList(wot_type.twitter);
 		//write to DB
 		dbh.writeToDBTweet(dmp.gettweets_incoming());
-		
-		//write average scores to database every n fetches for timeplay feature
-		if(fetch_count == 15) {
-			fetch_count=0;
-			
-			ArrayList<regionX> lRegions = dmp.getCurrentlRegionObjectsForTimePlay();
-			dbh.writeToDBScores(lRegions);
-		}
-		
-		fetch_count++;
 		//return ltweets_new;
 		return dmp.getlJsonRegionObject();
 	}

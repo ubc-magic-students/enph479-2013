@@ -206,7 +206,7 @@ public Boolean writeToDBScores(ArrayList<regionX> lRegions) throws Exception {
 			for(int i = 0; i < lRegions.size(); i++) {
 				
 				mysql_insert_command += " ("
-						+ (cur_id + i) + "," + (i - 1) + "," + start_datetime + ","
+						+ (cur_id + i) + "," + i + "," + "\"" + start_datetime + "\"" + ","
 						+ lRegions.get(i).sentiment_ave + ", " + lRegions.get(i).weather_ave + ")";
 						
 				if(i < lRegions.size()-1)
