@@ -2,9 +2,7 @@ package ca.ubc.magic.enph479;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -13,8 +11,6 @@ import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
-
-import ca.ubc.magic.enph479.builder.Region;
 
 public class JobsDriver {
 
@@ -44,11 +40,6 @@ public class JobsDriver {
 				return;
 			}
 			
-			List<Region> regionList = new ArrayList<Region>();
-			for (int i = 0; i < wdf.getTweetRegionCount(); i++) {
-				regionList.add(new Region("region" + i));
-			}
-			
 			//Initialize Jobs
 			JobDetail job = JobBuilder.newJob(WeatherJob.class)
 				.withIdentity("WeatherJob")
@@ -61,7 +52,6 @@ public class JobsDriver {
 			Scheduler schedule = StdSchedulerFactory.getDefaultScheduler();
 			// Pass objects to Job
 			schedule.getContext().put("wdf", wdf);
-			schedule.getContext().put("regionList", regionList);
 			schedule.scheduleJob(job, trigger);
 			schedule.start();
 			

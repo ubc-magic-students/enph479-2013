@@ -145,7 +145,8 @@ public class DataManipulationProcessor {
 	        		tweet.setWeatherScore(weatherScore.getWeatherScore());
 	        		
 	        		//set region
-	        		tweet.setRegion(region_info.classifyIntoRegion(lat, lng));
+	        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeatherScore(), tweet.getSentimentPolarity());
+	        		tweet.setRegion(region_index);
 	        		
 	        		//add current tweet to list
 	        		ltweets_incoming.add(tweet);
@@ -254,6 +255,19 @@ public class DataManipulationProcessor {
 
 	public int getRegion_count() {
 		return region_info.getRegionCount();
+	}
+	
+	public void updateRegionScoreForDBData() {
+		for(int i = 0; i < ltweets_all.size(); i++) {
+			region_info.classifyIntoRegion(ltweets_all.get(i).getLatitude(),
+											ltweets_all.get(i).getLongitude(),
+											ltweets_all.get(i).getWeatherScore(),
+											ltweets_all.get(i).getSentimentPolarity());
+		}
+	}
+	
+	public String getlJsonRegionObject() {
+		return region_info.getJsonRegionObject();
 	}
 
 }
