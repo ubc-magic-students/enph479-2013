@@ -16,7 +16,7 @@ import weka.core.Instances;
  */
 public class RegionObject {
 
-	class regionX {
+	public class regionX {
 		private double lat_min = -1;
 		private double lat_max = -1;
 		private double lng_min = -1;
@@ -156,6 +156,20 @@ public class RegionObject {
 		json += "}";
 		
 		return json;
+	}
+	
+	public ArrayList<regionX> getCurrentlRegionObjectForTimePlay() {
+		
+		region1.computeAverages();
+		region2.computeAverages();
+		region3.computeAverages();
+		
+		ArrayList<regionX> lRegions = new ArrayList<regionX>();
+		lRegions.add(region1);
+		lRegions.add(region2);
+		lRegions.add(region3);
+		
+		return lRegions;
 	}
 	
 }

@@ -12,6 +12,7 @@ import ca.ubc.magic.enph479.DataManipulationProcessor.wot_type;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.WeatherObject;
+import ca.ubc.magic.enph479.builder.RegionObject.regionX;
 
 /**
  * WoTDataFetcher is a controlling manager that calls DataManipulationProcessor to gets data from WoTkit
@@ -157,10 +158,12 @@ public class WoTDataFetcher {
 		//write to DB
 		dbh.writeToDBTweet(dmp.gettweets_incoming());
 		
-		//write average scores to database every 90 fetches
-		if(fetch_count == 90) {
-			fetch_count++;
+		//write average scores to database every n fetches for timeplay feature
+		if(fetch_count == 15) {
+			fetch_count=0;
 			
+			ArrayList<regionX> lRegions = dmp.getCurrentlRegionObjectsForTimePlay();
+			dbh.writeToDBScores(lRegions);
 		}
 		
 		fetch_count++;
