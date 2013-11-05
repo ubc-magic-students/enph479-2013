@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 import java.io.*;
 
@@ -258,11 +259,11 @@ public class DataManipulationProcessor {
 	}
 	
 	public void updateRegionScoreForDBData() {
-		for(int i = 0; i < ltweets_all.size(); i++) {
-			region_info.classifyIntoRegion(ltweets_incoming.get(i).getLatitude(),
-					ltweets_incoming.get(i).getLongitude(),
-					ltweets_incoming.get(i).getWeatherScore(),
-					ltweets_incoming.get(i).getSentimentPolarity());
+		for(Map.Entry<Integer, TwitterObject> entry: ltweets_all.entrySet()) {
+			region_info.classifyIntoRegion(entry.getValue().getLatitude(),
+					entry.getValue().getLongitude(),
+					entry.getValue().getWeatherScore(),
+					entry.getValue().getSentimentPolarity());
 		}
 	}
 	
