@@ -259,10 +259,10 @@ public class DataManipulationProcessor {
 	
 	public void updateRegionScoreForDBData() {
 		for(int i = 0; i < ltweets_all.size(); i++) {
-			region_info.classifyIntoRegion(ltweets_all.get(i).getLatitude(),
-											ltweets_all.get(i).getLongitude(),
-											ltweets_all.get(i).getWeatherScore(),
-											ltweets_all.get(i).getSentimentPolarity());
+			region_info.classifyIntoRegion(ltweets_incoming.get(i).getLatitude(),
+					ltweets_incoming.get(i).getLongitude(),
+					ltweets_incoming.get(i).getWeatherScore(),
+					ltweets_incoming.get(i).getSentimentPolarity());
 		}
 	}
 	
