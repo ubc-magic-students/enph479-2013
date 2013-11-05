@@ -5,6 +5,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.util.List;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -12,6 +13,7 @@ import org.quartz.SchedulerContext;
 
 import ca.ubc.magic.enph479.builder.Region;
 
+@DisallowConcurrentExecution
 public class WeatherJob implements Job{
 	private static final int TCPPORT = 8080;
 

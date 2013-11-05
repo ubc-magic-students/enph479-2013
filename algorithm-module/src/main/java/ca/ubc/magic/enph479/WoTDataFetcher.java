@@ -12,6 +12,7 @@ import ca.ubc.magic.enph479.DataManipulationProcessor.wot_type;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.WeatherObject;
+import ca.ubc.magic.enph479.builder.RegionObject.regionX;
 
 /**
  * WoTDataFetcher is a controlling manager that calls DataManipulationProcessor to gets data from WoTkit
@@ -24,7 +25,10 @@ public class WoTDataFetcher {
 	private DataManipulationProcessor dmp = null;
 	private DB_Handler dbh = null;
 	private int fetch_interval = 0; //in seconds
+	private int job_fetch_interval = 0; //in seconds
 	private String ref_datetime = null; //reference time in system for fetching
+	private int fetch_count = -1;
+	private int fetch_count_max = 0;
 	
 	public HashMap<Integer, TwitterObject> getAllTweetsData() throws Exception {
 		return dmp.gettweets_all();
@@ -34,10 +38,15 @@ public class WoTDataFetcher {
 		return dmp.getRegion_count();
 	}
 
-	public boolean prepareForFetching(int _fetch_interval, String _start_time) throws Exception  {
+	public boolean prepareForFetching(int _fetch_interval, int _job_fetch_interval, String _start_time) throws Exception  {
 		dmp = new DataManipulationProcessor();
 		this.fetch_interval = _fetch_interval;
+		this.job_fetch_interval = _job_fetch_interval;
 		this.ref_datetime = _start_time;
+		
+		this.fetch_count_max = (int)(double)(5.0*60.0/(((double)this.fetch_interval+(double)this.job_fetch_interval)/2.0));
+		if(this.fetch_count_max > 30)
+			this.fetch_count_max = 30;
 		
 		dbh = new DB_Handler();
 		if(dbh.prepareDB()) {
@@ -111,6 +120,7 @@ public class WoTDataFetcher {
 	
 	//public ArrayList<TwitterObject> fetchNewData() throws Exception {
 	public String fetchNewData() throws Exception {
+		
 		//calculate start time and end time from ref_datetime
 		Date date_start_time = new Date(ref_datetime);
 		Date date_end_time = new Date(ref_datetime);
@@ -145,6 +155,16 @@ public class WoTDataFetcher {
 		dmp.toListFromJsonParser(wot_type.twitter);
 		//remove duplicates
 		dmp.removeDuplicates(wot_type.twitter);
+		
+		System.out.println("fetch count: " + fetch_count);
+		//write average scores to database every n fetches for timeplay feature
+		fetch_count++;
+		if(fetch_count > fetch_count_max) {
+			fetch_count=0;
+			ArrayList<regionX> lRegions = dmp.getCurrentlRegionObjectsForTimePlay();
+			dbh.writeToDBScores(lRegions);
+		}
+		
 		//get all new incoming tweets
 		ArrayList<TwitterObject> ltweets_new = dmp.gettweets_incoming();
 		if(ltweets_new.size() == 0)
@@ -153,7 +173,6 @@ public class WoTDataFetcher {
 		dmp.updateAllList(wot_type.twitter);
 		//write to DB
 		dbh.writeToDBTweet(dmp.gettweets_incoming());
-		
 		//return ltweets_new;
 		return dmp.getlJsonRegionObject();
 	}

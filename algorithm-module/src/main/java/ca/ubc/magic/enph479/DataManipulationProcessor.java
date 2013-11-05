@@ -15,6 +15,7 @@ import ca.ubc.magic.enph479.builder.RegionObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.WeatherObject;
+import ca.ubc.magic.enph479.builder.RegionObject.regionX;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -265,6 +266,10 @@ public class DataManipulationProcessor {
 					entry.getValue().getWeatherScore(),
 					entry.getValue().getSentimentPolarity());
 		}
+	}
+	
+	public ArrayList<regionX> getCurrentlRegionObjectsForTimePlay() {
+		return region_info.getCurrentlRegionObjectForTimePlay();
 	}
 	
 	public String getlJsonRegionObject() {

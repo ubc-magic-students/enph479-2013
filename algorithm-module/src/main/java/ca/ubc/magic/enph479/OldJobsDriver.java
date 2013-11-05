@@ -21,11 +21,13 @@ import ca.ubc.magic.enph479.builder.TweetCluster;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 
+@Deprecated
 public class OldJobsDriver {
 
 	public static void main(String[] args) {
 		try {
-			int fetch_interval = 30; //in seconds
+			final int job_interval = 15;
+			final int fetch_interval = 15*2; //in seconds
 			String start_datetime = "undefined";
 			boolean is_demo = false; //fetch from a custom defined starting time if true, current starting time is false
 			
@@ -44,7 +46,7 @@ public class OldJobsDriver {
 			}
 			
 			//prepare for fetching
-			if(!wdf.prepareForFetching(fetch_interval, start_datetime)) {
+			if(!wdf.prepareForFetching(fetch_interval, job_interval, start_datetime)) {
 				System.out.println("Error while initializing WotDataFetcher...");
 				return;
 			}

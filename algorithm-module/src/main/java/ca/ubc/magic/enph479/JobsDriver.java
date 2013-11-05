@@ -16,7 +16,8 @@ public class JobsDriver {
 
 	public static void main(String[] args) {
 		try {
-			int fetch_interval = 30; //in seconds
+			final int job_interval = 5;
+			final int fetch_interval = job_interval*2; //in seconds
 			String start_datetime = "undefined";
 			boolean is_demo = false; //fetch from a custom defined starting time if true, current starting time is false
 			
@@ -35,7 +36,7 @@ public class JobsDriver {
 			}
 			
 			//prepare for fetching
-			if(!wdf.prepareForFetching(fetch_interval, start_datetime)) {
+			if(!wdf.prepareForFetching(fetch_interval, job_interval, start_datetime)) {
 				System.out.println("Error while initializing WotDataFetcher...");
 				return;
 			}
