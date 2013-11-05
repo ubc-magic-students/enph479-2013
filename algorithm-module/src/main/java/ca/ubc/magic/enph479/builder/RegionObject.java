@@ -294,7 +294,7 @@ public class RegionObject {
 		String json = "{";
 		for(int i = 0; i < lRegionObject.size(); i++) {
 			json += lRegionObject.get(i).toJSONFormat();
-			if(i < lRegionObject.size())
+			if(i < lRegionObject.size()-1)
 				 json += ",";
 		}
 		json += "}";
