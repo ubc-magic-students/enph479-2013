@@ -24,7 +24,9 @@ public class WoTDataFetcher {
 	private DataManipulationProcessor dmp = null;
 	private DB_Handler dbh = null;
 	private int fetch_interval = 0; //in seconds
+	private int job_fetch_interval = 0; //in seconds
 	private String ref_datetime = null; //reference time in system for fetching
+	private int fetch_count = -1;
 	
 	public HashMap<Integer, TwitterObject> getAllTweetsData() throws Exception {
 		return dmp.gettweets_all();
@@ -34,9 +36,10 @@ public class WoTDataFetcher {
 		return dmp.getRegion_count();
 	}
 
-	public boolean prepareForFetching(int _fetch_interval, String _start_time) throws Exception  {
+	public boolean prepareForFetching(int _fetch_interval, int _job_fetch_interval, String _start_time) throws Exception  {
 		dmp = new DataManipulationProcessor();
 		this.fetch_interval = _fetch_interval;
+		this.job_fetch_interval = _job_fetch_interval;
 		this.ref_datetime = _start_time;
 		
 		dbh = new DB_Handler();
@@ -154,6 +157,13 @@ public class WoTDataFetcher {
 		//write to DB
 		dbh.writeToDBTweet(dmp.gettweets_incoming());
 		
+		//write average scores to database every 90 fetches
+		if(fetch_count == 90) {
+			fetch_count++;
+			
+		}
+		
+		fetch_count++;
 		//return ltweets_new;
 		return dmp.getlJsonRegionObject();
 	}
