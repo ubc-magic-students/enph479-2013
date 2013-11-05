@@ -24,6 +24,7 @@ import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.UniqueRandomNumberGenerator;
 
+@Deprecated
 /**
  * Class for clustering tweet instances.
  * 

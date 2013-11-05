@@ -17,6 +17,7 @@ import ca.ubc.magic.enph479.builder.TwitterObject;
 import weka.core.Instance;
 import weka.core.Instances;
 
+@Deprecated
 public class ClusteringExample {
 	 /**
      * @param args

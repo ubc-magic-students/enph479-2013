@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import moa.cluster.Cluster;
 import moa.cluster.SphereCluster;
 
+@Deprecated
 /**
  * Class that stores cluster objects for tweets.
  * 

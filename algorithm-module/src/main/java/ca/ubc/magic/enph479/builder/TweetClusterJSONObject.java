@@ -2,6 +2,7 @@ package ca.ubc.magic.enph479.builder;
 
 import java.util.HashMap;
 
+@Deprecated
 /**
  * JSON object representing TweetCluster
  * 

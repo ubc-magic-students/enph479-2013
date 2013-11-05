@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;
 
+@Deprecated
 /**
  * A class for generating unique random numbers.
  * 

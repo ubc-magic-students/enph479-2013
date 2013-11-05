@@ -3,6 +3,7 @@ package ca.ubc.magic.enph479.builder;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class Region {
 	
 	private String name = null;

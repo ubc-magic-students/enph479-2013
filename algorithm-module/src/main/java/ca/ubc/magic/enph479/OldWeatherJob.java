@@ -16,6 +16,7 @@ import ca.ubc.magic.enph479.builder.TweetClusterJSONObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.WeatherObject;
 
+@Deprecated
 public class OldWeatherJob implements Job{
 	
 	private static final int TCPPORT = 8080;

@@ -21,6 +21,7 @@ import ca.ubc.magic.enph479.builder.TweetCluster;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 
+@Deprecated
 public class OldJobsDriver {
 
 	public static void main(String[] args) {
