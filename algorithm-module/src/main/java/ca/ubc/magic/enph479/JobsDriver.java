@@ -16,8 +16,8 @@ public class JobsDriver {
 
 	public static void main(String[] args) {
 		try {
-			final int job_interval = 15;
-			final int fetch_interval = 15*2; //in seconds
+			final int job_interval = 5;
+			final int fetch_interval = job_interval*2; //in seconds
 			String start_datetime = "undefined";
 			boolean is_demo = false; //fetch from a custom defined starting time if true, current starting time is false
 			
