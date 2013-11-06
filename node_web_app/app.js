@@ -37,7 +37,7 @@ connection.connect(function(err){
     console.log('Error connecting to mysql:' + err+'\n');
   }
 });
-/*connection.end();*/
+
 
 // Create socket.io rooms
 io.sockets.on('connection', function (socket) {
@@ -88,22 +88,14 @@ io.sockets.on('connection', function (socket) {
     }
 
     this.addToTweets = function(rows) {
-      if (this.tweets.length == 0)
+      if (this.tweets.length != 0)
       {
-       /* this.tweets = rows;
-        return;*/
-      } else {
-
-        //console.log('ADDTOTWEETS');
-        //console.log('rows.length: ' + rows.length);
         var length = this.tweets.length;
         var curr_id = this.tweets[length-1].id;
-        //console.log("curr_id: " + curr_id);
 
         var that = this;
         var new_tweets = [];
         rows.forEach(function(element, index) {
-          //console.log('element.id: ' + element.id);
           if (element.id > curr_id) {
             this.push(element);
           }
@@ -114,9 +106,6 @@ io.sockets.on('connection', function (socket) {
 
         curr_id = this.tweets[this.tweets.length-1].id;
         console.log("new_id: " + curr_id);
-        /*var index = that.tweets.length - 1;
-            console.log('new length: ' + that.tweets.length);
-            console.log('new_id: '+ 'index' + index + that.tweets[index]);*/
       }
     }
 

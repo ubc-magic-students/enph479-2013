@@ -1,6 +1,4 @@
 $(function() {
-  var MAX = 1;
-  var MIN = 0;
   var regions = [
     {
       name: "UBC",
@@ -196,8 +194,6 @@ $(function() {
     },
   ];
 
-    
-
   var appManager = new AppManager(regions);
   appManager.initializeApp();
 });
@@ -210,6 +206,9 @@ function AppManager(regions) {
   this.timeManager = new TimeManager();
   this.socketManager = new SocketManager(this);
   this.regions = regions;
+
+  this.regionState = -1; // -1 = Vancouver, 0 => Everything Else is a RegionId
+  this.timeState = 0; // 0 = Eternity, 1 = Playback
   
   this.initializeApp = function() {
     google.maps.event.addDomListener(window, 'load', this.mapManager.initializeMap());
@@ -224,19 +223,25 @@ function AppManager(regions) {
     $("#slider").slider();
   }
 
+  this.changeState = function(stateChange) {
+    if (stateChange.regionState !== undefined) {
+      this.regionState = stateChange.regionState;
+    }
+    if (stateChange.timeState !== undefined) {
+      this.timeState = stateChange.timeState;
+    }
+    this.mapManager.changeState(this.timeState, this.regionState);
+  }
+
   this.updateData = function(data) {
     
     data = $.parseJSON(data);
-    console.log(data);
 
     // update Time
     this.timeManager.showNow();
     
     // update Table
     this.tableManager.updateTable(data);
-
-    // update Region Counts
-    //this.mapManager.updateRegionCounts(data);
   }
 }
 
@@ -253,10 +258,6 @@ function SocketManager(appManager) {
     this.socket.on('hashtag tweet', function(data) {
       appManager.updateData(data.data);
     });
-
-    /*this.socket.on('dbconnect response', function(data) {
-      appManager.mapManager.regionObjects[data.regionId].createTweets(data.data);
-    });*/
 
     this.socket.on('new tweets', function(data) {
       if (data !== null) {
@@ -364,6 +365,96 @@ function TableManager(regions) {
   }
 }
 
+function ButtonManager(mapManager) {
+  this.replayButton;
+  this.overviewButton;
+  this.mapManager = mapManager;
+
+  this.initializeButtons = function() {
+    var overviewDiv = document.createElement('div');
+    var homeControl = new HomeControl(overviewDiv, mapManager.map);
+    overviewDiv.index = 1;
+    mapManager.map.controls[google.maps.ControlPosition.LEFT_TOP].push(overviewDiv);
+    this.overviewButton = $(overviewDiv);
+
+    var replayDiv = document.createElement('div');
+    var replayControl = new ReplayControl(replayDiv, mapManager.map);
+    replayDiv.index = 1;
+    mapManager.map.controls[google.maps.ControlPosition.TOP_LEFT].push(replayDiv);
+    this.replayButton = $(replayDiv);
+  }
+
+  this.initializeEvents = function() {
+    this.changeState(0, -1);
+  }
+
+  this.changeState = function(timeState, regionState) {
+
+      if (timeState === 0 && regionState === -1) {
+        this.setOverviewEternityState();
+      } else if (timeState === 0 && regionState !== -1) {
+        this.setRegionEternityState();
+      } else if (timeState === 1 && regionState === -1) {
+        this.setOverviewReplayState();
+      } else if (timeState === 1 && regionState !== -1) {
+        this.setRegionReplayState();
+      }
+  }
+
+  this.setOverviewEternityState = function() {
+    this.overviewButton.hide();
+    this.replayButton.text('Replay');
+    this.addPlayEvent();
+  }
+
+  this.setOverviewReplayState = function() {
+    this.overviewButton.hide();
+    this.replayButton.text('Stop Replay');
+    this.addStopEvent();
+  }
+
+  this.setRegionEternityState = function() {
+    this.overviewButton.show();
+    this.replayButton.text('Replay');
+    this.addOverviewButtonClickEvent();
+    this.addPlayEvent();
+  }
+
+  this.setRegionReplayState = function() {
+    this.overviewButton.show();
+    this.replayButton.text('Stop Replay');
+    this.addOverviewButtonClickEvent();
+    this.addStopEvent();
+  }
+
+  this.addPlayEvent = function() {
+    var that = this;
+    this.replayButton.off('click');
+    this.replayButton.click(function() {
+      var stateChange = { timeState: 1 };
+      that.mapManager.appManager.changeState(stateChange);
+    });
+  }
+
+  this.addStopEvent = function() {
+    var that = this;
+    this.replayButton.off('click');
+    this.replayButton.click(function() {
+      var stateChange = { timeState: 0 };
+      that.mapManager.appManager.changeState(stateChange);
+    });
+  }
+
+  this.addOverviewButtonClickEvent = function() {
+    var that = this;    
+    this.overviewButton.off('click');
+    this.overviewButton.click(function() {
+      var stateChange = { regionState: -1 };
+      that.mapManager.appManager.changeState(stateChange);
+    });
+  }
+}
+
   // The Map Manager object holds a MapMaker and all the Region objects, orchestrating the map operations
   function MapManager(regions, appManager) {
     this.map;
@@ -371,11 +462,25 @@ function TableManager(regions) {
     this.regionObjects = [];
     this.mapMaker = new MapMaker();
     this.appManager = appManager;
+    this.buttonManager = new ButtonManager(this);
 
     this.initializeMap = function() {
       this.map = this.mapMaker.makeMap();
       this.initializeRegions();
-      this.initializeButtons();
+      this.buttonManager.initializeButtons();
+      this.buttonManager.initializeEvents();
+    }
+
+    this.changeState = function(timeState, regionState) {
+
+      if (timeState === 0 && regionState === -1) {
+        this.goToCity();
+      } else if (timeState === 0 && regionState !== -1) {
+        this.goToRegion(regionState);
+      } else if (timeState === 1 && regionState === -1) {
+      } else if (timeState === 1 && regionState !== -1) {
+      }
+      this.buttonManager.changeState(timeState, regionState);
     }
 
     this.initializeRegions = function() {
@@ -388,11 +493,19 @@ function TableManager(regions) {
       }, this);
     }
 
-    this.initializeButtons = function() {
-      var homeControlDiv = document.createElement('div');
-      var homeControl = new HomeControl(homeControlDiv, this.map);
-      homeControlDiv.index = 1;
-      this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(homeControlDiv);
+    this.goToRegion = function(currentRegion) {
+      console.log(currentRegion);
+      console.log(this.regionObjects);
+      this.map.setCenter(this.regionObjects[currentRegion].regionBoundary.bounds.getCenter());
+      this.map.setZoom(14);
+      this.removeRegions();
+      this.regionObjects[currentRegion].showPrivateRegion();
+    }
+
+    this.goToCity = function() {
+      this.map.setCenter(new google.maps.LatLng(49.255, -123.125));
+      this.map.setZoom(12);
+      this.showRegions();
     }
 
     this.showRegions = function() {
@@ -401,41 +514,11 @@ function TableManager(regions) {
       }, this);
     }
 
-    this.showButtons = function() {
-      $('div#backbutton').css('visibility', 'visible');
-    }
-
-    this.hideButtons = function() {
-      $('div#backbutton').css('visibility', 'hidden');
-    }
-
-    this.addButtonClickEvents = function() {
-      var that = this;
-      $('div#backbutton').click(function() {
-        that.map.setCenter(new google.maps.LatLng(49.255, -123.125));
-        that.map.setZoom(12);
-        that.hideButtons();
-        that.removeRegions();
-        that.showRegions();
-      });
-    }
-
-    this.goToRegion = function(regionBoundary) {
-      this.map.setCenter(regionBoundary.bounds.getCenter());
-      this.map.setZoom(14);
-    }
-
     this.removeRegions = function() {
       this.regionObjects.forEach(function(element) {
         element.hideRegion();
       }, this);
     }
-
-    /*this.updateRegionCounts = function(data) {
-      this.regionObjects.forEach(function(element, index) {
-        element.updateCountLabel(data[index].tweetCount);
-      }, this);
-    }*/
   }
 
 // The Region object holds all the map elements and information specific to a region
@@ -454,11 +537,13 @@ function Region(regionInfo, mapManager) {
   );
 
   this.regionListener = google.maps.event.addListener(this.regionBoundary, 'click', function() {
-    mapManager.goToRegion(this);
+    /*mapManager.goToRegion(this);
     mapManager.showButtons();
     mapManager.addButtonClickEvents();
     mapManager.removeRegions();
-    that.showPrivateRegion();
+    that.showPrivateRegion();*/
+    var stateChange = { regionState: that.regionId };
+    that.mapManager.appManager.changeState(stateChange);
   });
 
   this.regionLabel = mapManager.mapMaker.makeRegionLabel(
@@ -466,36 +551,12 @@ function Region(regionInfo, mapManager) {
     this.regionBoundary.bounds.getCenter()
   );
 
-  /*this.regionCountLabel = mapManager.mapMaker.makeCountLabel(
-    this.count, 
-    new google.maps.LatLng(this.regionBoundary.bounds.getCenter().lat()-0.0125,
-      this.regionBoundary.bounds.getCenter().lng())
-  );*/
-
-  /*this.updateCountLabel = function(count) {
-    this.count = count;
-    //console.log("count: " + count);
-    this.regionCountLabel.setMap(null);
-    this.regionCountLabel = mapManager.mapMaker.makeCountLabel(
-      this.count,
-      new google.maps.LatLng(this.regionBoundary.bounds.getCenter().lat()-0.0125,
-        this.regionBoundary.bounds.getCenter().lng())
-    );
-    if (this.printCount == true) {
-      this.regionCountLabel.setMap(mapManager.map);
-    }
-  }*/
-
-  /*this.regionCountCircle = mapManager.mapMaker.makeCountCircle(
-    new google.maps.LatLng(this.regionBoundary.bounds.getCenter().lat()-0.005,
-      this.regionBoundary.bounds.getCenter().lng())
-  );*/
-
   this.showPublicRegion = function() {
     this.regionBoundary.setMap(mapManager.map);
     this.regionLabel.setMap(mapManager.map);
-    //this.regionCountLabel.setMap(mapManager.map);
-    //this.regionCountCircle.setMap(mapManager.map);
+    this.tweets.forEach(function(element, index) {
+      element.hide();
+    }, this);
     this.printCount = true;
     this.printTweets = false;
   }
@@ -503,8 +564,6 @@ function Region(regionInfo, mapManager) {
   this.showPrivateRegion = function() {
     this.regionBoundary.setMap(mapManager.map);
     this.regionLabel.setMap(mapManager.map);
-    //this.regionCountLabel.setMap(mapManager.map);
-    //this.regionCountCircle.setMap(mapManager.map);
     this.showTweets();
     this.printCount = true;
     this.printTweets = true;
@@ -513,8 +572,6 @@ function Region(regionInfo, mapManager) {
   this.hideRegion = function() {
     this.regionBoundary.setMap(null);
     this.regionLabel.setMap(null);
-    //this.regionCountLabel.setMap(null);
-    //this.regionCountCircle.setMap(null);
     this.tweets.forEach(function(element, index) {
       element.hide();
     }, this);
@@ -595,19 +652,21 @@ function MapMaker() {
   }
 
   this.makeRegionLabel = function(name, pos, flag) {
-    var pixelOffset;
-    if (name == "Marpole") {
-      pixelOffset =  new google.maps.Size(-25, -5)
-    } else {
-      pixelOffset =  new google.maps.Size(-25, -25)
+    var pixelOffset = new google.maps.Size(-25, -25);
+    var width = "55px";
+    if (name == "Shaughnessy") {
+      width = "75px";
     }
+    if (name == "Marpole") {
+      pixelOffset =  new google.maps.Size(-25, -5);
+    } 
     var labelOptions = {
            content: name
           ,boxStyle: {
              border: "1px solid black"
             ,textAlign: "center"
             ,fontSize: "8pt"
-            ,width: "55px"
+            ,width: width
            }
           ,disableAutoPan: true
           ,pixelOffset: pixelOffset
@@ -618,37 +677,6 @@ function MapMaker() {
           ,enableEventPropagation: true
         };
     return new InfoBox(labelOptions);
-  }
-
-  this.makeCountLabel = function(count, pos) {
-    labelOptions = {
-             content: count
-            ,boxStyle: {
-              textAlign: "center"
-              ,fontSize: "8pt"
-              ,width: "10px"
-             }
-            ,disableAutoPan: true
-            ,pixelOffset: new google.maps.Size(-5, -40)
-            ,position: pos
-            ,closeBoxURL: ""
-            ,isHidden: false
-            ,pane: "mapPane"
-            ,enableEventPropagation: true
-          };
-    return new InfoBox(labelOptions);
-  }
-
-  this.makeCountCircle = function(pos) {
-    return new google.maps.Circle({
-          strokeColor: '#FF0000',
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          fillColor: '#FF0000',
-          fillOpacity: 0.35,
-          center: pos,
-          radius: 350
-    });
   }
 }
 
@@ -668,7 +696,6 @@ function HomeControl(controlDiv, map) {
   controlUI.style.borderWidth = '2px';
   controlUI.style.cursor = 'pointer';
   controlUI.style.textAlign = 'center';
-  controlUI.style.visibility = 'hidden';
   controlUI.title = 'Click to set the map to Vancouver';
   controlDiv.appendChild(controlUI);
 
@@ -679,5 +706,34 @@ function HomeControl(controlDiv, map) {
   controlText.style.paddingLeft = '4px';
   controlText.style.paddingRight = '4px';
   controlText.innerHTML = '<b>Overview</b>';
+  controlUI.appendChild(controlText);
+}
+
+// The ReplayControl object holds the configuration for generating the Replay button
+function ReplayControl(controlDiv, map) {
+
+  // Set CSS styles for the DIV containing the control
+  // Setting padding to 5 px will offset the control
+  // from the edge of the map
+  controlDiv.style.padding = '5px';
+
+  // Set CSS for the control border
+  var controlUI = document.createElement('div');
+  controlUI.id = 'replaybutton';
+  controlUI.style.backgroundColor = 'white';
+  controlUI.style.borderStyle = 'solid';
+  controlUI.style.borderWidth = '2px';
+  controlUI.style.cursor = 'pointer';
+  controlUI.style.textAlign = 'center';
+  controlUI.title = 'Click to replay the last 24 hours';
+  controlDiv.appendChild(controlUI);
+
+  // Set CSS for the control interior
+  var controlText = document.createElement('div');
+  controlText.style.fontFamily = 'Arial,sans-serif';
+  controlText.style.fontSize = '12px';
+  controlText.style.paddingLeft = '4px';
+  controlText.style.paddingRight = '4px';
+  controlText.innerHTML = '<b>Replay</b>';
   controlUI.appendChild(controlText);
 }
