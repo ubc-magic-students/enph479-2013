@@ -53,8 +53,8 @@ public class RegionObject {
 				this.sentiment_ave = 0;
 			}
 			else {
-				this.weather_ave = this.weather_score / this.tweet_count;
-				this.sentiment_ave = this.sentiment_score / this.tweet_count;
+				this.weather_ave = (double)(this.weather_score / (double)this.tweet_count);
+				this.sentiment_ave = (double)(this.sentiment_score / (double)this.tweet_count);
 			}
 		}
 		
@@ -182,7 +182,7 @@ public class RegionObject {
 	private double region20_lng_min = -123.16017;
 	private double region20_lng_max = -123.11794;
 	//west end
-	private double region21_lat_min = region4_lat_max;
+	private double region21_lat_min = region5_lat_max;
 	private double region21_lat_max = region20_lat_min;
 	private double region21_lng_min = -123.14644;
 	private double region21_lng_max = -123.12378;
