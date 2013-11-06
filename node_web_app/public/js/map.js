@@ -447,7 +447,29 @@ function TableManager(regions) {
 
   this.renderTable = function(dataset) {
     $("#table").empty();
-    d3.select("#table")
+    
+    var classCounter = 0;
+    var className;
+    dataset.forEach(function(element, index) {
+      element.forEach(function(innerElement, innerIndex) {
+        if (classCounter === 0) {
+          className = "c_name";
+        } else if (classCounter % 2 === 1) {
+          className = "c_odd"
+        } else {
+          className = "c_even"
+        }
+        $("#table").append("<div class='" + className + "'>" + innerElement + "</div>");
+        classCounter++;
+        if (classCounter === 4) {
+          classCounter = 0;
+        }
+      }, this);
+    }, this);
+
+    //$("#table").append();
+    /*$("#table").empty();*/
+    /*d3.select("#table")
         .append("table")
         .style("border-collapse", "collapse")
         .style("border", "2px black solid")
@@ -465,7 +487,7 @@ function TableManager(regions) {
         .on("mouseout", function(){d3.select(this).style("background-color", "white")}) 
         .text(function(d){return d;})
         .style("font-size", "12px")
-        .style("text-align", "center");
+        .style("text-align", "center");*/
   }
 }
 
