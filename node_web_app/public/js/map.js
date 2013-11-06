@@ -534,7 +534,7 @@ function Region(regionInfo, mapManager) {
   this.createTweets = function(data) {
     var tweet;
     data.forEach(function(element, index) {
-      tweet = new Tweet(this, new google.maps.LatLng(element.lat, element.lng), element.message);
+      tweet = new Tweet(this, new google.maps.LatLng(element.lat, element.lng), element);
       this.tweets.push(tweet);
       console.log('count ' + this.tweets.length);
     }, this);
@@ -554,11 +554,26 @@ function Region(regionInfo, mapManager) {
 
 
 // The Tweet object holds all the tweet information
-function Tweet(region, pos, text) {
+function Tweet(region, pos, tweetObject) {
   this.marker = region.mapManager.mapMaker.makeTweetMarker(pos);
-  this.message = text;
+  this.message = tweetObject.message;
+  this.timestamp = tweetObject.timestamp;
+  this.sentiment = tweetObject.sentimentPolarity;
+  this.weather = tweetObject.weatherScore;
+  this.infowindow = new google.maps.InfoWindow({
+    content: '<div class="bubble-info">' 
+              + '<dl>'
+              + '<dt>' + this.timestamp + '</dt>'
+              + '<dd>' + this.message + '</dd>'
+              + '<dt>Sentiment Score: ' + this.sentiment + ' | Weather Score: ' + this.weather.toFixed(3) + '</dt>'
+              + '</dl>'
+              + '</div>'
+              ,
+    maxWidth: 300
+  })
   var that = this;
   this.listener = google.maps.event.addListener(this.marker, 'click', function() {
+      that.infowindow.open(region.mapManager.map, that.marker)
       region.mapManager.appManager.tweetManager.showTweet(that.message);
   }, this);
   this.show = function() {
