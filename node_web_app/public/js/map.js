@@ -211,6 +211,7 @@ function AppManager(regions) {
   this.socketManager = new SocketManager(this);
   this.regions = regions;
   this.playbackId;
+  this.playbackTweets = [];
 
   this.state = VANCOUVER_ETERNITY;
   
@@ -242,6 +243,10 @@ function AppManager(regions) {
       clearInterval(this.playbackId);
       this.timeManager.showLastUpdated();
       this.tableManager.showLastUpdated();
+      this.playbackTweets.forEach(function(element) {
+        element.hide();
+      }, this);
+      this.playbackTweets = [];
     }
   }
 
@@ -249,23 +254,48 @@ function AppManager(regions) {
     this.socketManager.getTimePlay();
   }
 
-  this.playback = function(data) {
+  this.playback = function(regionData, tweetData) {
     //this.changeState(VANCOUVER_PLAYBACK);
     var regionLength = this.regions.length;
     
     var that = this;
     var arrayPIT;
     this.playbackId = setInterval(function() {
-      if (data.length !== 0) {
-        arrayPIT = data.splice(0,regionLength);
+      var playTweet = [];
+      if (regionData.length !== 0) {
+        arrayPIT = regionData.splice(0,regionLength);
         that.tableManager.updatePlayTable(arrayPIT);
         that.timeManager.showPlayTime(arrayPIT[0].timestamp);
+        
+        var tweet_date;
+        arrayPIT[0].timestamp[19] = '.';
+        var play_date = new Date();
+        //console.log('play date: ' + play_date);
+
+        tweetData.some(function(element, index) {
+          tweet_date = new Date(element.timestamp);
+          //console.log('tweet date: ' + element.timestamp);
+          if (play_date > tweet_date) {
+            playTweet.push(tweetData.shift());
+          } else {
+            return true;
+          }
+        }, this);
+        that.addplaybackTweets(playTweet);
       } else {
         clearInterval(that.playbackId);
         that.changeState(VANCOUVER_ETERNITY);
       }
     }, 100);
   }
+
+  this.addplaybackTweets = function(tweets) {
+    tweets.forEach(function(element, index) {
+      var vTweet = new VancouverTweet(this, new google.maps.LatLng(element.lat, element.lng), element);
+      vTweet.show();
+      this.playbackTweets.push(vTweet);
+    }, this);
+  };
 
   this.updateData = function(data) {
     console.log('STATE AT UPDATE: ' + this.state);
@@ -330,7 +360,7 @@ function SocketManager(appManager) {
     });
 
     this.socket.on('region history', function(data) {
-      appManager.playback(data.data);
+      appManager.playback(data.data[0], data.data[1]);
     });
   }
 }
@@ -583,6 +613,7 @@ function ButtonManager(mapManager) {
     }
 
     this.enableRegions = function() {
+      console.log('enableRegions called');
       this.regionObjects.forEach(function(element) {
         element.addRegionListener();
       }, this);
@@ -636,7 +667,9 @@ function Region(regionInfo, mapManager) {
 
   this.addRegionListener = function() {
     if (this.listenedTo === false) {
-      google.maps.event.addListener(this.regionListener);
+      google.maps.event.addListener(this.regionBoundary, 'click', function() {
+        that.mapManager.appManager.changeState(REGION_ETERNITY, that.regionId);
+      });
       this.listenedTo = true;
     }
   }
@@ -677,7 +710,7 @@ function Region(regionInfo, mapManager) {
   this.createTweets = function(data) {
     var tweet;
     data.forEach(function(element, index) {
-      tweet = new Tweet(this, new google.maps.LatLng(element.lat, element.lng), element.message);
+      tweet = new Tweet(this, new google.maps.LatLng(element.lat, element.lng), element);
       this.tweets.push(tweet);
       //console.log('count ' + this.tweets.length);
     }, this);
@@ -697,15 +730,61 @@ function Region(regionInfo, mapManager) {
 
 
 // The Tweet object holds all the tweet information
-function Tweet(region, pos, text) {
+function Tweet(region, pos, tweetObject) {
   this.marker = region.mapManager.mapMaker.makeTweetMarker(pos);
-  this.message = text;
+  this.message = tweetObject.message;
+  this.timestamp = tweetObject.timestamp;
+  this.sentiment = tweetObject.sentimentPolarity;
+  this.weather = tweetObject.weatherScore;
+  this.infowindow = new google.maps.InfoWindow({
+    content: '<div class="bubble-info">' 
+              + '<dl>'
+              + '<dt>' + this.timestamp + '</dt>'
+              + '<dd>' + this.message + '</dd>'
+              + '<dt>Sentiment Score: ' + this.sentiment + ' | Weather Score: ' + this.weather.toFixed(3) + '</dt>'
+              + '</dl>'
+              + '</div>'
+              ,
+    maxWidth: 300
+  })
   var that = this;
   this.listener = google.maps.event.addListener(this.marker, 'click', function() {
+      that.infowindow.open(region.mapManager.map, that.marker)
       region.mapManager.appManager.tweetManager.showTweet(that.message);
   }, this);
   this.show = function() {
     this.marker.setMap(region.mapManager.map);
+  }
+  this.hide = function() {
+    this.marker.setMap(null);
+  }
+}
+
+// The VancouverTweet object holds all the tweet information
+function VancouverTweet(appManager, pos, tweetObject) {
+  this.marker = appManager.mapManager.mapMaker.makeTweetMarker(pos);
+  this.message = tweetObject.message;
+  this.timestamp = tweetObject.timestamp;
+  this.sentiment = tweetObject.sentimentPolarity;
+  this.weather = tweetObject.weatherScore;
+  this.infowindow = new google.maps.InfoWindow({
+    content: '<div class="bubble-info">' 
+              + '<dl>'
+              + '<dt>' + this.timestamp + '</dt>'
+              + '<dd>' + this.message + '</dd>'
+              + '<dt>Sentiment Score: ' + this.sentiment + ' | Weather Score: ' + this.weather.toFixed(3) + '</dt>'
+              + '</dl>'
+              + '</div>'
+              ,
+    maxWidth: 300
+  })
+  var that = this;
+  this.listener = google.maps.event.addListener(this.marker, 'click', function() {
+      that.infowindow.open(appManager.mapManager.map, that.marker)
+      appManager.mapManager.appManager.tweetManager.showTweet(that.message);
+  }, this);
+  this.show = function() {
+    this.marker.setMap(appManager.mapManager.map);
   }
   this.hide = function() {
     this.marker.setMap(null);
