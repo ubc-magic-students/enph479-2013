@@ -5,3 +5,12 @@ html { height: 100% }
   #time-date { margin: 10px;}
   #tweet-box { margin: 10px; max-width: 300px;}
   #table { margin: 10px; }
+
+  .bubble-info {
+  	font: 12px arial,sans-serif;
+  	color: #585858;
+  }
+
+  .bubble-info dt {
+  	font-weight: bold;
+  }

@@ -206,7 +206,7 @@ var VANCOUVER_ETERNITY = 0,
 function AppManager(regions) {
   this.mapManager = new MapManager(regions, this);
   this.tableManager = new TableManager(regions);
-  this.tweetManager = new TweetBoxManager();
+  //this.tweetManager = new TweetBoxManager();
   this.timeManager = new TimeManager();
   this.socketManager = new SocketManager(this);
   this.regions = regions;
@@ -388,7 +388,7 @@ function TimeManager() {
   }
 }
 
-function TweetBoxManager() {
+/*function TweetBoxManager() {
   this.initializeTweet = function() {
     $('#tweet-box').text('No tweets');
   }
@@ -396,7 +396,7 @@ function TweetBoxManager() {
   this.showTweet = function(tweet) {
     $('#tweet-box').text(tweet);
   }
-}
+}*/
 
 function TableManager(regions) {
   this.dataset = [];
@@ -555,6 +555,7 @@ function ButtonManager(mapManager) {
     var that = this;
     google.maps.event.removeListener(this.overviewListener);
     this.overviewListener = google.maps.event.addDomListener(this.overviewButton, 'click', function() {
+      that.mapManager.infowindow.close();
       that.mapManager.appManager.changeState(VANCOUVER_ETERNITY);
     });
     /*$('div#backbutton').off('click');
@@ -572,6 +573,9 @@ function ButtonManager(mapManager) {
     this.mapMaker = new MapMaker();
     this.appManager = appManager;
     this.buttonManager = new ButtonManager(this);
+    this.infowindow = new google.maps.InfoWindow({
+      maxWidth: 300
+    });
 
     this.initializeMap = function() {
       this.map = this.mapMaker.makeMap();
@@ -751,21 +755,20 @@ function Tweet(region, pos, tweetObject) {
   this.timestamp = tweetObject.timestamp;
   this.sentiment = tweetObject.sentimentPolarity;
   this.weather = tweetObject.weatherScore;
-  this.infowindow = new google.maps.InfoWindow({
-    content: '<div class="bubble-info">' 
+  this.infoContent = '<div class="bubble-info">' 
               + '<dl>'
               + '<dt>' + this.timestamp + '</dt>'
-              + '<dd>' + this.message + '</dd>'
+              + '<dd>' + this.message + '</dd>' + '</br>'
               + '<dt>Sentiment Score: ' + this.sentiment + ' | Weather Score: ' + this.weather.toFixed(3) + '</dt>'
               + '</dl>'
-              + '</div>'
-              ,
-    maxWidth: 300
-  })
+              + '</div>';
+  this.infowindow = region.mapManager.infowindow;
   var that = this;
   this.listener = google.maps.event.addListener(this.marker, 'click', function() {
+      that.infowindow.close();
+      that.infowindow.setContent(that.infoContent);
       that.infowindow.open(region.mapManager.map, that.marker)
-      region.mapManager.appManager.tweetManager.showTweet(that.message);
+      //region.mapManager.appManager.tweetManager.showTweet(that.message);
   }, this);
   this.show = function() {
     this.marker.setMap(region.mapManager.map);
@@ -777,29 +780,28 @@ function Tweet(region, pos, tweetObject) {
 
 // The VancouverTweet object holds all the tweet information
 function VancouverTweet(appManager, pos, tweetObject) {
-  this.marker = appManager.mapManager.mapMaker.makeTweetMarker(pos);
+  this.marker = region.mapManager.mapMaker.makeTweetMarker(pos);
   this.message = tweetObject.message;
   this.timestamp = tweetObject.timestamp;
   this.sentiment = tweetObject.sentimentPolarity;
   this.weather = tweetObject.weatherScore;
-  this.infowindow = new google.maps.InfoWindow({
-    content: '<div class="bubble-info">' 
+  this.infoContent = '<div class="bubble-info">' 
               + '<dl>'
               + '<dt>' + this.timestamp + '</dt>'
               + '<dd>' + this.message + '</dd>'
               + '<dt>Sentiment Score: ' + this.sentiment + ' | Weather Score: ' + this.weather.toFixed(3) + '</dt>'
               + '</dl>'
-              + '</div>'
-              ,
-    maxWidth: 300
-  })
+              + '</div>';
+  this.infowindow = region.mapManager.infowindow;
   var that = this;
   this.listener = google.maps.event.addListener(this.marker, 'click', function() {
-      that.infowindow.open(appManager.mapManager.map, that.marker)
-      appManager.mapManager.appManager.tweetManager.showTweet(that.message);
+      that.infowindow.close();
+      that.infowindow.setContent(that.infoContent);
+      that.infowindow.open(region.mapManager.map, that.marker)
+      //region.mapManager.appManager.tweetManager.showTweet(that.message);
   }, this);
   this.show = function() {
-    this.marker.setMap(appManager.mapManager.map);
+    this.marker.setMap(region.mapManager.map);
   }
   this.hide = function() {
     this.marker.setMap(null);
