@@ -56,10 +56,10 @@ io.sockets.on('connection', function (socket) {
       tweetRetriever.checkForNewTweets();
     } ,15000);
 
-    var regionRetriever = new RegionRetriever(connection, socket)
+    var regionRetriever = new RegionRetriever(connection)
     socket.join('regionrequest')
-    socket.on('time_play_request', function() {
-      regionRetriever.getRegionsData();
+    socket.on('time_play_request', function(hour) {
+      regionRetriever.getRegionsData(hour);
     });
 
   });
@@ -134,11 +134,15 @@ io.sockets.on('connection', function (socket) {
 
   function RegionRetriever(connection) {
 
-    this.getRegionsData = function() {
-      var date_now = new Date(new Date().getTime() - 60*60*1000);
-      var date = new Date(date_now.getTime() - 24*60*60*1000).toISOString();
-      console.log("date format: " + date)
+    this.getRegionsData = function(hour) {
+      if(!hour)
+        hour = 24;
+      var date_now = new Date(new Date().getTime() );
+      console.log("hour: " + hour);
+      var date = new Date(date_now.getTime() - hour*60*60*1000).toISOString();
       date_now = date_now.toISOString();
+      console.log("datenow: " + date_now)
+      console.log("date: " + date)
       var that = this;
       var query = "SELECT * from ENPH479.timeplay_data WHERE timestamp BETWEEN '" + date + "' AND '" + date_now + "'";
       connection.query(query, function(err, rows){
