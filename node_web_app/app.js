@@ -94,16 +94,16 @@ io.sockets.on('connection', function (socket) {
         return;*/
       } else {
 
-        console.log('ADDTOTWEETS');
-        console.log('rows.length: ' + rows.length);
+        //console.log('ADDTOTWEETS');
+        //console.log('rows.length: ' + rows.length);
         var length = this.tweets.length;
         var curr_id = this.tweets[length-1].id;
-        console.log("curr_id: " + curr_id);
+        //console.log("curr_id: " + curr_id);
 
         var that = this;
         var new_tweets = [];
         rows.forEach(function(element, index) {
-          console.log('element.id: ' + element.id);
+          //console.log('element.id: ' + element.id);
           if (element.id > curr_id) {
             this.push(element);
           }

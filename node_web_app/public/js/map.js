@@ -1,30 +1,202 @@
 $(function() {
+  var MAX = 1;
+  var MIN = 0;
   var regions = [
     {
-      name: "West Vancouver",
+      name: "UBC",
       id: "0",
       bb: [
-            { lat: 49.195, lng: -123.27},
-            { lat: 49.315, lng: -123.16772}
-          ]
+        { lat: 49.23083, lng: -123.26660 },
+        { lat: 49.27632, lng: -123.21476 }
+      ]
     },
     {
-      name: "Central Vancouver",
+      name: "West Point Grey",
       id: "1",
       bb: [
-            { lat: 49.195, lng: -123.16772},
-            { lat: 49.315, lng: -123.05717}
+        { lat: 49.25795, lng: -123.21476 },
+        { lat: 49.27632, lng: -123.18592 }
+      ]
+    },
+    {
+      name: "Kitsilano",
+      id: "2",
+      bb: [
+        { lat: 49.25795, lng: -123.18592 },
+        { lat: 49.27632, lng: -123.14610 }
+      ]
+    },
+    {
+      name: "Fairview",
+      id: "3",
+      bb: [
+            { lat: 49.25795, lng: -123.14610 },
+            { lat: 49.26982, lng: -123.11520 }
           ]
     },
     {
-      name: "East Vancouver",
-      id: "2",
+      name: "Mount Pleasant",
+      id: "4",
       bb: [
-            { lat: 49.195, lng: -123.05717},
-            { lat: 49.315, lng: -123.020}
+            { lat: 49.25795, lng: -123.11520 },
+            { lat: 49.26982, lng: -123.07777 }
           ]
-    }
+    },
+    {
+      name: "Dunbar",
+      id: "5",
+      bb: [
+            { lat: 49.21939, lng: -123.21476 },
+            { lat: 49.25795, lng: -123.17081 }
+          ]
+    },
+    {
+      name: "Arbutus",
+      id: "6",
+      bb: [
+          { lat: 49.23441, lng: -123.17081 },
+          { lat: 49.25795, lng: -123.15399 }
+      ]
+    },
+    {
+      name: "Shaughnessy",
+      id: "7",
+      bb: [
+          { lat: 49.23441, lng: -123.15399 },
+          { lat: 49.25795, lng: -123.13923 }
+      ]
+    },
+    {
+      name: "South Cambie",
+      id: "8",
+      bb: [
+          { lat: 49.23441, lng: -123.13923 },
+          { lat: 49.25795, lng: -123.1152 }
+      ]
+    },
+    {
+      name: "Riley Park",
+      id: "9",
+      bb: [
+          { lat: 49.23441, lng: -123.1152 },
+          { lat: 49.25795, lng: -123.09082 }
+      ]
+    },
+    {
+      name: "Kensington",
+      id: "10",
+      bb: [
+          { lat: 49.23441, lng: -123.09082 },
+          { lat: 49.25795, lng: -123.05683 }
+      ]
+    },
+    {
+      name: "Renfrew",
+      id: "11",
+      bb: [
+          { lat: 49.23441, lng: -123.05683 },
+          { lat: 49.25795, lng: -123.02422 }
+      ]
+    },
+    {
+      name: "Kerrisdale",
+      id: "12",
+      bb: [
+          { lat: 49.20324, lng: -123.17081 },
+          { lat: 49.23441, lng: -123.14026 }
+      ]
+    },
+    {
+      name: "Oakridge",
+      id: "13",
+      bb: [
+          { lat: 49.21872, lng: -123.14026 },
+          { lat: 49.23441, lng: -123.10215 }
+      ]
+    },
+    {
+      name: "Marpole",
+      id: "14",
+      bb: [
+          { lat: 49.19965, lng: -123.14026 },
+          { lat: 49.23441, lng: -123.10215 }
+      ]
+    },
+    {
+      name: "Sunset",
+      id: "15",
+      bb: [
+          { lat: 49.20324, lng: -123.10215 },
+          { lat: 49.23441, lng: -123.07777 }
+      ]
+    },
+    {
+      name: "Victoria",
+      id: "16",
+      bb: [
+          { lat: 49.20324, lng: -123.07777 },
+          { lat: 49.23441, lng: -123.05511 }
+      ]
+    },
+    {
+      name: "Killarney",
+      id: "17",
+      bb: [
+          { lat: 49.20324, lng: -123.05511 },
+          { lat: 49.23441, lng: -123.02422 }
+      ]
+    },
+    {
+      name: "Stanley Park",
+      id: "18",
+      bb: [
+          { lat: 49.29311, lng: -123.16017 },
+          { lat: 49.31371, lng: -123.11794 }
+      ]
+    },
+    {
+      name: "West End",
+      id: "19",
+      bb: [
+          { lat: 49.27632, lng: -123.14644 },
+          { lat: 49.29311, lng: -123.12378 }
+      ]
+    },
+    {
+      name: "Business District",
+      id: "20",
+      bb: [
+          { lat: 49.27632, lng: -123.12378 },
+          { lat: 49.29311, lng: -123.10181 }
+      ]
+    },
+    {
+      name: "Downtown Eastside",
+      id: "21",
+      bb: [
+          { lat: 49.26982, lng: -123.10181 },
+          { lat: 49.28953, lng: -123.07777 }
+      ]
+    },
+    {
+      name: "Grandview",
+      id: "22",
+      bb: [
+          { lat: 49.25795, lng: -123.07777 },
+          { lat: 49.29334, lng: -123.05683 }
+      ]
+    },
+    {
+      name: "East Hastings",
+      id: "23",
+      bb: [
+          { lat: 49.25795, lng: -123.05683 },
+          { lat: 49.29334, lng: -123.02422 }
+      ]
+    },
   ];
+
+    
 
   var appManager = new AppManager(regions);
   appManager.initializeApp();
@@ -53,7 +225,9 @@ function AppManager(regions) {
   }
 
   this.updateData = function(data) {
+    
     data = $.parseJSON(data);
+    console.log(data);
 
     // update Time
     this.timeManager.showNow();
@@ -62,7 +236,7 @@ function AppManager(regions) {
     this.tableManager.updateTable(data);
 
     // update Region Counts
-    this.mapManager.updateRegionCounts(data);
+    //this.mapManager.updateRegionCounts(data);
   }
 }
 
@@ -85,19 +259,24 @@ function SocketManager(appManager) {
     });*/
 
     this.socket.on('new tweets', function(data) {
-      var regionTweets = [];
-      appManager.regions.forEach(function(element) {
-          regionTweets.push([]);
-      }, this);
-      
-      data.data.forEach(function(element, index){
-        regionTweets[element.region].push(element);
-      }, this)
-      
-      // add tweets to each region
-      regionTweets.forEach(function(element, index){
-        appManager.mapManager.regionObjects[index].createTweets(element);
-      }, this);
+      if (data !== null) {
+        var regionTweets = [];
+        appManager.regions.forEach(function(element) {
+            regionTweets.push([]);
+        }, this);
+
+        var numRegions = regionTweets.length;
+        data.data.forEach(function(element, index){
+          if (element.region >= 0 && element.region < numRegions) {
+            regionTweets[element.region].push(element);
+          }
+        }, this);
+        
+        // add tweets to each region
+        regionTweets.forEach(function(element, index){
+          appManager.mapManager.regionObjects[index].createTweets(element);
+        }, this);
+      }
     });
   }
 }
@@ -129,7 +308,7 @@ function TweetBoxManager() {
 function TableManager(regions) {
   this.dataset = [];
   this.rowHeader = [];
-  this.columnHeader = ['', 'Sentiment', 'Weather'];
+  this.columnHeader = ['', 'Sentiment', 'Weather', '# of Tweets'];
 
   this.initializeRowHeader = function() {
     regions.forEach(function(element) {
@@ -143,16 +322,16 @@ function TableManager(regions) {
     this.dataset.push(this.columnHeader);
 
     this.rowHeader.forEach(function(element) {
-      this.dataset.push([element, '-', '-']);
+      this.dataset.push([element, '-', '-', '-']);
     }, this);
   }
 
   this.updateDataset = function(data) {
     this.dataset = [];
     this.dataset.push(this.columnHeader);
-
+  
     this.rowHeader.forEach(function(element, index) {
-      this.dataset.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage]);
+      this.dataset.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
     }, this);
   }
 
@@ -176,7 +355,7 @@ function TableManager(regions) {
         .data(function(d){return d;})
         .enter().append("td")
         .style("border", "1px black solid")
-        .style("padding", "10px")
+        .style("padding", "5px")
         .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) 
         .on("mouseout", function(){d3.select(this).style("background-color", "white")}) 
         .text(function(d){return d;})
@@ -243,7 +422,7 @@ function TableManager(regions) {
 
     this.goToRegion = function(regionBoundary) {
       this.map.setCenter(regionBoundary.bounds.getCenter());
-      this.map.setZoom(12);
+      this.map.setZoom(14);
     }
 
     this.removeRegions = function() {
@@ -252,11 +431,11 @@ function TableManager(regions) {
       }, this);
     }
 
-    this.updateRegionCounts = function(data) {
+    /*this.updateRegionCounts = function(data) {
       this.regionObjects.forEach(function(element, index) {
         element.updateCountLabel(data[index].tweetCount);
       }, this);
-    }
+    }*/
   }
 
 // The Region object holds all the map elements and information specific to a region
@@ -287,13 +466,13 @@ function Region(regionInfo, mapManager) {
     this.regionBoundary.bounds.getCenter()
   );
 
-  this.regionCountLabel = mapManager.mapMaker.makeCountLabel(
+  /*this.regionCountLabel = mapManager.mapMaker.makeCountLabel(
     this.count, 
     new google.maps.LatLng(this.regionBoundary.bounds.getCenter().lat()-0.0125,
       this.regionBoundary.bounds.getCenter().lng())
-  );
+  );*/
 
-  this.updateCountLabel = function(count) {
+  /*this.updateCountLabel = function(count) {
     this.count = count;
     //console.log("count: " + count);
     this.regionCountLabel.setMap(null);
@@ -305,18 +484,18 @@ function Region(regionInfo, mapManager) {
     if (this.printCount == true) {
       this.regionCountLabel.setMap(mapManager.map);
     }
-  }
+  }*/
 
-  this.regionCountCircle = mapManager.mapMaker.makeCountCircle(
-    new google.maps.LatLng(this.regionBoundary.bounds.getCenter().lat()-0.0125,
+  /*this.regionCountCircle = mapManager.mapMaker.makeCountCircle(
+    new google.maps.LatLng(this.regionBoundary.bounds.getCenter().lat()-0.005,
       this.regionBoundary.bounds.getCenter().lng())
-  );
+  );*/
 
   this.showPublicRegion = function() {
     this.regionBoundary.setMap(mapManager.map);
     this.regionLabel.setMap(mapManager.map);
-    this.regionCountLabel.setMap(mapManager.map);
-    this.regionCountCircle.setMap(mapManager.map);
+    //this.regionCountLabel.setMap(mapManager.map);
+    //this.regionCountCircle.setMap(mapManager.map);
     this.printCount = true;
     this.printTweets = false;
   }
@@ -324,8 +503,8 @@ function Region(regionInfo, mapManager) {
   this.showPrivateRegion = function() {
     this.regionBoundary.setMap(mapManager.map);
     this.regionLabel.setMap(mapManager.map);
-    this.regionCountLabel.setMap(mapManager.map);
-    this.regionCountCircle.setMap(mapManager.map);
+    //this.regionCountLabel.setMap(mapManager.map);
+    //this.regionCountCircle.setMap(mapManager.map);
     this.showTweets();
     this.printCount = true;
     this.printTweets = true;
@@ -334,8 +513,8 @@ function Region(regionInfo, mapManager) {
   this.hideRegion = function() {
     this.regionBoundary.setMap(null);
     this.regionLabel.setMap(null);
-    this.regionCountLabel.setMap(null);
-    this.regionCountCircle.setMap(null);
+    //this.regionCountLabel.setMap(null);
+    //this.regionCountCircle.setMap(null);
     this.tweets.forEach(function(element, index) {
       element.hide();
     }, this);
@@ -415,7 +594,13 @@ function MapMaker() {
     });
   }
 
-  this.makeRegionLabel = function(name, pos) {
+  this.makeRegionLabel = function(name, pos, flag) {
+    var pixelOffset;
+    if (name == "Marpole") {
+      pixelOffset =  new google.maps.Size(-25, -5)
+    } else {
+      pixelOffset =  new google.maps.Size(-25, -25)
+    }
     var labelOptions = {
            content: name
           ,boxStyle: {
@@ -425,7 +610,7 @@ function MapMaker() {
             ,width: "55px"
            }
           ,disableAutoPan: true
-          ,pixelOffset: new google.maps.Size(-25, 0)
+          ,pixelOffset: pixelOffset
           ,position: pos
           ,closeBoxURL: ""
           ,isHidden: false
@@ -440,11 +625,11 @@ function MapMaker() {
              content: count
             ,boxStyle: {
               textAlign: "center"
-              ,fontSize: "10pt"
+              ,fontSize: "8pt"
               ,width: "10px"
              }
             ,disableAutoPan: true
-            ,pixelOffset: new google.maps.Size(-5, -10)
+            ,pixelOffset: new google.maps.Size(-5, -40)
             ,position: pos
             ,closeBoxURL: ""
             ,isHidden: false
@@ -462,7 +647,7 @@ function MapMaker() {
           fillColor: '#FF0000',
           fillOpacity: 0.35,
           center: pos,
-          radius: 450
+          radius: 350
     });
   }
 }
