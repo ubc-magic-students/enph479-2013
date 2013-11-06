@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
@@ -200,7 +201,8 @@ public Boolean writeToDBScores(ArrayList<regionX> lRegions) throws Exception {
 			String mysql_insert_command = "INSERT INTO timeplay_data VALUES";
 			
 			Date date_now = new Date();
-			DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
+			DateFormat date_format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
+			date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String start_datetime = date_format.format(date_now);
 			
 			for(int i = 0; i < lRegions.size(); i++) {

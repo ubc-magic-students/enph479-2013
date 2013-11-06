@@ -55,6 +55,13 @@ io.sockets.on('connection', function (socket) {
     setInterval(function() {
       tweetRetriever.checkForNewTweets();
     } ,15000);
+
+    var regionRetriever = new RegionRetriever(connection)
+    socket.join('regionrequest')
+    socket.on('time_play_request', function(hour) {
+      regionRetriever.getRegionsData(hour);
+    });
+
   });
 
   function TweetRetriever(connection, socket) {
@@ -113,6 +120,36 @@ io.sockets.on('connection', function (socket) {
       io.sockets.in('dbconnect').emit('new tweets', { data: rows });
     }
   }
+
+  function RegionRetriever(connection) {
+
+    this.getRegionsData = function(hour) {
+      if(!hour)
+        hour = 24;
+      var date_now = new Date(new Date().getTime() );
+      console.log("hour: " + hour);
+      var date = new Date(date_now.getTime() - hour*60*60*1000).toISOString();
+      date_now = date_now.toISOString();
+      console.log("datenow: " + date_now)
+      console.log("date: " + date)
+      var that = this;
+      var query = "SELECT * from ENPH479.timeplay_data WHERE timestamp BETWEEN '" + date + "' AND '" + date_now + "'";
+      connection.query(query, function(err, rows){
+        if(err != null) {
+          console.log("Query error:" + err);
+        } else {
+          console.log("row size: " + rows.length)
+          that.sendNewTweets(rows);
+        }
+      });
+    }
+
+    this.sendNewTweets = function(rows) {
+      io.sockets.in('regionrequest').emit('region history', { data: rows });
+    }
+
+  }
+
 });
 
 
