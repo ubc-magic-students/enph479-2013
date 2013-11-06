@@ -56,14 +56,20 @@ io.sockets.on('connection', function (socket) {
       tweetRetriever.checkForNewTweets();
     } ,15000);
 
-    var regionRetriever = new RegionRetriever(connection)
-    socket.join('regionrequest')
-    socket.on('time_play_request', function(hour) {
-      regionRetriever.getRegionsData(hour);
-    });
+    
 
   });
 
+  socket.on('join regionrequest', function() {
+    socket.join('regionrequest');
+
+    var regionRetriever = new RegionRetriever(connection);
+
+    socket.on('time_play_request', function() {
+      regionRetriever.getRegionsData();
+    });
+  });
+  
   function TweetRetriever(connection, socket) {
     this.tweets = [];
 

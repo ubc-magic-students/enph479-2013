@@ -198,6 +198,10 @@ $(function() {
   appManager.initializeApp();
 });
 
+var VANCOUVER_ETERNITY = 0,
+  REGION_ETERNITY = 1,
+  VANCOUVER_PLAYBACK = 2;
+
 // The App Manager object orchestrates the operations of the entire application
 function AppManager(regions) {
   this.mapManager = new MapManager(regions, this);
@@ -206,9 +210,9 @@ function AppManager(regions) {
   this.timeManager = new TimeManager();
   this.socketManager = new SocketManager(this);
   this.regions = regions;
+  this.playbackId;
 
-  this.regionState = -1; // -1 = Vancouver, 0 => Everything Else is a RegionId
-  this.timeState = 0; // 0 = Eternity, 1 = Playback
+  this.state = VANCOUVER_ETERNITY;
   
   this.initializeApp = function() {
     google.maps.event.addDomListener(window, 'load', this.mapManager.initializeMap());
@@ -216,32 +220,72 @@ function AppManager(regions) {
     this.socketManager.initializeSocketConnections();
     this.socketManager.initializeSocketEvents();
     this.tableManager.initializeDataset();
-    this.tableManager.renderTable();
     this.timeManager.initializeTime();
     this.tweetManager.initializeTweet();
 
-    $("#slider").slider();
+    //this.socketManager.getTimePlay();
+    //$("#slider").slider();
   }
 
-  this.changeState = function(stateChange) {
-    if (stateChange.regionState !== undefined) {
-      this.regionState = stateChange.regionState;
+  this.changeState = function(state, region) {
+    this.state = state;
+    if (region !== undefined) {
+      this.mapManager.changeState(state, region);
+    } else {
+      this.mapManager.changeState(state, -1);
     }
-    if (stateChange.timeState !== undefined) {
-      this.timeState = stateChange.timeState;
+    
+    if (state === VANCOUVER_PLAYBACK) {
+      this.callForPlaybackData();
+    } else if (state === VANCOUVER_ETERNITY) {
+      console.log('clear interval called');
+      clearInterval(this.playbackId);
+      this.timeManager.showLastUpdated();
+      this.tableManager.showLastUpdated();
     }
-    this.mapManager.changeState(this.timeState, this.regionState);
+  }
+
+  this.callForPlaybackData = function() {
+    this.socketManager.getTimePlay();
+  }
+
+  this.playback = function(data) {
+    //this.changeState(VANCOUVER_PLAYBACK);
+    var regionLength = this.regions.length;
+    
+    var that = this;
+    var arrayPIT;
+    this.playbackId = setInterval(function() {
+      if (data.length !== 0) {
+        arrayPIT = data.splice(0,regionLength);
+        that.tableManager.updatePlayTable(arrayPIT);
+        that.timeManager.showPlayTime(arrayPIT[0].timestamp);
+      } else {
+        clearInterval(that.playbackId);
+        that.changeState(VANCOUVER_ETERNITY);
+      }
+    }, 100);
   }
 
   this.updateData = function(data) {
-    
+    console.log('STATE AT UPDATE: ' + this.state);
     data = $.parseJSON(data);
 
     // update Time
-    this.timeManager.showNow();
+    this.timeManager.saveLastUpdated();
     
     // update Table
-    this.tableManager.updateTable(data);
+    this.tableManager.saveLastUpdated(data);
+
+    if (this.state === VANCOUVER_ETERNITY) {
+      this.showUpdate();
+    }
+  }
+
+  this.showUpdate = function() {
+    console.log('update shown');
+    this.timeManager.showLastUpdated();
+    this.tableManager.showLastUpdated();
   }
 }
 
@@ -252,7 +296,12 @@ function SocketManager(appManager) {
   this.initializeSocketConnections = function() {
     this.socket.emit('join hashtagcloud');
     this.socket.emit('join dbconnect');
+    this.socket.emit('join regionrequest');
   }
+
+  this.getTimePlay = function() {
+    this.socket.emit('time_play_request');
+  };
 
   this.initializeSocketEvents = function() {
     this.socket.on('hashtag tweet', function(data) {
@@ -281,20 +330,27 @@ function SocketManager(appManager) {
     });
 
     this.socket.on('region history', function(data) {
-      data.data.forEach(function(row) {
-        console.log("region history: " + row.timestamp);
-      })
+      appManager.playback(data.data);
     });
   }
 }
 
 // The TimeManager object manages the time-date display
 function TimeManager() {
-  this.datetime;
+  this.lastUpdated;
 
-  this.showNow = function() {
-    this.datetime = new Date();
-    $('#time-date').text('Last Updated: ' + this.datetime.toLocaleTimeString() + ' ' + this.datetime.toLocaleDateString());
+  this.saveLastUpdated = function() {
+    this.lastUpdated = new Date();
+  }
+
+  this.showLastUpdated = function() {
+    if (this.lastUpdated !== undefined) {
+      $('#time-date').text('Last Updated: ' + this.lastUpdated.toLocaleTimeString() + ' ' + this.lastUpdated.toLocaleDateString());
+    }
+  }
+
+  this.showPlayTime = function(time) {
+    $('#time-date').text('Playback Time: ' + time);
   }
 
   this.initializeTime = function() {
@@ -316,6 +372,7 @@ function TableManager(regions) {
   this.dataset = [];
   this.rowHeader = [];
   this.columnHeader = ['', 'Sentiment', 'Weather', '# of Tweets'];
+  this.lastUpdated = [];
 
   this.initializeRowHeader = function() {
     regions.forEach(function(element) {
@@ -326,28 +383,39 @@ function TableManager(regions) {
   this.initializeDataset = function() {
     this.initializeRowHeader();
 
-    this.dataset.push(this.columnHeader);
+    this.lastUpdated.push(this.columnHeader);
 
     this.rowHeader.forEach(function(element) {
-      this.dataset.push([element, '-', '-', '-']);
+      this.lastUpdated.push([element, '-', '-', '-']);
+    }, this);
+    this.showLastUpdated();
+  }
+
+  this.saveLastUpdated = function(data) {
+    this.lastUpdated = [];
+    this.lastUpdated.push(this.columnHeader);
+  
+    this.rowHeader.forEach(function(element, index) {
+      this.lastUpdated.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
     }, this);
   }
 
-  this.updateDataset = function(data) {
+  this.showLastUpdated = function() {
+    console.log('last updated table data rendered');
+    this.renderTable(this.lastUpdated);
+  }
+
+  this.updatePlayTable = function(data) {
     this.dataset = [];
     this.dataset.push(this.columnHeader);
   
     this.rowHeader.forEach(function(element, index) {
-      this.dataset.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
+      this.dataset.push([element, data[index].sentiment, data[index].weather]);
     }, this);
+    this.renderTable(this.dataset);
   }
 
-  this.updateTable = function(data) {
-    this.updateDataset(data);
-    this.renderTable();
-  }
-
-  this.renderTable = function() {
+  this.renderTable = function(dataset) {
     $("#table").empty();
     d3.select("#table")
         .append("table")
@@ -355,7 +423,7 @@ function TableManager(regions) {
         .style("border", "2px black solid")
         
         .selectAll("tr")
-        .data(this.dataset)
+        .data(dataset)
         .enter().append("tr")
         
         .selectAll("td")
@@ -372,8 +440,6 @@ function TableManager(regions) {
 }
 
 function ButtonManager(mapManager) {
-  this.replayButton;
-  this.overviewButton;
   this.mapManager = mapManager;
 
   this.initializeButtons = function() {
@@ -381,82 +447,74 @@ function ButtonManager(mapManager) {
     var homeControl = new HomeControl(overviewDiv, mapManager.map);
     overviewDiv.index = 1;
     mapManager.map.controls[google.maps.ControlPosition.LEFT_TOP].push(overviewDiv);
-    this.overviewButton = $(overviewDiv);
 
     var replayDiv = document.createElement('div');
     var replayControl = new ReplayControl(replayDiv, mapManager.map);
     replayDiv.index = 1;
     mapManager.map.controls[google.maps.ControlPosition.TOP_LEFT].push(replayDiv);
-    this.replayButton = $(replayDiv);
+
+    this.changeState(VANCOUVER_ETERNITY);
   }
 
-  this.initializeEvents = function() {
-    this.changeState(0, -1);
-  }
-
-  this.changeState = function(timeState, regionState) {
-
-      if (timeState === 0 && regionState === -1) {
-        this.setOverviewEternityState();
-      } else if (timeState === 0 && regionState !== -1) {
-        this.setRegionEternityState();
-      } else if (timeState === 1 && regionState === -1) {
-        this.setOverviewReplayState();
-      } else if (timeState === 1 && regionState !== -1) {
-        this.setRegionReplayState();
+  this.changeState = function(state, region) {
+      //console.log(state);
+      switch(state) {
+        case VANCOUVER_ETERNITY:
+          this.setOverviewEternityState();
+          break;
+        case REGION_ETERNITY:
+          this.setRegionEternityState();
+          break;
+        case VANCOUVER_PLAYBACK:
+          this.setOverviewReplayState();
+          break;
+        default:
+          console.log(state);
+          break;
       }
   }
 
   this.setOverviewEternityState = function() {
-    this.overviewButton.hide();
-    this.replayButton.text('Replay');
+    $('div#backbutton').css('visibility', 'hidden');
+    $('div#replaybutton > div > b').text('Replay');
+    $('div#replaybutton').css('visibility', 'visible');
     this.addPlayEvent();
   }
 
   this.setOverviewReplayState = function() {
-    this.overviewButton.hide();
-    this.replayButton.text('Stop Replay');
+    //console.log($('div#replaybutton > div > b'));
+    $('div#backbutton').css('visibility', 'hidden');
+    $('div#replaybutton > div > b').text('Stop Replay');
     this.addStopEvent();
   }
 
   this.setRegionEternityState = function() {
-    this.overviewButton.show();
-    this.replayButton.text('Replay');
+    $('div#backbutton').css('visibility', 'visible');
+    $('div#replaybutton').css('visibility', 'hidden');
     this.addOverviewButtonClickEvent();
-    this.addPlayEvent();
-  }
-
-  this.setRegionReplayState = function() {
-    this.overviewButton.show();
-    this.replayButton.text('Stop Replay');
-    this.addOverviewButtonClickEvent();
-    this.addStopEvent();
   }
 
   this.addPlayEvent = function() {
     var that = this;
-    this.replayButton.off('click');
-    this.replayButton.click(function() {
-      var stateChange = { timeState: 1 };
-      that.mapManager.appManager.changeState(stateChange);
+    $('div#replaybutton').off('click');
+    $('div#replaybutton').click(function() {
+      that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
     });
   }
 
   this.addStopEvent = function() {
     var that = this;
-    this.replayButton.off('click');
-    this.replayButton.click(function() {
-      var stateChange = { timeState: 0 };
-      that.mapManager.appManager.changeState(stateChange);
+    $('div#replaybutton').off('click');
+    $('div#replaybutton').click(function() {
+      that.mapManager.appManager.changeState(VANCOUVER_ETERNITY);
     });
   }
 
   this.addOverviewButtonClickEvent = function() {
-    var that = this;    
-    this.overviewButton.off('click');
-    this.overviewButton.click(function() {
-      var stateChange = { regionState: -1 };
-      that.mapManager.appManager.changeState(stateChange);
+    var that = this;
+    $('div#backbutton').off('click');
+    $('div#backbutton').click(function() {
+      that.mapManager.appManager.changeState(VANCOUVER_ETERNITY);
     });
   }
 }
@@ -474,19 +532,6 @@ function ButtonManager(mapManager) {
       this.map = this.mapMaker.makeMap();
       this.initializeRegions();
       this.buttonManager.initializeButtons();
-      this.buttonManager.initializeEvents();
-    }
-
-    this.changeState = function(timeState, regionState) {
-
-      if (timeState === 0 && regionState === -1) {
-        this.goToCity();
-      } else if (timeState === 0 && regionState !== -1) {
-        this.goToRegion(regionState);
-      } else if (timeState === 1 && regionState === -1) {
-      } else if (timeState === 1 && regionState !== -1) {
-      }
-      this.buttonManager.changeState(timeState, regionState);
     }
 
     this.initializeRegions = function() {
@@ -499,19 +544,54 @@ function ButtonManager(mapManager) {
       }, this);
     }
 
-    this.goToRegion = function(currentRegion) {
-      console.log(currentRegion);
-      console.log(this.regionObjects);
-      this.map.setCenter(this.regionObjects[currentRegion].regionBoundary.bounds.getCenter());
+    this.changeState = function(state, region) {
+      switch(state) {
+        case VANCOUVER_ETERNITY:
+          this.goToCity();
+          break;
+        case REGION_ETERNITY:
+          this.goToRegion(region);
+          break;
+        case VANCOUVER_PLAYBACK:
+          this.goToDisabledCity();
+          break;
+        default:
+          console.log("ERROR");
+          break;
+      }
+      this.buttonManager.changeState(state, region);
+    }
+
+    this.goToRegion = function(region) {
+      this.map.setCenter(this.regionObjects[region].regionBoundary.bounds.getCenter());
       this.map.setZoom(14);
       this.removeRegions();
-      this.regionObjects[currentRegion].showPrivateRegion();
+      this.regionObjects[region].showPrivateRegion();
     }
 
     this.goToCity = function() {
       this.map.setCenter(new google.maps.LatLng(49.255, -123.125));
       this.map.setZoom(12);
       this.showRegions();
+      this.enableRegions();
+    }
+
+    this.goToDisabledCity = function() {
+      this.map.setCenter(new google.maps.LatLng(49.255, -123.125));
+      this.map.setZoom(12);
+      this.disableRegions();
+    }
+
+    this.enableRegions = function() {
+      this.regionObjects.forEach(function(element) {
+        element.addRegionListener();
+      }, this);
+    }
+
+    this.disableRegions = function() {
+      this.regionObjects.forEach(function(element) {
+        element.removeRegionListener();
+      }, this);
     }
 
     this.showRegions = function() {
@@ -536,6 +616,7 @@ function Region(regionInfo, mapManager) {
   this.mapManager = mapManager;
   this.printCount = true;
   this.printTweets = false;
+  this.listenedTo = true;
 
   this.regionBoundary = mapManager.mapMaker.makeRegionBorder(
     new google.maps.LatLng(regionInfo.bb[0].lat, regionInfo.bb[0].lng),
@@ -543,14 +624,22 @@ function Region(regionInfo, mapManager) {
   );
 
   this.regionListener = google.maps.event.addListener(this.regionBoundary, 'click', function() {
-    /*mapManager.goToRegion(this);
-    mapManager.showButtons();
-    mapManager.addButtonClickEvents();
-    mapManager.removeRegions();
-    that.showPrivateRegion();*/
-    var stateChange = { regionState: that.regionId };
-    that.mapManager.appManager.changeState(stateChange);
+    that.mapManager.appManager.changeState(REGION_ETERNITY, that.regionId);
   });
+
+  this.removeRegionListener = function() {
+    if (this.listenedTo === true) {
+      google.maps.event.removeListener(this.regionListener);
+      this.listenedTo = false;
+    }
+  }
+
+  this.addRegionListener = function() {
+    if (this.listenedTo === false) {
+      google.maps.event.addListener(this.regionListener);
+      this.listenedTo = true;
+    }
+  }
 
   this.regionLabel = mapManager.mapMaker.makeRegionLabel(
     regionInfo.name,
@@ -590,12 +679,12 @@ function Region(regionInfo, mapManager) {
     data.forEach(function(element, index) {
       tweet = new Tweet(this, new google.maps.LatLng(element.lat, element.lng), element.message);
       this.tweets.push(tweet);
-      console.log('count ' + this.tweets.length);
+      //console.log('count ' + this.tweets.length);
     }, this);
     if (this.printTweets == true) {
       this.showTweets();
     } else {
-      console.log('DIDNT PRINT');
+      //console.log('DIDNT PRINT');
     }
   }
 
@@ -702,6 +791,7 @@ function HomeControl(controlDiv, map) {
   controlUI.style.borderWidth = '2px';
   controlUI.style.cursor = 'pointer';
   controlUI.style.textAlign = 'center';
+  controlUI.style.visibility = 'hidden';
   controlUI.title = 'Click to set the map to Vancouver';
   controlDiv.appendChild(controlUI);
 
