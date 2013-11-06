@@ -471,17 +471,21 @@ function TableManager(regions) {
 
 function ButtonManager(mapManager) {
   this.mapManager = mapManager;
+  this.overviewButton;
+  this.overviewListener;
+  this.replayButton;
+  this.replayListener;
 
   this.initializeButtons = function() {
     var overviewDiv = document.createElement('div');
-    var homeControl = new HomeControl(overviewDiv, mapManager.map);
+    var homeControl = new HomeControl(overviewDiv, this.mapManager.map, this);
     overviewDiv.index = 1;
-    mapManager.map.controls[google.maps.ControlPosition.LEFT_TOP].push(overviewDiv);
+    this.mapManager.map.controls[google.maps.ControlPosition.LEFT_TOP].push(overviewDiv);
 
     var replayDiv = document.createElement('div');
-    var replayControl = new ReplayControl(replayDiv, mapManager.map);
+    var replayControl = new ReplayControl(replayDiv, this.mapManager.map, this);
     replayDiv.index = 1;
-    mapManager.map.controls[google.maps.ControlPosition.TOP_LEFT].push(replayDiv);
+    this.mapManager.map.controls[google.maps.ControlPosition.TOP_LEFT].push(replayDiv);
 
     this.changeState(VANCOUVER_ETERNITY);
   }
@@ -512,7 +516,6 @@ function ButtonManager(mapManager) {
   }
 
   this.setOverviewReplayState = function() {
-    //console.log($('div#replaybutton > div > b'));
     $('div#backbutton').css('visibility', 'hidden');
     $('div#replaybutton > div > b').text('Stop Replay');
     this.addStopEvent();
@@ -526,26 +529,38 @@ function ButtonManager(mapManager) {
 
   this.addPlayEvent = function() {
     var that = this;
-    $('div#replaybutton').off('click');
-    $('div#replaybutton').click(function() {
+    google.maps.event.removeListener(this.replayListener);
+    this.replayListener = google.maps.event.addDomListener(this.replayButton, 'click', function() {
       that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
     });
+    /*$('div#replaybutton').off('click');
+    $('div#replaybutton').click(function() {
+      that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
+    });*/
   }
 
   this.addStopEvent = function() {
     var that = this;
-    $('div#replaybutton').off('click');
-    $('div#replaybutton').click(function() {
+    google.maps.event.removeListener(this.replayListener);
+    this.replayListener = google.maps.event.addDomListener(this.replayButton, 'click', function() {
       that.mapManager.appManager.changeState(VANCOUVER_ETERNITY);
     });
+    /*$('div#replaybutton').off('click');
+    $('div#replaybutton').click(function() {
+      that.mapManager.appManager.changeState(VANCOUVER_ETERNITY);
+    });*/
   }
 
   this.addOverviewButtonClickEvent = function() {
     var that = this;
-    $('div#backbutton').off('click');
-    $('div#backbutton').click(function() {
+    google.maps.event.removeListener(this.overviewListener);
+    this.overviewListener = google.maps.event.addDomListener(this.overviewButton, 'click', function() {
       that.mapManager.appManager.changeState(VANCOUVER_ETERNITY);
     });
+    /*$('div#backbutton').off('click');
+    $('div#backbutton').click(function() {
+      that.mapManager.appManager.changeState(VANCOUVER_ETERNITY);
+    });*/
   }
 }
 
@@ -855,7 +870,7 @@ function MapMaker() {
 }
 
 // The HomeControl object holds the configuration for generating the Overview button
-function HomeControl(controlDiv, map) {
+function HomeControl(controlDiv, map, buttonManager) {
 
   // Set CSS styles for the DIV containing the control
   // Setting padding to 5 px will offset the control
@@ -882,10 +897,12 @@ function HomeControl(controlDiv, map) {
   controlText.style.paddingRight = '4px';
   controlText.innerHTML = '<b>Overview</b>';
   controlUI.appendChild(controlText);
+
+  buttonManager.overviewButton = controlUI;
 }
 
 // The ReplayControl object holds the configuration for generating the Replay button
-function ReplayControl(controlDiv, map) {
+function ReplayControl(controlDiv, map, buttonManager) {
 
   // Set CSS styles for the DIV containing the control
   // Setting padding to 5 px will offset the control
@@ -911,4 +928,6 @@ function ReplayControl(controlDiv, map) {
   controlText.style.paddingRight = '4px';
   controlText.innerHTML = '<b>Replay</b>';
   controlUI.appendChild(controlText);
+
+  buttonManager.replayButton = controlUI;
 }
