@@ -156,7 +156,7 @@ $(function() {
       name: "West End",
       id: "19",
       bb: [
-          { lat: 49.27632, lng: -123.14644 },
+          { lat: 49.26982, lng: -123.14644 },
           { lat: 49.29311, lng: -123.12378 }
       ]
     },
@@ -164,7 +164,7 @@ $(function() {
       name: "Business District",
       id: "20",
       bb: [
-          { lat: 49.27632, lng: -123.12378 },
+          { lat: 49.26982, lng: -123.12378 },
           { lat: 49.29311, lng: -123.10181 }
       ]
     },
@@ -786,7 +786,7 @@ function Tweet(region, pos, tweetObject) {
 
 // The VancouverTweet object holds all the tweet information
 function VancouverTweet(appManager, pos, tweetObject) {
-  this.marker = region.mapManager.mapMaker.makeTweetMarker(pos);
+  this.marker = appManager.mapManager.mapMaker.makeTweetMarker(pos);
   this.message = tweetObject.message;
   this.timestamp = tweetObject.timestamp;
   this.sentiment = tweetObject.sentimentPolarity;
@@ -798,16 +798,19 @@ function VancouverTweet(appManager, pos, tweetObject) {
               + '<dt>Sentiment Score: ' + this.sentiment + ' | Weather Score: ' + this.weather.toFixed(3) + '</dt>'
               + '</dl>'
               + '</div>';
-  this.infowindow = region.mapManager.infowindow;
+  this.infowindow = appManager.mapManager.infowindow;
   var that = this;
   this.listener = google.maps.event.addListener(this.marker, 'click', function() {
       that.infowindow.close();
       that.infowindow.setContent(that.infoContent);
-      that.infowindow.open(region.mapManager.map, that.marker)
+      that.infowindow.open(appManager.mapManager.map, that.marker)
       //region.mapManager.appManager.tweetManager.showTweet(that.message);
   }, this);
   this.show = function() {
-    this.marker.setMap(region.mapManager.map);
+    this.marker.setMap(appManager.mapManager.map);
+    setTimeout(function() {
+      that.hide();
+    }, 2000);
   }
   this.hide = function() {
     this.marker.setMap(null);
