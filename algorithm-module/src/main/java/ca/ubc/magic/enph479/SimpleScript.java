@@ -16,7 +16,8 @@ public class SimpleScript {
 	public static void main(String[] args) {
 		try {
 		//declare variables
-				int fetch_interval = 300; //in seconds
+			final int job_interval = 15;
+			final int fetch_interval = 15*2; //in seconds
 				String start_datetime = "undefined";
 				boolean is_demo = true; //fetch from a custom defined starting time if true, current starting time is false
 				
@@ -34,7 +35,7 @@ public class SimpleScript {
 				}
 				
 				//prepare for fetching
-				if(!wdf.prepareForFetching(fetch_interval, start_datetime)) {
+				if(!wdf.prepareForFetching(fetch_interval, job_interval, start_datetime)) {
 					System.out.println("Error while initializing WotDataFetcher...");
 					return;
 				}

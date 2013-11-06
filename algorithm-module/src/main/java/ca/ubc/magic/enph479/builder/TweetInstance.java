@@ -3,6 +3,7 @@ package ca.ubc.magic.enph479.builder;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 
+@Deprecated
 /**
  * An extension of Instance class for tweets.
  * 

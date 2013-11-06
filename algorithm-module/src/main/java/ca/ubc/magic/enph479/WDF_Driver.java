@@ -20,7 +20,8 @@ public class WDF_Driver {
 	public static void main(String[] args) throws Exception {
 		
 		//declare variables
-		int fetch_interval = 15; //in seconds
+		final int job_interval = 15;
+		final int fetch_interval = 15*2; //in seconds
 		String start_datetime = "undefined";
 		boolean is_testing = false; //fetch from a custom defined starting time if true, current starting time is false
 		
@@ -41,7 +42,7 @@ public class WDF_Driver {
 		}
 		
 		//prepare for fetching
-		if(!wdf.prepareForFetching(fetch_interval, start_datetime)) {
+		if(!wdf.prepareForFetching(fetch_interval, job_interval, start_datetime)) {
 			System.out.println("Error while initializing WotDataFetcher...");
 			return;
 		}
