@@ -1,3 +1,7 @@
 html { height: 100% }
-      body { height: 100%; margin: 0; padding: 0 }
-      #map-canvas { height: 100% }
+  body { height: 100%; margin: 0; padding: 0 }
+  #sidebar { float: right; display: inline-block; min-width: 375px; max-width: 375px;}
+  #map-canvas { height: 100%; margin-right: 250px; }
+  #time-date { margin: 10px;}
+  #tweet-box { margin: 10px; max-width: 300px;}
+  #table { margin: 10px; }

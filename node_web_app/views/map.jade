@@ -2,14 +2,23 @@ extends layout
     
 block append styles
   link(rel='stylesheet', type='text/css', href='/styles/map.css')
+  link(rel='stylesheet', type='text/css', href='http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css')
 
-  
+
 block append content
+  div#sidebar
+    div#time-date
+    div#tweet-box
+    div#table
+    div#slider
   div#map-canvas
+
 
 block append scripts
     script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js')
-    script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js')
+    script(type='text/javascript', src='http://code.jquery.com/ui/1.10.3/jquery-ui.js')
     script(type='text/javascript', src='/socket.io/socket.io.js')
     script(type='text/javascript', src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBGM00fY0tOXt0m0rJuSZHutZFO5f032t8&sensor=false')
+    script(type='text/javascript', src='http://google-maps-utility-library-v3.googlecode.com/svn/tags/infobox/1.1.9/src/infobox_packed.js')
+    script(type='text/javascript', src='http://d3js.org/d3.v3.min.js')
     script(type='text/javascript', src='/js/map.js')
