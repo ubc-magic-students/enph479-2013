@@ -280,8 +280,11 @@ function SocketManager(appManager) {
     });
 
     this.socket.on('region history', function(data) {
-      data.data.forEach(function(row) {
-        console.log("region history: " + row.timestamp);
+      data.data[0].forEach(function(row) {
+        console.log("Region data TimeStamp: " + row.timestamp);
+      })
+      data.data[1].forEach(function(row) {
+        console.log("Tweet data Timestamp: " + row.timestamp)
       })
     });
   }
