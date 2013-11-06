@@ -278,6 +278,12 @@ function SocketManager(appManager) {
         }, this);
       }
     });
+
+    this.socket.on('region history', function(data) {
+      data.data.forEach(function(row) {
+        console.log("region history: " + row.timestamp);
+      })
+    });
   }
 }
 
