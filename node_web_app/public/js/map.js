@@ -448,24 +448,24 @@ function TableManager(regions) {
   this.renderTable = function(dataset) {
     $("#table").empty();
     d3.select("#table")
-        .append("table")
-        .style("border-collapse", "collapse")
-        .style("border", "2px black solid")
+        .append("div")
+        //.style("border-collapse", "collapse")
+        //.style("border", "2px black solid")
         
-        .selectAll("tr")
+        .selectAll("div")
         .data(dataset)
-        .enter().append("tr")
+        .enter().append("div")
         
-        .selectAll("td")
+        .selectAll("div")
         .data(function(d){return d;})
-        .enter().append("td")
-        .style("border", "1px black solid")
-        .style("padding", "5px")
+        .enter().append("div")
+        //.style("border", "1px black solid")
+        //.style("padding", "5px")
         .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")}) 
         .on("mouseout", function(){d3.select(this).style("background-color", "white")}) 
         .text(function(d){return d;})
-        .style("font-size", "12px")
-        .style("text-align", "center");
+        //.style("font-size", "12px")
+        //.style("text-align", "center");
   }
 }
 
