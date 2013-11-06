@@ -47,7 +47,7 @@ public class JobsDriver {
 				.build();
 		
 			Trigger trigger = TriggerBuilder.newTrigger()
-				.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(15).repeatForever())
+				.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(job_interval).repeatForever())
 				.build();
 		
 			Scheduler schedule = StdSchedulerFactory.getDefaultScheduler();
