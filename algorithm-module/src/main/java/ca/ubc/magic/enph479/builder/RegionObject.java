@@ -234,7 +234,7 @@ public class RegionObject {
 	private regionX region22 = new regionX(region22_lat_min, region22_lat_max, region22_lng_min, region22_lng_max, eRegion.BusinessDistrict.regionIndex);
 	private regionX region23 = new regionX(region23_lat_min, region23_lat_max, region23_lng_min, region23_lng_max, eRegion.DowntownEastSide.regionIndex);
 	private regionX region24 = new regionX(region24_lat_min, region23_lat_max, region24_lng_min, region24_lng_max, eRegion.Grandview.regionIndex);
-	private regionX region25 = new regionX(region25_lat_min, region25_lat_max, region25_lng_min, region25_lng_max, eRegion.Grandview.regionIndex);
+	private regionX region25 = new regionX(region25_lat_min, region25_lat_max, region25_lng_min, region25_lng_max, eRegion.EastHastings.regionIndex);
 	
 	public RegionObject(){
 		lRegionObject.add(region1);
