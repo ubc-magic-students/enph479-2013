@@ -109,7 +109,7 @@ public class WoTDataFetcher {
 		dmp.getJsonFromWoT(wot_type.twitter, epoch_start_time, epoch_end_time);
 		dmp.toListFromJsonParser(wot_type.twitter);
 		//remove duplicates
-		dmp.removeDuplicates(wot_type.twitter);
+		//dmp.removeDuplicates(wot_type.twitter);
 		//convert twitterObject to TweetInstance for clustering
 		ArrayList<TweetInstance> linstance = dmp.toWekaInstanceFromTwitterObj();
 		//update current all list

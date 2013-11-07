@@ -136,25 +136,32 @@ public class DataManipulationProcessor {
 	        for(JsonElement obj : jarray )
 	        {
 	        	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
-	        	double lat = tweet.getLatitude();
-	        	double lng = tweet.getLongitude();
-	        	if (region_info.isVancouver(lat, lng)) {
-	        		//set sentiment polarity
-	        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
-	        		
-	        		//set weather
-	        		WeatherObject weatherScore = wdf.getWeatherFromLatLng(lat, lng);
-	        		tweet.setWeatherScore(weatherScore.getWeatherScore());
-	        		
-	        		//set region
-	        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeatherScore(), tweet.getSentimentPolarity());
-	        		tweet.setRegion(region_index);
-	        		
-	        		//add current tweet to list
-	        		ltweets_incoming.add(tweet);
-	        		
-	        		if(is_debug)
-		            	System.out.println(tweet.printInfo());
+	        	
+	        	//remove duplicate
+	        	if(ltweets_all.containsKey(tweet.getId())) {
+	        		System.out.println("tweet already exist in DB, removed for duplicates...");
+	        	}
+	        	else {
+		        	double lat = tweet.getLatitude();
+		        	double lng = tweet.getLongitude();
+		        	if (region_info.isVancouver(lat, lng)) {
+		        		//set sentiment polarity
+		        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
+		        		
+		        		//set weather
+		        		WeatherObject weatherScore = wdf.getWeatherFromLatLng(lat, lng);
+		        		tweet.setWeatherScore(weatherScore.getWeatherScore());
+		        		
+		        		//set region
+		        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeatherScore(), tweet.getSentimentPolarity());
+		        		tweet.setRegion(region_index);
+		        		
+		        		//add current tweet to list
+		        		ltweets_incoming.add(tweet);
+		        		
+		        		if(is_debug)
+			            	System.out.println(tweet.printInfo());
+		        	}
 	        	}
 	        }
         }
