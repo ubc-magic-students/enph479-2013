@@ -773,7 +773,7 @@ function Region(regionInfo, mapManager) {
 function Tweet(region, pos, tweetObject) {
   this.marker = region.mapManager.mapMaker.makeTweetMarker(pos);
   this.message = tweetObject.message;
-  this.timestamp = tweetObject.timestamp;
+  this.timestamp = new Date(tweetObject.timestamp);
   this.sentiment = tweetObject.sentimentPolarity;
   this.weather = tweetObject.weatherScore;
   this.infoContent = '<div class="bubble-info">' 
@@ -803,7 +803,7 @@ function Tweet(region, pos, tweetObject) {
 function VancouverTweet(appManager, pos, tweetObject) {
   this.marker = appManager.mapManager.mapMaker.makeTweetMarker(pos);
   this.message = tweetObject.message;
-  this.timestamp = tweetObject.timestamp;
+  this.timestamp = new Date(tweetObject.timestamp);
   this.sentiment = tweetObject.sentimentPolarity;
   this.weather = tweetObject.weatherScore;
   this.infoContent = '<div class="bubble-info">' 
