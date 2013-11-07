@@ -530,8 +530,13 @@ function TableManager(regions) {
             return "c_odd c_name";
           return i % 2 ? "c_even": "c_odd";
         })
-        .text(function(d){return (isNaN(d) ? d : d.toFixed(3));})
-
+        .text(function(d){
+          return (isNaN(d) ? d : (isInt(d) ? d : d.toFixed(3)));
+        });
+    
+    function isInt(num) {
+      return (Math.floor(num) === num) ? true : false;
+    }
   }
 }
 
