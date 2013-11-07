@@ -46,6 +46,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('join dbconnect', function (data) {
+    console.log('JOINED DBCONNECt');
     socket.join('dbconnect');
 
     var tweetRetriever = new TweetRetriever(connection, socket);
@@ -53,6 +54,7 @@ io.sockets.on('connection', function (socket) {
 
     // Gather new tweets from DB every 15 seconds
     setInterval(function() {
+      console.log('CHECKING FOR NEW TWEETS...');
       tweetRetriever.checkForNewTweets();
     } ,15000);
 
@@ -77,6 +79,7 @@ io.sockets.on('connection', function (socket) {
     this.tweets = [];
 
     this.initializeTweets = function() {
+      console.log('INITIALIZING TWEETS...');
       var that = this;
       connection.query("SELECT * from ENPH479.tweet_data", function(err, rows){
         if(err != null) {
@@ -98,6 +101,7 @@ io.sockets.on('connection', function (socket) {
         if(err != null) {
           console.log("Query error:" + err);
         } else {
+          console.log('ADDING TO TWEETS...');
           that.addToTweets(rows);
         }
       });

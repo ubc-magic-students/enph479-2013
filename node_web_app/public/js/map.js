@@ -239,7 +239,7 @@ function AppManager(regions) {
     
     if (state === VANCOUVER_PLAYBACK) {
       this.callForPlaybackData();
-    } else if (state === VANCOUVER_ETERNITY) {
+    } else {
       console.log('clear interval called');
       clearInterval(this.playbackId);
       this.timeManager.showLastUpdated();
@@ -315,7 +315,7 @@ function AppManager(regions) {
     // update Table
     this.tableManager.saveLastUpdated(data);
 
-    if (this.state === VANCOUVER_ETERNITY) {
+    if (this.state !== VANCOUVER_PLAYBACK) {
       this.showUpdate();
     }
   }
@@ -758,6 +758,7 @@ function Region(regionInfo, mapManager) {
 
   this.removeRegionListener = function() {
     if (this.listenedTo === true) {
+      console.log('listener removed');
       google.maps.event.removeListener(this.regionListener);
       this.listenedTo = false;
     }
