@@ -133,6 +133,9 @@ public class DataManipulationProcessor {
             WoTDataFetcher wdf = new WoTDataFetcher();
             wdf.prepareForFetchingLess();
             
+            if(is_debug)
+    			System.out.println("processing new batch of tweet...");
+            
 	        for(JsonElement obj : jarray )
 	        {
 	        	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
@@ -148,16 +151,32 @@ public class DataManipulationProcessor {
 		        		System.out.println("Tweet is out of bound of Vancouver, neglected...");
 		        	}
 		        	else {
-		        		//set sentiment polarity
-		        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
 		        		
+		        		if(is_debug)
+		        			System.out.println("INCOMING NEW TWEET! id:" + tweet.getId());
+		        		
+		        		//set sentiment polarity
+		        		if(is_debug)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting sentiment...");
+		        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
+		        		if(is_debug)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting sentiment successful!");
+
 		        		//set weather
+		        		if(is_debug)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather...");
 		        		WeatherObject weatherScore = wdf.getWeatherFromLatLng(lat, lng);
 		        		tweet.setWeatherScore(weatherScore.getWeatherScore());
-		        		
+		        		if(is_debug)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather successful!");
+
 		        		//set region
+		        		if(is_debug)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region...");
 		        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeatherScore(), tweet.getSentimentPolarity());
 		        		tweet.setRegion(region_index);
+		        		if(is_debug)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region successful!");
 		        		
 		        		//add current tweet to list
 		        		ltweets_incoming.add(tweet);
@@ -167,6 +186,9 @@ public class DataManipulationProcessor {
 		        	}
 	        	}
 	        }
+	        
+	        if(is_debug)
+    			System.out.println("current batch of tweet finished processing!");
         }
 
 	}

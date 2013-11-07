@@ -156,7 +156,7 @@ public class WoTDataFetcher {
 		dmp.getJsonFromWoT(wot_type.twitter, epoch_start_time, epoch_end_time);
 		dmp.toListFromJsonParser(wot_type.twitter);
 		//remove duplicates
-		dmp.removeDuplicates(wot_type.twitter);
+		//dmp.removeDuplicates(wot_type.twitter);
 		
 		System.out.println("fetch count: " + fetch_count);
 		//write average scores to database every n fetches for timeplay feature
@@ -169,8 +169,10 @@ public class WoTDataFetcher {
 		
 		//get all new incoming tweets
 		ArrayList<TwitterObject> ltweets_new = dmp.gettweets_incoming();
-		if(ltweets_new.size() == 0)
+		if(ltweets_new.size() == 0) {
+			System.out.println("No new tweets detected in this loop, returning empty...");
 			return "";
+		}
 		//update current all list
 		dmp.updateAllList(wot_type.twitter);
 		//write to DB
