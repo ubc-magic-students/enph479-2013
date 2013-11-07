@@ -134,6 +134,10 @@ public class DB_Handler {
 				_ltweets_incoming.get(i).setMessage(tmp);
 				
 				String tmp1 = _ltweets_incoming.get(i).getTimestamp();
+				tmp1 = tmp1.replace(",", ".");
+				tmp1 = tmp1.replace("\"", "");
+				tmp1 = tmp1.replace("'", " ");
+				tmp1 = tmp1.replace("\"", "\\\"");
 				tmp1 = "\"" + tmp1 + "\"";
 				_ltweets_incoming.get(i).setTimestamp(tmp1);
 				
@@ -163,6 +167,7 @@ public class DB_Handler {
 					mysql_insert_command += ",";
 			}
             
+			System.out.println("DB statement: " + mysql_insert_command);
 			st.executeUpdate(mysql_insert_command);
             return true;
             

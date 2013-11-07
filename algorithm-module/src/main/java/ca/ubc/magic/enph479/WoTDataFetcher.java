@@ -174,9 +174,11 @@ public class WoTDataFetcher {
 			return "";
 		}
 		//update current all list
-		dmp.updateAllList(wot_type.twitter);
+		//dmp.updateAllList(wot_type.twitter);
 		//write to DB
 		dbh.writeToDBTweet(dmp.gettweets_incoming());
+		//clear new incoming tweets
+		dmp.clear_tweet_incoming();
 		//return ltweets_new;
 		return dmp.getlJsonRegionObject();
 	}

@@ -180,6 +180,7 @@ public class DataManipulationProcessor {
 		        		
 		        		//add current tweet to list
 		        		ltweets_incoming.add(tweet);
+		        		ltweets_all.put(tweet.getId(), tweet);
 		        		
 		        		if(is_debug)
 			            	System.out.println(tweet.printInfo());
@@ -285,6 +286,10 @@ public class DataManipulationProcessor {
 	
 	public ArrayList<TwitterObject> gettweets_incoming() {
 		return ltweets_incoming;
+	}
+	
+	public void clear_tweet_incoming() {
+		ltweets_incoming.clear();
 	}
 
 	public int getRegion_count() {
