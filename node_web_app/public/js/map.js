@@ -490,9 +490,13 @@ function TableManager(regions) {
               .append("tbody");
 
         for(var i = 1; i < this.columnHeader.length; i++) {
+          var num = regionData[i];
+          if (i !== 3) {
+            num = num.toFixed(3);
+          } 
           tbody.append("tr")
             .selectAll("td")
-            .data([this.columnHeader[i], regionData[i]])
+            .data([this.columnHeader[i], num])
             .enter().append("td")
             .attr("class", function(d, i) {
               return i % 2 ? "c_even": "c_odd";
