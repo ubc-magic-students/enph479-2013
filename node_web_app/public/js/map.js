@@ -223,13 +223,10 @@ function AppManager(regions) {
     this.socketManager.initializeSocketEvents();
     this.tableManager.initializeDataset();
     this.timeManager.initializeTime();
-    //this.tweetManager.initializeTweet();
-
-    //this.socketManager.getTimePlay();
-    //$("#slider").slider();
   }
 
   this.changeState = function(state, region) {
+    console.log("STATE CHANGE: " + state);
     this.state = state;
     if (region !== undefined) {
       this.mapManager.changeState(state, region);
@@ -368,7 +365,9 @@ function SocketManager(appManager) {
     });
 
     this.socket.on('region history', function(data) {
-      appManager.playback(data.data[0], data.data[1], appManager.playbackSpeed);
+      if (appManager.state === VANCOUVER_PLAYBACK) {
+        appManager.playback(data.data[0], data.data[1], appManager.playbackSpeed);
+      }
     });
   }
 }
