@@ -267,7 +267,7 @@ function AppManager(regions) {
     
     var that = this;
     var arrayPIT;
-    this.playbackId = setInterval(function() {
+    this.playbackId = setInterval(function() { //http://vislab-ccom.unh.edu/~briana/examples/gdropdown/ to add dropdown
       var playTweet = [];
       if (regionData.length !== 0) {
         arrayPIT = regionData.splice(0,regionLength);
@@ -278,13 +278,13 @@ function AppManager(regions) {
         
         var tweet_date;
         
-        var play_date = new Date();
-        //console.log('play date: ' + play_date);
+        var play_date = new Date(arrayPIT[0].timestamp);
+        console.log('play date: ' + play_date);
 
         tweetData.some(function(element, index) {
           tweet_date = new Date(element.timestamp);
-          //console.log('tweet date: ' + element.timestamp);
           if (play_date > tweet_date) {
+            console.log('tweet date: ' + tweet_date);
             playTweet.push(tweetData.shift());
           } else {
             return true;
