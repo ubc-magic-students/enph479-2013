@@ -492,7 +492,7 @@ function TableManager(regions) {
         for(var i = 1; i < this.columnHeader.length; i++) {
           var num = regionData[i];
           if (i !== 3) {
-            num = num.toFixed(3);
+            num = isNaN(num) ? num : (isInt(num) ? num : num.toFixed(3));
           } 
           tbody.append("tr")
             .selectAll("td")
@@ -537,10 +537,10 @@ function TableManager(regions) {
         .text(function(d){
           return (isNaN(d) ? d : (isInt(d) ? d : d.toFixed(3)));
         });
-    
-    function isInt(num) {
+  }
+
+  function isInt(num) {
       return (Math.floor(num) === num) ? true : false;
-    }
   }
 }
 
