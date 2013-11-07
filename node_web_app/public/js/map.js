@@ -212,6 +212,7 @@ function AppManager(regions) {
   this.regions = regions;
   this.playbackId;
   this.playbackTweets = [];
+  this.playbackSpeed;
 
   this.state = VANCOUVER_ETERNITY;
   
@@ -255,7 +256,7 @@ function AppManager(regions) {
     this.timeManager.showMessage("Going back in time, please stand by...");
   }
 
-  this.playback = function(regionData, tweetData) {
+  this.playback = function(regionData, tweetData, speed) {
     this.timeManager.showMessage("Time traveling commencing...");
     //this.changeState(VANCOUVER_PLAYBACK);
     var regionLength = this.regions.length;
@@ -267,7 +268,7 @@ function AppManager(regions) {
     
     var that = this;
     var arrayPIT;
-    this.playbackId = setInterval(function() { //http://vislab-ccom.unh.edu/~briana/examples/gdropdown/ to add dropdown
+    this.playbackId = setInterval(function() {
       var playTweet = [];
       if (regionData.length !== 0) {
         arrayPIT = regionData.splice(0,regionLength);
@@ -279,12 +280,10 @@ function AppManager(regions) {
         var tweet_date;
         
         var play_date = new Date(arrayPIT[0].timestamp);
-        console.log('play date: ' + play_date);
 
         tweetData.some(function(element, index) {
           tweet_date = new Date(element.timestamp);
           if (play_date > tweet_date) {
-            console.log('tweet date: ' + tweet_date);
             playTweet.push(tweetData.shift());
           } else {
             return true;
@@ -295,7 +294,7 @@ function AppManager(regions) {
         clearInterval(that.playbackId);
         that.changeState(VANCOUVER_ETERNITY);
       }
-    }, 100);
+    }, speed);
   }
 
   this.addplaybackTweets = function(tweets) {
@@ -369,7 +368,7 @@ function SocketManager(appManager) {
     });
 
     this.socket.on('region history', function(data) {
-      appManager.playback(data.data[0], data.data[1]);
+      appManager.playback(data.data[0], data.data[1], appManager.playbackSpeed);
     });
   }
 }
@@ -496,6 +495,7 @@ function ButtonManager(mapManager) {
   this.overviewListener;
   this.replayButton;
   this.replayListener;
+  var that = this;
 
   this.initializeButtons = function() {
     var overviewDiv = document.createElement('div');
@@ -506,7 +506,62 @@ function ButtonManager(mapManager) {
     var replayDiv = document.createElement('div');
     var replayControl = new ReplayControl(replayDiv, this.mapManager.map, this);
     replayDiv.index = 1;
-    this.mapManager.map.controls[google.maps.ControlPosition.TOP_LEFT].push(replayDiv);
+    this.mapManager.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(replayDiv);
+
+    var divOptions = {
+            gmap: this.mapManager.map,
+            name: '1X',
+            title: "Playback at 10 minutes per second",
+            id: "1X",
+            action: function(){
+              that.mapManager.appManager.playbackSpeed = 1000;
+              that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
+            }
+        }
+        var optionDiv1 = new optionDiv(divOptions);
+        
+        var divOptions2 = {
+            gmap: this.mapManager.map,
+            name: '2X',
+            title: "Playback at 20 minutes per second",
+            id: "2X",
+            action: function(){
+              that.mapManager.appManager.playbackSpeed = 500;
+              that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
+            }
+        }
+        var optionDiv2 = new optionDiv(divOptions2);
+
+        var divOptions3 = {
+            gmap: this.mapManager.map,
+            name: '6X',
+            title: "Playback at 1 hour per second",
+            id: "6X",
+            action: function(){
+              that.mapManager.appManager.playbackSpeed = 166.67;
+              that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
+            }
+        }
+        var optionDiv3 = new optionDiv(divOptions3);
+        
+        //put them all together to create the drop down       
+        var ddDivOptions = {
+          items: [optionDiv1, optionDiv2, optionDiv3],
+          id: "myddOptsDiv"           
+        }
+        //alert(ddDivOptions.items[1]);
+        var dropDownDiv = new dropDownOptionsDiv(ddDivOptions);               
+                
+        var dropDownOptions = {
+            gmap: this.mapManager.map,
+            name: 'Replay',
+            id: 'ddControl',
+            title: 'Replay at the selected speed',
+            position: google.maps.ControlPosition.RIGHT_TOP,
+            dropDown: dropDownDiv 
+        }
+        var dropDown1 = new dropDownControl(dropDownOptions);      
+
 
     this.changeState(VANCOUVER_ETERNITY);
   }
@@ -531,20 +586,23 @@ function ButtonManager(mapManager) {
 
   this.setOverviewEternityState = function() {
     $('div#backbutton').css('visibility', 'hidden');
-    $('div#replaybutton > div > b').text('Replay');
-    $('div#replaybutton').css('visibility', 'visible');
+    $('div#replaybutton').css('visibility', 'hidden');
+    $('div#Replay').parent().css('visibility', 'visible');
+    $('div#Replay').next().css('display', 'none');
     this.addPlayEvent();
   }
 
   this.setOverviewReplayState = function() {
     $('div#backbutton').css('visibility', 'hidden');
-    $('div#replaybutton > div > b').text('Stop Replay');
+    $('div#replaybutton').css('visibility', 'visible');
+    $('div#Replay').parent().css('visibility', 'hidden');
     this.addStopEvent();
   }
 
   this.setRegionEternityState = function() {
     $('div#backbutton').css('visibility', 'visible');
     $('div#replaybutton').css('visibility', 'hidden');
+    $('div#Replay').parent().css('visibility', 'hidden');
     this.addOverviewButtonClickEvent();
   }
 
@@ -844,9 +902,13 @@ function MapMaker() {
       disableDoubleClickZoom: true,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
+
+    var mapDiv = document.getElementById("map-canvas");
+    google.maps.event.addDomListener(mapDiv,'click', function() {
+      $("#myddOptsDiv").css('display', 'none');
+    });
     
-    return new google.maps.Map(document.getElementById("map-canvas"),
-      mapOptions);
+    return new google.maps.Map(mapDiv,mapOptions);
   }
 
   this.makeTweetMarker = function(pos) {
@@ -906,7 +968,7 @@ function HomeControl(controlDiv, map, buttonManager) {
   controlUI.id = 'backbutton';
   controlUI.style.backgroundColor = 'white';
   controlUI.style.borderStyle = 'solid';
-  controlUI.style.borderWidth = '2px';
+  controlUI.style.borderWidth = '1px';
   controlUI.style.cursor = 'pointer';
   controlUI.style.textAlign = 'center';
   controlUI.style.visibility = 'hidden';
@@ -919,7 +981,7 @@ function HomeControl(controlDiv, map, buttonManager) {
   controlText.style.fontSize = '12px';
   controlText.style.paddingLeft = '4px';
   controlText.style.paddingRight = '4px';
-  controlText.innerHTML = '<b>Overview</b>';
+  controlText.innerHTML = 'Overview';
   controlUI.appendChild(controlText);
 
   buttonManager.overviewButton = controlUI;
@@ -938,9 +1000,10 @@ function ReplayControl(controlDiv, map, buttonManager) {
   controlUI.id = 'replaybutton';
   controlUI.style.backgroundColor = 'white';
   controlUI.style.borderStyle = 'solid';
-  controlUI.style.borderWidth = '2px';
+  controlUI.style.borderWidth = '1px';
   controlUI.style.cursor = 'pointer';
   controlUI.style.textAlign = 'center';
+  controlUI.style.visibility = 'hidden';
   controlUI.title = 'Click to replay the last 24 hours';
   controlDiv.appendChild(controlUI);
 
@@ -950,8 +1013,62 @@ function ReplayControl(controlDiv, map, buttonManager) {
   controlText.style.fontSize = '12px';
   controlText.style.paddingLeft = '4px';
   controlText.style.paddingRight = '4px';
-  controlText.innerHTML = '<b>Replay</b>';
+  controlText.innerHTML = 'Stop Replay';
   controlUI.appendChild(controlText);
 
   buttonManager.replayButton = controlUI;
 }
+
+   /************
+   Classes to set up the drop-down control
+   ************/
+          
+    function optionDiv(options){
+      var control = document.createElement('DIV');
+      control.className = "dropDownItemDiv";
+      control.title = options.title;
+      control.id = options.id;
+      control.innerHTML = options.name;
+      google.maps.event.addDomListener(control,'click',options.action);
+      return control;
+     }
+     
+     function dropDownOptionsDiv(options){
+      //alert(options.items[1]);
+        var container = document.createElement('DIV');
+        container.className = "dropDownOptionsDiv";
+        container.id = options.id;
+        
+        for(i=0; i<options.items.length; i++){
+          //alert(options.items[i]);
+          container.appendChild(options.items[i]);
+        }
+        
+        //for(item in options.items){
+          //container.appendChild(item);
+          //alert(item);
+        //}        
+    return container;         
+      }
+     
+     function dropDownControl(options){
+        var container = document.createElement('DIV');
+        container.className = 'container';
+        
+        var control = document.createElement('DIV');
+        control.className = 'dropDownControl';
+        control.innerHTML = options.name;
+        control.id = options.name;
+        var arrow = document.createElement('IMG');
+        arrow.src = "http://maps.gstatic.com/mapfiles/arrow-down.png";
+        arrow.className = 'dropDownArrow';
+        control.appendChild(arrow);           
+        container.appendChild(control);    
+        container.appendChild(options.dropDown);
+        
+        options.gmap.controls[options.position].push(container);
+        google.maps.event.addDomListener(container,'click',function(event){
+          event.stopPropagation();
+          (document.getElementById('myddOptsDiv').style.display == 'block') ? document.getElementById('myddOptsDiv').style.display = 'none' : document.getElementById('myddOptsDiv').style.display = 'block';
+        })          
+      }
