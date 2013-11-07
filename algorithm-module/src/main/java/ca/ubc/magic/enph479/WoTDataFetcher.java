@@ -171,7 +171,8 @@ public class WoTDataFetcher {
 		ArrayList<TwitterObject> ltweets_new = dmp.gettweets_incoming();
 		if(ltweets_new.size() == 0) {
 			System.out.println("No new tweets detected in this loop, returning empty...");
-			return "";
+			//return "";
+			return dmp.getlJsonRegionObject();
 		}
 		//update current all list
 		//dmp.updateAllList(wot_type.twitter);
