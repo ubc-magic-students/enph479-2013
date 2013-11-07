@@ -259,6 +259,11 @@ function AppManager(regions) {
     this.timeManager.showMessage("Time traveling commencing...");
     //this.changeState(VANCOUVER_PLAYBACK);
     var regionLength = this.regions.length;
+
+    function setCharAt(str,index,chr) {
+      if(index > str.length-1) return str;
+      return str.substr(0,index) + chr + str.substr(index+1);
+    }
     
     var that = this;
     var arrayPIT;
@@ -266,11 +271,13 @@ function AppManager(regions) {
       var playTweet = [];
       if (regionData.length !== 0) {
         arrayPIT = regionData.splice(0,regionLength);
+        arrayPIT[0].timestamp = setCharAt(arrayPIT[0].timestamp, 19, '.');
         that.tableManager.updatePlayTable(arrayPIT);
-        that.timeManager.showPlayTime(arrayPIT[0].timestamp);
+        
+        that.timeManager.showPlayTime(new Date(arrayPIT[0].timestamp));
         
         var tweet_date;
-        arrayPIT[0].timestamp[19] = '.';
+        
         var play_date = new Date();
         //console.log('play date: ' + play_date);
 
@@ -861,15 +868,11 @@ function MapMaker() {
 
   this.makeRegionLabel = function(name, pos, flag) {
     var pixelOffset = new google.maps.Size(-25, -25);
-    var pos = pos;
     var width = "55px";
     if (name == "Shaughnessy") {
       width = "75px";
+      pixelOffset = new google.maps.Size(-35, 5);
     }
-    if (name == "Marpole") {
-      //console.log(pos.lat, pos.lng);
-      //pos = new google.maps.LatLng(pos.lat()-0.01, pos.lng());
-    } 
     var labelOptions = {
            content: name
           ,boxStyle: {
