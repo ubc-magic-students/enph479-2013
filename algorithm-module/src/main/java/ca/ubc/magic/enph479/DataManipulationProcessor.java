@@ -144,7 +144,10 @@ public class DataManipulationProcessor {
 	        	else {
 		        	double lat = tweet.getLatitude();
 		        	double lng = tweet.getLongitude();
-		        	if (region_info.isVancouver(lat, lng)) {
+		        	if (!region_info.isVancouver(lat, lng)) {
+		        		System.out.println("Tweet is out of bound of Vancouver, neglected...");
+		        	}
+		        	else {
 		        		//set sentiment polarity
 		        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
 		        		
