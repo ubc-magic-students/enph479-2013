@@ -25,11 +25,11 @@ html { height: 100% }
 }
 
 #table div {
+	float: left;
 	height: 3.7%;
 }
 
 .c_name {
-    float: left;
     width: 35%;
 background: rgba(255,255,255,1);
 background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);
@@ -42,7 +42,6 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
 }
 
 .c_odd {
-    float: left;
     width: 20%;
 background: rgb(253,255,247); /* Old browsers */
 background: -moz-linear-gradient(top,  rgba(253,255,247,1) 0%, rgba(230,235,223,1) 40%, rgba(195,204,190,1) 100%); /* FF3.6+ */
@@ -56,7 +55,6 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fdfff7', end
 }
 
 .c_even{
-    float: left;
     width: 20%;
 background: rgba(255,255,255,1);
 background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%);
