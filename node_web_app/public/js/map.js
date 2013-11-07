@@ -446,7 +446,7 @@ function TableManager(regions) {
 
   this.showLastUpdated = function() {
     console.log('last updated table data rendered');
-    this.renderTable(this.lastUpdated);
+    this.renderTable(this.lastUpdated, this.columnHeader);
   }
 
   this.updatePlayTable = function(data) {
@@ -456,10 +456,10 @@ function TableManager(regions) {
     this.rowHeader.forEach(function(element, index) {
       this.dataset.push([element, data[index].sentiment, data[index].weather]);
     }, this);
-    this.renderTable(this.dataset);
+    this.renderTable(this.dataset, ['Neighbourhood', 'Sentiment', 'Weather']);
   }
 
-  this.renderTable = function(dataset) {
+  this.renderTable = function(dataset, columnHeader) {
     $("#table").empty();
     var table = d3.select("#table")
               .append("table"),
@@ -468,7 +468,7 @@ function TableManager(regions) {
 
         thead.append("tr")
           .selectAll("th")
-          .data(this.columnHeader)
+          .data(columnHeader)
           .enter().append("th")
           .attr("class", function(d, i) {
             return i % 2 ? "c_even": "c_odd";
@@ -487,7 +487,7 @@ function TableManager(regions) {
             return "c_odd c_name";
           return i % 2 ? "c_even": "c_odd";
         })
-        .text(function(d){return d;})
+        .text(function(d){return (isNaN(d) ? d : d.toFixed(3));})
 
   }
 }
