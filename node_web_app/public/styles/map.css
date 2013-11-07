@@ -2,9 +2,13 @@ html { height: 100% }
   body { height: 100%; margin: 0; padding: 0 }
   #sidebar { float: right; display: inline-block; min-width: 400px; max-width: 400px;}
   #map-canvas { height: 100%; margin-right: 250px; }
-  #time-date { margin: 10px;}
+  #time-date { 
+    margin: 10px;
+    font: 16px Times, sans-serif;
+    font-style: italic;
+    color: #DF0101;
+  }
   #tweet-box { margin: 10px; max-width: 300px;}
-  /*#table { margin: 10px; }*/
 
   .bubble-info {
   	font: 12px arial,sans-serif;
@@ -41,6 +45,7 @@ html { height: 100% }
 
 #table td {
   padding-left: 2%;
+  border-radius: 2px;
 }
 
 .c_name {
