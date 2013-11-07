@@ -413,7 +413,7 @@ function TableManager(regions) {
   this.initializeDataset = function() {
     this.initializeRowHeader();
 
-    this.lastUpdated.push(this.columnHeader);
+    //this.lastUpdated.push(this.columnHeader);
 
     this.rowHeader.forEach(function(element) {
       this.lastUpdated.push([element, '-', '-', '-']);
@@ -423,7 +423,7 @@ function TableManager(regions) {
 
   this.saveLastUpdated = function(data) {
     this.lastUpdated = [];
-    this.lastUpdated.push(this.columnHeader);
+    //this.lastUpdated.push(this.columnHeader);
   
     this.rowHeader.forEach(function(element, index) {
       this.lastUpdated.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
@@ -437,7 +437,7 @@ function TableManager(regions) {
 
   this.updatePlayTable = function(data) {
     this.dataset = [];
-    this.dataset.push(['Neighbourhood', 'Sentiment', 'Weather']);
+    //this.dataset.push(['Neighbourhood', 'Sentiment', 'Weather']);
   
     this.rowHeader.forEach(function(element, index) {
       this.dataset.push([element, data[index].sentiment, data[index].weather]);
@@ -447,31 +447,34 @@ function TableManager(regions) {
 
   this.renderTable = function(dataset) {
     $("#table").empty();
+    var table = d3.select("#table")
+              .append("table"),
+        thead = table.append("thead"),
+        tbody = table.append("tbody");
 
-    var numColumns = dataset[0].length;
-    
-    var classCounter = 0;
-    var className;
-    dataset.forEach(function(element, index) {
-      element.forEach(function(innerElement, innerIndex) {
-        if (classCounter === 0) {
-          className = "c_name";
-        } else if (classCounter % 2 === 1) {
-          className = "c_odd";
-        } else {
-          className = "c_even";
-        }
-        if (isNaN(innerElement)) {
-          $("#table").append("<div class='" + className + "'>" + innerElement + "</div>");
-        } else {
-          $("#table").append("<div class='" + className + "'>" + innerElement.toFixed(3) + "</div>");  
-        }
-        classCounter++;
-        if (classCounter === numColumns) {
-          classCounter = 0;
-        }
-      }, this);
-    }, this);
+        thead.append("tr")
+          .selectAll("th")
+          .data(this.columnHeader)
+          .enter().append("th")
+          .attr("class", function(d, i) {
+            return i % 2 ? "c_even": "c_odd";
+          })
+          .text(function(c) {return c;});
+
+        tbody.selectAll("tr")
+        .data(dataset)
+        .enter().append("tr")
+        
+        .selectAll("td")
+        .data(function(d){return d;})
+        .enter().append("td")
+        .attr("class", function(d, i) {
+          if (i === 0)
+            return "c_odd c_name";
+          return i % 2 ? "c_even": "c_odd";
+        })
+        .text(function(d){return d;})
+
   }
 }
 
