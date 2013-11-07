@@ -213,6 +213,7 @@ function AppManager(regions) {
   this.playbackId;
   this.playbackTweets = [];
   this.playbackSpeed;
+  this.regionIdForRegionView = -1;
 
   this.state = VANCOUVER_ETERNITY;
   
@@ -240,7 +241,13 @@ function AppManager(regions) {
       console.log('clear interval called');
       clearInterval(this.playbackId);
       this.timeManager.showLastUpdated();
-      this.tableManager.showLastUpdated();
+      this.regionIdForRegionView = -1;
+      if (state === REGION_ETERNITY) {
+        this.regionIdForRegionView = region;
+        this.tableManager.showLastUpdatedRegion(region);
+      } else {
+        this.tableManager.showLastUpdated();
+      }
       this.playbackTweets.forEach(function(element) {
         element.hide();
       }, this);
@@ -320,7 +327,11 @@ function AppManager(regions) {
   this.showUpdate = function() {
     console.log('update shown');
     this.timeManager.showLastUpdated();
-    this.tableManager.showLastUpdated();
+    if(this.state === REGION_ETERNITY) {
+      this.tableManager.showLastUpdatedRegion(this.regionIdForRegionView);
+    } else { 
+      this.tableManager.showLastUpdated();
+    }
   }
 }
 
@@ -448,6 +459,11 @@ function TableManager(regions) {
     this.renderTable(this.lastUpdated, this.columnHeader);
   }
 
+  this.showLastUpdatedRegion = function(regionId) {
+    console.log('last updated table data for region rendered: ' + 'regionId ' + regionId);
+    this.renderTableForRegion(regionId);
+  }
+
   this.updatePlayTable = function(data) {
     this.dataset = [];
     //this.dataset.push(['Neighbourhood', 'Sentiment', 'Weather']);
@@ -456,6 +472,34 @@ function TableManager(regions) {
       this.dataset.push([element, data[index].sentiment, data[index].weather]);
     }, this);
     this.renderTable(this.dataset, ['Neighbourhood', 'Sentiment', 'Weather']);
+  }
+
+  this.renderTableForRegion = function(regionId) {
+    var regionData = this.lastUpdated[regionId];
+    console.log("Render Table for Region: " + regionData[0]);
+    $("#table").empty();
+    d3.select("#table")
+        .selectAll("h1")
+        .data([regionData[0]])
+        .enter().append("h1")
+        .text(function(c) {return c;});
+
+
+    var tbody = d3.select("#table")
+              .append("table")
+              .append("tbody");
+
+        for(var i = 1; i < this.columnHeader.length; i++) {
+          tbody.append("tr")
+            .selectAll("td")
+            .data([this.columnHeader[i], regionData[i]])
+            .enter().append("td")
+            .attr("class", function(d, i) {
+              return i % 2 ? "c_even": "c_odd";
+            })
+            .text(function(c) {return c;});
+        }
+
   }
 
   this.renderTable = function(dataset, columnHeader) {
