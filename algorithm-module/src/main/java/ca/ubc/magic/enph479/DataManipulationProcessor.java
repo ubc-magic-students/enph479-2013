@@ -166,24 +166,29 @@ public class DataManipulationProcessor {
 		        		if(is_debug)
 		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather...");
 		        		WeatherObject weatherScore = wdf.getWeatherFromLatLng(lat, lng);
-		        		tweet.setWeatherScore(weatherScore.getWeatherScore());
-		        		if(is_debug)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather successful!");
-
-		        		//set region
-		        		if(is_debug)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region...");
-		        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeatherScore(), tweet.getSentimentPolarity());
-		        		tweet.setRegion(region_index);
-		        		if(is_debug)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region successful!");
-		        		
-		        		//add current tweet to list
-		        		ltweets_incoming.add(tweet);
-		        		ltweets_all.put(tweet.getId(), tweet);
-		        		
-		        		if(is_debug)
-			            	System.out.println(tweet.printInfo());
+		        		double score = weatherScore.getWeatherScore();
+		        		if(score == -999)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather failed... neglecting this tweet...");
+		        		else {
+			        		tweet.setWeatherScore(weatherScore.getWeatherScore());
+			        		if(is_debug)
+			        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather successful!");
+	
+			        		//set region
+			        		if(is_debug)
+			        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region...");
+			        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeatherScore(), tweet.getSentimentPolarity());
+			        		tweet.setRegion(region_index);
+			        		if(is_debug)
+			        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region successful!");
+			        		
+			        		//add current tweet to list
+			        		ltweets_incoming.add(tweet);
+			        		ltweets_all.put(tweet.getId(), tweet);
+			        		
+			        		if(is_debug)
+				            	System.out.println(tweet.printInfo());
+		        		}
 		        	}
 	        	}
 	        }

@@ -11,9 +11,9 @@ public class WeatherObject {
 	private int id = -1;
 	private String weather = "undefined";
 	private String description = "undefined";
-	private double temperature = -1;
-	private double pressure = -1;
-	private double precipitation = 0;
+	private double temperature = -999;
+	private double pressure = -999;
+	private double precipitation = -999;
 	private String icon = "undefined";
 	
 	private double temp_weight = 0.5;
@@ -69,8 +69,8 @@ public class WeatherObject {
 		this.precipitation = precipitation;
 	}
 	public double getWeatherScore() {
-		if((this.temperature==-1)||(this.precipitation==-1)){
-			return (double) -1;
+		if((this.temperature==-999)||(this.precipitation==-999)){
+			return (double) -999;
 		}
 		// happiness function for temperature
 		double temperature_happiness = 10*Math.exp(-Math.pow(this.temperature-21, 2)/150);
