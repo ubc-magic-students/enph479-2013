@@ -117,7 +117,7 @@ $(function() {
       id: "14",
       bb: [
           { lat: 49.19965, lng: -123.14026 },
-          { lat: 49.23441, lng: -123.10215 }
+          { lat: 49.21872, lng: -123.10215 }
       ]
     },
     {
@@ -252,9 +252,11 @@ function AppManager(regions) {
 
   this.callForPlaybackData = function() {
     this.socketManager.getTimePlay();
+    this.timeManager.showMessage("Going back in time, please stand by...");
   }
 
   this.playback = function(regionData, tweetData) {
+    this.timeManager.showMessage("Time traveling commencing...");
     //this.changeState(VANCOUVER_PLAYBACK);
     var regionLength = this.regions.length;
     
@@ -376,6 +378,8 @@ function TimeManager() {
   this.showLastUpdated = function() {
     if (this.lastUpdated !== undefined) {
       $('#time-date').text('Last Updated: ' + this.lastUpdated.toLocaleTimeString() + ' ' + this.lastUpdated.toLocaleDateString());
+    } else {
+      $('#time-date').text('Not updated');
     }
   }
 
@@ -385,6 +389,10 @@ function TimeManager() {
 
   this.initializeTime = function() {
     $('#time-date').text('Not updated');
+  }
+  
+  this.showMessage = function(message) {
+    $('#time-date').text(message);
   }
 }
 
@@ -853,12 +861,14 @@ function MapMaker() {
 
   this.makeRegionLabel = function(name, pos, flag) {
     var pixelOffset = new google.maps.Size(-25, -25);
+    var pos = pos;
     var width = "55px";
     if (name == "Shaughnessy") {
       width = "75px";
     }
     if (name == "Marpole") {
-      pixelOffset =  new google.maps.Size(-25, -5);
+      //console.log(pos.lat, pos.lng);
+      //pos = new google.maps.LatLng(pos.lat()-0.01, pos.lng());
     } 
     var labelOptions = {
            content: name
