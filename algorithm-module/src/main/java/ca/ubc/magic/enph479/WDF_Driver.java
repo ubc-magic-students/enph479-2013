@@ -47,7 +47,7 @@ public class WDF_Driver {
 		
 		//start fetching using while/for loop
 		while(true) {
-			try {		
+			try {
 				String jsonData = wdf.fetchNewData();
 				System.out.println("Going through while loop.....");
 				if(is_testing){
