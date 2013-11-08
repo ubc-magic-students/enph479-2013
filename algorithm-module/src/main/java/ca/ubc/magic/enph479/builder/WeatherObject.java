@@ -6,6 +6,7 @@ package ca.ubc.magic.enph479.builder;
  * @author richardlee@hotmail.ca
  *
  */
+@Deprecated
 public class WeatherObject {
 
 	private int id = -1;

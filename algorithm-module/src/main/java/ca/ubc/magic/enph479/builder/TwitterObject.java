@@ -24,9 +24,14 @@ public class TwitterObject {
 	private String sensor_name = "undefined";
 	private String message = "undefined";
 	private int value = -1;
-	private int sentimentPolarity = -1;
-	private double weatherScore = -1;
 	private int region = -1;
+	private int sentiment = -1;
+	private double temperature = -999;
+	private double precipitation = -999;
+	private double weather_score = -999;
+	
+	private double temp_weight = 0.5;
+	private double prec_weight = 0.5;
 	
 	public int getId() {
 		return id;
@@ -99,20 +104,42 @@ public class TwitterObject {
 				" timestamp: " + this.timestamp +
 				" latitude: " + this.lat + 
 				" longitude: " + this.lng 
-				+ " polarity: " + this.sentimentPolarity;
+				+ " polarity: " + this.getSentiment();
 	}
-	
-	public int getSentimentPolarity() {
-		return sentimentPolarity;
+	public int getSentiment() {
+		return sentiment;
 	}
-	public void setSentimentPolarity(int sentimentPolarity) {
-		this.sentimentPolarity = sentimentPolarity;
+	public void setSentiment(int sentiment) {
+		this.sentiment = sentiment;
 	}
-	public double getWeatherScore() {
-		return weatherScore;
+	public double getTemperature() {
+		return temperature;
 	}
-	public void setWeatherScore(double weatherScore) {
-		this.weatherScore = weatherScore;
+	public void setTemperature(double temperature) {
+		this.temperature = temperature;
+	}
+	public double getPrecipitation() {
+		return precipitation;
+	}
+	public void setPrecipitation(double precipitation) {
+		this.precipitation = precipitation;
+	}
+	public double getWeather_score() {
+		return weather_score;
+	}
+	public void calculateWeatherScore() {
+		if((this.getTemperature()==-999)&&(this.getPrecipitation()==-999)){
+			weather_score = -999;
+		}
+		if((this.getTemperature()!=-999)&&(this.getPrecipitation()==-999)) {
+			this.setPrecipitation(0.0);
+		}
+		// happiness function for temperature
+		double temperature_happiness = 10*Math.exp(-Math.pow(this.getTemperature()-21, 2)/150);
+		// happiness function for precipitation
+		double precipitation_happiness = 10*Math.exp(-1/5 * this.getPrecipitation());
+		
+		weather_score = (double) (temp_weight * temperature_happiness + prec_weight * precipitation_happiness);
 	}
 	public int getRegion() {
 		return region;

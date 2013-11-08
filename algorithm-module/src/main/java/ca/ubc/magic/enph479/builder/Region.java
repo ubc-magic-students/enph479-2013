@@ -58,10 +58,10 @@ public class Region {
 		double weatherScoreSumOverTime = this.weatherScoreAverageOverTime * tweetIds.size();
 		for (TwitterObject o : tweetList) {
 			addTweetIds(o.getId());
-			currentWeatherScoreSum += o.getWeatherScore();
-			weatherScoreSumOverTime += o.getWeatherScore();
-			currentSentimentSum += o.getSentimentPolarity();
-			sentimentSumOverTime += o.getSentimentPolarity();
+			currentWeatherScoreSum += o.getWeather_score();
+			weatherScoreSumOverTime += o.getWeather_score();
+			currentSentimentSum += o.getSentiment();
+			sentimentSumOverTime += o.getSentiment();
 		}
 		this.currentSentimentAverage = currentSentimentSum/tweetList.size();
 		this.sentimentAverageOverTime = sentimentSumOverTime/tweetIds.size();

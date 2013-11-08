@@ -46,7 +46,7 @@ public class DB_Handler {
 		}
 	}
 	
-	public ArrayList<TwitterObject> retrieveDBTweet() throws Exception {
+	/*public ArrayList<TwitterObject> retrieveDBTweet() throws Exception {
 		
 		if(_skipDB)
 			return new ArrayList<TwitterObject>();
@@ -80,8 +80,8 @@ public class DB_Handler {
 				tweet.setSensor_name(sensor_name);
 				tweet.setMessage(message);
 				tweet.setValue(value);
-				tweet.setSentimentPolarity(sentimentPolarity);
-				tweet.setWeatherScore(weatherScore);
+				tweet.setSentiment(sentimentPolarity);
+				tweet .setWeatherScore(weatherScore);
 				tweet.setRegion(region);
 				
 				ltweets.add(tweet);
@@ -93,7 +93,7 @@ public class DB_Handler {
         	System.err.println("DB Retrieving Error: " + ex.getMessage());
         	return null;
         }
-	}
+	}*/
 	
 	public Boolean writeToDBTweet(ArrayList<TwitterObject> _ltweets_incoming) throws Exception {
 		
@@ -159,8 +159,8 @@ public class DB_Handler {
 						+ _ltweets_incoming.get(i).getSensor_name() + ", "
 						+ _ltweets_incoming.get(i).getMessage() + ", "
 						+ _ltweets_incoming.get(i).getValue() + ", "
-						+ _ltweets_incoming.get(i).getSentimentPolarity() + ", "
-						+ _ltweets_incoming.get(i).getWeatherScore() + ", "
+						+ _ltweets_incoming.get(i).getSentiment() + ", "
+						+ _ltweets_incoming.get(i).getWeather_score() + ", "
 						+ _ltweets_incoming.get(i).getRegion() + ")";
 						
 				if(i < _ltweets_incoming.size()-1)

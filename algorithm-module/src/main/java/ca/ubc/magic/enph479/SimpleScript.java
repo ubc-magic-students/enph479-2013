@@ -47,7 +47,7 @@ public class SimpleScript {
 				for (Map.Entry<Integer, TwitterObject> entry : allTweets.entrySet()) {
 					WeatherObject wet = wdf.getWeatherFromLatLng(entry.getValue().getLatitude(), entry.getValue().getLongitude());
 					double mean = (wet.getTemperature() + wet.getPrecipitation())/2;
-					System.out.println(mean + "," + entry.getValue().getSentimentPolarity());
+					System.out.println(mean + "," + entry.getValue().getSentiment());
 					
 				}
 				

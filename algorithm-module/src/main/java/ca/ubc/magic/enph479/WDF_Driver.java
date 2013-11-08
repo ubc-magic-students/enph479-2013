@@ -13,17 +13,16 @@ import com.google.gson.Gson;
 import ca.ubc.magic.enph479.builder.TweetCluster;
 import ca.ubc.magic.enph479.builder.TweetClusterJSONObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
-import ca.ubc.magic.enph479.builder.WeatherObject;
 
 public class WDF_Driver {
 
 	public static void main(String[] args) throws Exception {
 		
 		//declare variables
-		final int job_interval = 15;
-		final int fetch_interval = 15*2; //in seconds
+		final int job_interval = 5;
+		final int fetch_interval = job_interval*2; //in seconds
 		String start_datetime = "undefined";
-		boolean is_testing = false; //fetch from a custom defined starting time if true, current starting time is false
+		boolean is_testing = true; //fetch from a custom defined starting time if true, current starting time is false
 		
 		//initialize WoTDataFetcher
 		WoTDataFetcher wdf = new WoTDataFetcher();
@@ -31,8 +30,7 @@ public class WDF_Driver {
 		
 		if(is_testing)
 		{
-			start_datetime = "2013 Oct 11 20:48:00";
-			//start_datetime = "2013 Oct 28 19:19:20";
+			start_datetime = "2013 Nov 08 20:48:00";
 		}
 		else {
 			Date date_now = new Date();
@@ -47,49 +45,22 @@ public class WDF_Driver {
 			return;
 		}
 		
-		Socket nodejs = null;
-		Thread.sleep(2000);
-		TweetClusterer clusterer = new TweetClusterer();
-		ArrayList<TweetCluster> tweetClusters = new ArrayList<TweetCluster>();
-		ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
-		Gson gson = new Gson();
 		//start fetching using while/for loop
 		while(true) {
 			try {		
-			nodejs = new Socket("localhost", 8080);
-			linstance = wdf.fetchData();
-			tweetClusters = clusterer.cluster(linstance, wdf.getAllTweetsData());
-			
-			StringBuffer buffer = new StringBuffer("{");
-			for (int i =0; i < tweetClusters.size(); i++) {
-				double [] center = tweetClusters.get(i).getCluster().getCenter();
-				WeatherObject weather = wdf.getWeatherFromLatLng(center[0], center[1]);
-				if (i != 0)
-					buffer.append(",");
-				buffer.append("\"cluster" + i + "\":" + gson.toJson(new TweetClusterJSONObject(tweetClusters.get(i), weather, wdf.getAllTweetsData())));
-			}
-			buffer.append("}");
-			nodejs.getOutputStream().write(buffer.toString().getBytes("UTF-8"));
-			nodejs.getOutputStream().flush();
-			System.out.println("Going through while loop.....");
-			if(is_testing){
-				//Thread.sleep(3000);
-			}
-			else{
-				Thread.sleep((long) (fetch_interval * 1000 * 0.9));
-			}
-			} catch (IOException e){
-				System.err.println("No one is listening to Socket.");
+				String jsonData = wdf.fetchNewData();
+				System.out.println("Going through while loop.....");
+				if(is_testing){
+					//Thread.sleep(3000);
+				}
+				else{
+					Thread.sleep((long) (fetch_interval * 1000 * 0.9));
+				}
 			}
 			catch (Throwable t) {
 				t.printStackTrace();
 				System.err.println("Error in the driver.");
-				nodejs.close();
-				nodejs = new Socket("localhost", 8080);
-				Thread.sleep(2000);
 			}
 		}
-		
 	}
-	
 }

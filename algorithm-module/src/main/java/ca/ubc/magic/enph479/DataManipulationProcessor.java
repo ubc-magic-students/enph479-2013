@@ -14,8 +14,8 @@ import net.sf.json.JSONSerializer;
 import ca.ubc.magic.enph479.builder.RegionObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
-import ca.ubc.magic.enph479.builder.WeatherObject;
 import ca.ubc.magic.enph479.builder.RegionObject.regionX;
+import ca.ubc.magic.enph479.builder.WeatherObject;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -155,13 +155,36 @@ public class DataManipulationProcessor {
 		        		if(is_debug)
 		        			System.out.println("INCOMING NEW TWEET! id:" + tweet.getId());
 		        		
+		        		
+		        		//calculate weather score
+		        		tweet.calculateWeatherScore();
+		        		if(is_debug)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " calculating weather score successful!");
+
+		        		//set region
+		        		if(is_debug)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region...");
+		        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeather_score(), tweet.getSentiment());
+		        		tweet.setRegion(region_index);
+		        		if(is_debug)
+		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region successful!");
+		        		
+		        		//add current tweet to list
+		        		ltweets_incoming.add(tweet);
+		        		ltweets_all.put(tweet.getId(), tweet);
+		        		
+			        	if(is_debug)
+				        	System.out.println(tweet.printInfo());
+		        		
+		        		
+		        		/*
 		        		//set sentiment polarity
 		        		if(is_debug)
 		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting sentiment...");
 		        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
 		        		if(is_debug)
 		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting sentiment successful!");
-
+						
 		        		//set weather
 		        		if(is_debug)
 		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather...");
@@ -188,7 +211,7 @@ public class DataManipulationProcessor {
 			        		
 			        		if(is_debug)
 				            	System.out.println(tweet.printInfo());
-		        		}
+		        		}*/
 		        	}
 	        	}
 	        }
@@ -310,8 +333,8 @@ public class DataManipulationProcessor {
 		for(Map.Entry<Integer, TwitterObject> entry: ltweets_all.entrySet()) {
 			region_info.classifyIntoRegion(entry.getValue().getLatitude(),
 					entry.getValue().getLongitude(),
-					entry.getValue().getWeatherScore(),
-					entry.getValue().getSentimentPolarity());
+					entry.getValue().getWeather_score(),
+					entry.getValue().getSentiment());
 		}
 	}
 	

@@ -29,7 +29,7 @@ public class TweetClusterJSONObject {
 		int sum =0;
 		for (int i = 0; i < numTweets; i++) {
 			this.tweetIDs[i] = tweetCluster.getTweetIds().get(i);
-			sum += tweetMap.get(this.tweetIDs[i]).getSentimentPolarity();
+			sum += tweetMap.get(this.tweetIDs[i]).getSentiment();
 		}
 		this.overallSentiment = (double)sum/this.numTweets;
 		this.weather = weather;

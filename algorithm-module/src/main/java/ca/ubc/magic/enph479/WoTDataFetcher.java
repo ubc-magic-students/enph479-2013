@@ -11,8 +11,8 @@ import ca.ubc.magic.enph479.DataManipulationProcessor.web_type;
 import ca.ubc.magic.enph479.DataManipulationProcessor.wot_type;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
-import ca.ubc.magic.enph479.builder.WeatherObject;
 import ca.ubc.magic.enph479.builder.RegionObject.regionX;
+import ca.ubc.magic.enph479.builder.WeatherObject;
 
 /**
  * WoTDataFetcher is a controlling manager that calls DataManipulationProcessor to gets data from WoTkit
@@ -50,7 +50,7 @@ public class WoTDataFetcher {
 		else if(this.fetch_count_max < 40)
 			this.fetch_count_max = 40;
 		
-		dbh = new DB_Handler();
+		/*dbh = new DB_Handler();
 		if(dbh.prepareDB()) {
 			//retrieve existing tweet data from DB before fetching any new data
 			ArrayList<TwitterObject> ltweets = dbh.retrieveDBTweet();
@@ -61,7 +61,8 @@ public class WoTDataFetcher {
 		else {
 			System.err.println("Error initializing connecting to database!");
 			return false;
-		}
+		}*/
+		return true;
 	}
 	
 	public void prepareForFetchingLess() throws Exception  {
@@ -85,8 +86,8 @@ public class WoTDataFetcher {
 		DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
 		String start_time = date_format.format(date_start_time);
 		String end_time = date_format.format(date_end_time);
-		start_time += " PDT";
-		end_time += " PDT";
+		start_time += " PST";
+		end_time += " PST";
 		//update ref_date
 		Date date_ref_time = new Date(ref_datetime);
 		date_ref_time.setTime(date_ref_time.getTime() + fetch_interval * 1000);
@@ -132,8 +133,8 @@ public class WoTDataFetcher {
 		DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
 		String start_time = date_format.format(date_start_time);
 		String end_time = date_format.format(date_end_time);
-		start_time += " PDT";
-		end_time += " PDT";
+		start_time += " PST";
+		end_time += " PST";
 		//update ref_date
 		Date date_ref_time = new Date(ref_datetime);
 		date_ref_time.setTime(date_ref_time.getTime() + fetch_interval * 1000);
