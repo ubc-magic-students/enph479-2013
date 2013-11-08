@@ -62,6 +62,9 @@ public class DB_Update {
 				sentiment_salted = sentiment + rand;
 			}
 			
+			if(db_id > 3000)
+				return;
+			
 			Statement st_new = con.createStatement();
 			String mysql_insert_command = "UPDATE timeplay_data SET sentiment=" + sentiment_salted + " WHERE db_id=" + db_id;
 			st_new.executeUpdate(mysql_insert_command);
