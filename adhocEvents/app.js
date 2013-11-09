@@ -30,25 +30,15 @@ db.once('open', function() {
   console.log('Connected to mongodb database');
 });
 
-//Import data from bennu
-var epochNow = new Date().getTime();
-var pastTime = 3600000; //2629743000; //1 month in epoch time
-var bennuURL = "http://bennu.magic.ubc.ca/wotkit/api/sensors/2013enph479.tweets-in-vancouver/data?start=" + (epochNow - pastTime) + "&end=" + epochNow;
-http.get(bennuURL, function(res) {
-  var body = "";
-    console.log("WOTKIT STATUS: " + res.statusCode);
-    res.setEncoding('utf8');
-    res.on('data', function(chunk) {
-      body += chunk;
-    });
-    res.on('end', function() {
-      var bodyInJSON = JSON.parse(body);
-    })
+//Import from bennu
+var bennu = require('./bennu.js');
+bennu.on('bennu', function(data) {
+  //console.log(data);
 });
+
 
 //Import credential information
 var credentials = require('./credentials.js');
-
 var Twit = require('twit');
 var T = new Twit({
   consumer_key:         credentials.adhoc_twitter_access.consumer_key,
@@ -59,8 +49,19 @@ var T = new Twit({
 
 var stream = T.stream('statuses/filter', {locations: require('./models/boundary.js').boundary});
 stream.on('tweet', function(tweet) {
-  console.log(tweet);
+  console.log(new Date(tweet.created_at));
 });
+
+function TimeManager(tweetList) {
+  var ttl = 5000000; // 5 seconds
+  var hash = [];
+  var addTimer = function(tweet) {
+    setTimeOut(function() {
+      //pop from tweetList giving id from tweet
+    }, ttl);
+  }
+}
+
 
 //Create socket.io rooms
 io.sockets.on('connection', function (socket) {
