@@ -19,7 +19,7 @@ public class WDF_Driver {
 	public static void main(String[] args) throws Exception {
 		
 		//declare variables
-		final int job_interval = 5;
+		final int job_interval = 60*60;
 		final int fetch_interval = job_interval*2; //in seconds
 		String start_datetime = "undefined";
 		boolean is_testing = true; //fetch from a custom defined starting time if true, current starting time is false
@@ -30,7 +30,7 @@ public class WDF_Driver {
 		
 		if(is_testing)
 		{
-			start_datetime = "2013 Nov 08 20:48:00";
+			start_datetime = "2013 Nov 08 13:00:00";
 		}
 		else {
 			Date date_now = new Date();

@@ -50,8 +50,9 @@ public class WoTDataFetcher {
 		else if(this.fetch_count_max < 40)
 			this.fetch_count_max = 40;
 		
-		/*dbh = new DB_Handler();
-		if(dbh.prepareDB()) {
+		dbh = new DB_Handler();
+		dbh.prepareDB();
+		/*if(dbh.prepareDB()) {
 			//retrieve existing tweet data from DB before fetching any new data
 			ArrayList<TwitterObject> ltweets = dbh.retrieveDBTweet();
 			dmp.addToTweets_all(ltweets);

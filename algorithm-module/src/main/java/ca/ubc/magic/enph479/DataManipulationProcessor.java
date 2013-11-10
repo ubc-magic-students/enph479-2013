@@ -44,7 +44,7 @@ public class DataManipulationProcessor {
 	private boolean is_debug = true;
 	/*private String[] wot_url_tweet = new String[] {"http://wotkit.sensetecnic.com/api/sensors/2013enph479.tweets-in-vancouver/data?start=",
 													"&end="};*/ //outdated wotkit database
-	private String[] wot_url_tweet = new String[] {"http://bennu.magic.ubc.ca/wotkit/api/sensors/2013enph479.tweets-in-vancouver/data?start=",
+	private String[] wot_url_tweet = new String[] {"http://bennu.magic.ubc.ca/wotkit/api/sensors/2013enph479.tweets-in-vancouver2/data?start=",
 													"&end="};
 	private String[] web_url_weather = new String[] {"http://api.openweathermap.org/data/2.5/weather?lat=",
 													"&lon="};
