@@ -16,7 +16,7 @@ public class JobsDriver {
 
 	public static void main(String[] args) {
 		try {
-			final int job_interval = 5;
+			final int job_interval = 0;
 			final int fetch_interval = job_interval*2; //in seconds
 			String start_datetime = "undefined";
 			boolean is_demo = true; //fetch from a custom defined starting time if true, current starting time is false
@@ -26,7 +26,7 @@ public class JobsDriver {
 			
 			if(is_demo)
 			{
-				start_datetime = "2013 Nov 08 20:48:00";
+				start_datetime = "2013 Nov 09 1:00:00";
 			}
 			else {
 				Date date_now = new Date();
