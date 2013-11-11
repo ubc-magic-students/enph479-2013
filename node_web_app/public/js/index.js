@@ -1,13 +1,17 @@
+
+
 $(function () {
 
-  var socket = io.connect('http://localhost');
-  socket.emit('join hashtagcloud');
+  /*var socket = io.connect('http://localhost');
+  socket.emit('join tweetfeed');
 
-  socket.on('hashtag tweet', function(data) {
-    addNewTweet(data.data);
-  });
+  socket.on('tweet', function(data) {
+    if (typeof data.data.text != undefined) {
+      addNewTweet(data.data.text);
+    }
+  });*/
 
   function addNewTweet(tweet) {
-    $('div#content').append('<div class="tweetbox">' + tweet + '</div>');
+    //$('div#content').append('<div class="tweetbox">' + tweet + '</div>');
   }
 });
