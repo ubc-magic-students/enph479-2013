@@ -10,7 +10,8 @@ var express = require('express')
   , server = http.createServer(app)
   , io = require('socket.io').listen(server)
   , mongoose = require('mongoose')
-  , async = require('async');
+  , async = require('async')
+  , helper = require('./helpers.js');
 server.listen(3000);
 
 // Set application configuration details
@@ -24,7 +25,7 @@ app.configure(function () {
 });
 
 //Connect to mongoose
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://localhost/test_environment');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function() {
@@ -131,15 +132,15 @@ stream.on('tweet', function(tweet) {
             cb(null, result);
           }
         });
-      }
+      } 
     }, 
     function(err, results) {
       if(err) {
         console.log(err);
       } else {
         //merge three queries together to EventCandidate
-        var tempUnion = union(results.nearThisTweet, results.sameHashTags);
-        var possibleEvent = union(tempUnion, results.sameUserMentions);
+        var tempUnion = helper.union(results.nearThisTweet, results.sameHashTags);
+        var possibleEvent = helper.union(tempUnion, results.sameUserMentions);
         var newTweetEntry = new Tweet(
           {
             id: tweet.id, 
@@ -160,10 +161,9 @@ stream.on('tweet', function(tweet) {
 
         //If there are enough tweets in possibleEvent array, save as EventCandidate.
         if (possibleEvent.length >= 2) {
-          //***** Before saving the event candidate, calculate center lat/long.
           var center = undefined;
           if (results.nearThisTweet.length > 0) {
-            center = findCenter(results.nearThisTweet.concat(newTweetEntry));
+            center = helper.findCenter(results.nearThisTweet.concat(newTweetEntry));
           }
           console.log("center: " + center);
           possibleEvent.push(newTweetEntry);
@@ -198,29 +198,3 @@ io.sockets.on('connection', function (socket) {
 app.get('/', function (req, res) {
     res.render('index.jade');
 });
-
-//Helper functions
-function union(arr1, arr2) {
-  var union = arr1.concat(arr2);
-  for(var i = 0; i < arr1.length; i++) {
-    for(var j = arr1.length; j < union.length; j++) {
-      if (union[i].id === union[j].id) {
-        union.splice(j,1);
-      }
-    }
-  }
-  return union;
-}
-
-function findCenter(queryResult) {
-  var latSum = 0;
-  var lonSum = 0;
-  var count = 0;
-  queryResult.forEach(function(o) {
-    latSum += o.coordinates[1];
-    lonSum += o.coordinates[0];
-    count++;
-  });
-
-  return [lonSum/count, latSum/count];
-}
