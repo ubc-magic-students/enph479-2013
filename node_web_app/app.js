@@ -23,22 +23,6 @@ app.configure(function () {
     app.use(express.bodyParser());
 });
 
-/********** DB Access Process ************/
-var connection = mysql.createConnection({
-  host : 'localhost',
-  port : 3306,
-  database: 'ENPH479',
-  user : 'root',
-  password : ''
-});
-
-connection.connect(function(err){
-  if(err != null) {
-    console.log('Error connecting to mysql:' + err+'\n');
-  }
-});
-
-
 // Create socket.io rooms
 io.sockets.on('connection', function (socket) {
   socket.on('join hashtagcloud', function (data) {
@@ -138,7 +122,7 @@ io.sockets.on('connection', function (socket) {
 
     this.getHistoryData = function(hour) {
       if(!hour)
-        hour = 24;
+        hour = 240; // change back to 24 when done
       var date_now = new Date(new Date().getTime() );
       var date = new Date(date_now.getTime() - hour*60*60*1000).toISOString();
       date_now = date_now.toISOString();
@@ -183,11 +167,6 @@ io.sockets.on('connection', function (socket) {
 
 });
 
-
-process.on('uncaughtException', function(err) {
-    console.log(err);
-});
-
 /*************************** Pages *********************************/
 
 // Map Page
@@ -195,7 +174,7 @@ app.get('/map', function (req, res) {
     res.render('map.jade');
 });
 
-// Tag Cloud Page
+// Tweet Feed Page
 app.get('/', function (req, res) {
     res.render('index.jade');
 });
@@ -230,3 +209,18 @@ javaSocket.on('data', firstDataListenner);
  });
 });
  javaServer.listen(javaPort);
+
+ /********** DB Access Process ************/
+var connection = mysql.createConnection({
+  host : 'localhost',
+  port : 3306,
+  database: 'ENPH479',
+  user : 'root',
+  password : ''
+});
+
+connection.connect(function(err){
+  if(err != null) {
+    console.log('Error connecting to mysql:' + err+'\n');
+  }
+});
