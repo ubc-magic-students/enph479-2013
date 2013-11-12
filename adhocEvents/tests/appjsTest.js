@@ -12,6 +12,7 @@ var EventCandidate = require('./../models/EventCandidate.js');
 var assert = require('assert');
 var helper = require('./../helpers.js');
 var constants = require('./../models/constants.js');
+var clusterCreator = require('./../clusterCreator.js');
 
 //Clean database
 /*(function initialize() {
@@ -51,7 +52,9 @@ var constants = require('./../models/constants.js');
 		createdAt: new Date(), 
 		message: "message 2", 
 		coordinates: [-123.11862873, 49.28205049],
-		hashtags: ["test2", "test3"],
+		hashtags: ["test2", "test3//******Before searching tweets, search EventCandidates to check if this tweet can be added to the event candidate.
+
+  //Search for other tweets that have similar traits as this tweet."],
 		user_mentions: ["user2"]
 	}, function(err, tweet) {
 		if(err) {
@@ -75,7 +78,9 @@ var constants = require('./../models/constants.js');
 			console.log("saved 3.");
 		}
 	});
+//******Before searching tweets, search EventCandidates to check if this tweet can be added to the event candidate.
 
+  //Search for other tweets that have similar traits as this tweet.
 	Tweet.create({
 		id: 4, 
 		createdAt: new Date(), 
@@ -124,6 +129,20 @@ var constants = require('./../models/constants.js');
 			assert.strictEqual( -123.11795739666667, center[0], "Center lon does not equal the actual value.");
 			assert.strictEqual( 49.28272112333334, center[1], "Center lat does not equal the actual value.");
 			console.log("Test Successful");
+		}
+	});
+})();
+
+(function testClusterCreator() {
+	console.log("Testing ClusterCreator");
+	Tweet.find({}, function(err, result) {
+		console.log(result);
+	})
+	Tweet.findOne({id: 1}, function(err, result) {
+		if(err) {
+			console.log(err);
+		} else {
+			clusterCreator.searchSimilarTweets(result, clusterCreator.createEventCandidate);
 		}
 	});
 })();
