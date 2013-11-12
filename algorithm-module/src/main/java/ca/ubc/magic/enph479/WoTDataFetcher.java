@@ -37,6 +37,10 @@ public class WoTDataFetcher {
 	public int getTweetRegionCount() {
 		return dmp.getRegion_count();
 	}
+	
+	public String get_refDatetime(){
+		return this.ref_datetime;
+	}
 
 	public boolean prepareForFetching(int _fetch_interval, int _job_fetch_interval, String _start_time) throws Exception  {
 		dmp = new DataManipulationProcessor();
