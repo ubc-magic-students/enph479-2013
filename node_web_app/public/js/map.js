@@ -28,7 +28,10 @@ function AppManager(regions) {
     this.socketManager.initializeSocketConnections();
     this.socketManager.initializeSocketEvents();
     this.tableManager.initializeDataset();
-    this.timeManager.initializeTime();
+    //this.timeManager.initializeTime();
+
+    
+    mediator.publish('initialize');
   }
 
   this.changeState = function(state, region) {
@@ -45,9 +48,10 @@ function AppManager(regions) {
     if (state === VANCOUVER_PLAYBACK) {
       this.callForPlaybackData();
     } else {
+      mediator.publish('showUpdate');
       console.log('clear interval called');
       clearInterval(this.playbackId);
-      this.timeManager.showLastUpdated();
+      //this.timeManager.showLastUpdated();
       this.regionIdForRegionView = -1;
       if (state === REGION_ETERNITY) {
         this.justCallForPlaybackData();
@@ -69,11 +73,13 @@ function AppManager(regions) {
 
   this.callForPlaybackData = function() {
     this.socketManager.getTimePlay();
-    this.timeManager.showMessage("Going back in time, please stand by...");
+    mediator.publish('callForTimePlay');
+    //this.timeManager.showMessage("Going back in time, please stand by...");
   }
 
   this.playback = function(regionData, tweetData, speed) {
-    this.timeManager.showMessage("Time traveling commencing...");
+    mediator.publish('initializeTimePlay');
+    //this.timeManager.showMessage("Time traveling commencing...");
     //this.changeState(VANCOUVER_PLAYBACK);
     var regionLength = this.regions.length;
 
@@ -90,8 +96,10 @@ function AppManager(regions) {
         arrayPIT = regionData.splice(0,regionLength);
         arrayPIT[0].timestamp = setCharAt(arrayPIT[0].timestamp, 19, '.');
         that.tableManager.updatePlayTable(arrayPIT);
+
+        mediator.publish('showTimePlay', new Date(arrayPIT[0].timestamp));
         
-        that.timeManager.showPlayTime(new Date(arrayPIT[0].timestamp));
+        //that.timeManager.showPlayTime(new Date(arrayPIT[0].timestamp));
         
         var tweet_date;
         
@@ -125,20 +133,23 @@ function AppManager(regions) {
     console.log('STATE AT UPDATE: ' + this.state);
     data = $.parseJSON(data);
 
+    mediator.publish('saveUpdate');
+
     // update Time
-    this.timeManager.saveLastUpdated();
+    //this.timeManager.saveLastUpdated();
     
     // update Table
     this.tableManager.saveLastUpdated(data);
 
     if (this.state !== VANCOUVER_PLAYBACK) {
       this.showUpdate();
+      mediator.publish('showUpdate');
     }
   }
 
   this.showUpdate = function() {
     console.log('update shown');
-    this.timeManager.showLastUpdated();
+    //this.timeManager.showLastUpdated();
     if(this.state === REGION_ETERNITY) {
       this.tableManager.showLastUpdatedRegion(this.regionIdForRegionView);
     } else { 
