@@ -19,7 +19,7 @@ public class JobsDriver {
 			final int job_interval = 0;
 			final int fetch_interval = job_interval*2; //in seconds
 			String start_datetime = "undefined";
-			boolean is_demo = true; //fetch from a custom defined starting time if true, current starting time is false
+			boolean is_demo = false; //fetch from a custom defined starting time if true, current starting time is false
 			
 			//initialize WoTDataFetcher
 			WoTDataFetcher wdf = new WoTDataFetcher();

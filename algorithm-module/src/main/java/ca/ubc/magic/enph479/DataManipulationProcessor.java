@@ -138,7 +138,14 @@ public class DataManipulationProcessor {
             
 	        for(JsonElement obj : jarray )
 	        {
-	        	TwitterObject tweet = gson.fromJson(obj , TwitterObject.class);
+	        	TwitterObject tweet = null;
+	        	try {
+	        		tweet = gson.fromJson(obj , TwitterObject.class);
+	        	}
+	        	catch(Exception ex){
+	        		System.err.println("Current tweet object cannot be parsed because: " + ex.getMessage());
+	        		continue;
+	        	}
 	        	
 	        	//remove duplicate
 	        	if(ltweets_all.containsKey(tweet.getId())) {
