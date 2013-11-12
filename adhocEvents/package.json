@@ -15,7 +15,8 @@
     "mongoose": ">=3.5.x",
     "connect": ">=1.9.1",
     "socket.io": "0.9.6",
-    "twit": ">=1.1.10"
+    "twit": ">=1.1.10",
+    "async": ">=0.2.5"
   },
   "version": "0.0.1",
   "private": true,

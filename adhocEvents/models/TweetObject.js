@@ -1,37 +1,22 @@
-module.exports = function(mongoose) {
+var mongoose = require('mongoose');
 
-	var tweetObjectSchema = mongoose.Schema({
-		id: { type: Number, unique: true },
-		timestamp: {type: Date, default: new Date()},
-		message: {type: String, default: "" },
-		longitude: {type: Number, default: -1},
-		latitude: {type: Number, default: -1},
-		polarity: {type: Number, default: -1},
-	});
+var tweetObjectSchema = mongoose.Schema({
+	id: { type: Number, unique: true },
+	//createdAt: {type: Date, expires: 5, default: new Date()},
+	createdAt: {type: Date, default: new Date()},
+	message: {type: String, default: null },
+	coordinates:  {
+		index: '2dsphere',
+		type: [Number],
+	},
+	hashtags: { type: [String], default: null},
+	user_mentions: {type: [String], default: null}
+});
 
-	var Tweet = mongoose.model('Tweet', tweetObjectSchema);
+tweetObjectSchema.index({
+	coordinates: '2dsphere'
+})
 
-	var getList = function (callback) {
-        Tweet.find().exec(callback);
-    };
-    
-    var create = function (array, callback) {
-        Tweet.create(array, callback);
-    };
-    
-    var remove = function (callback) {
-        Tweet.remove({}, callback);
-    };
-    
-    var findOne = function (hashtag_name, callback) {
-        Tweet.findOne({ hashtag: hashtag_name }, callback);
-    };
+var Tweet = mongoose.model('Tweet', tweetObjectSchema);
 
-	return {
-		getList: getList,
-        create: create,
-        remove: remove,
-        findOne: findOne,
-		Tweet: Tweet
-	}
-}
+module.exports = Tweet;
