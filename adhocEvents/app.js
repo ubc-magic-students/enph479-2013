@@ -15,12 +15,12 @@ server.listen(3000);
 
 // Set application configuration details
 app.configure(function () {
-    app.set('view engine', 'jade');
-    app.set('view options', { layout: true });
-    app.set('views', __dirname + '/views');
-    app.use(express.static(__dirname + '/public'));
-    app.use(express.limit('1mb'));
-    app.use(express.bodyParser());
+  app.set('view engine', 'jade');
+  app.set('view options', { layout: true });
+  app.set('views', __dirname + '/views');
+  app.use(express.static(__dirname + '/public'));
+  app.use(express.limit('1mb'));
+  app.use(express.bodyParser());
 });
 
 //Connect to mongoose
@@ -106,6 +106,8 @@ stream.on('tweet', function(tweet) {
                 cb(null, result);
               }
             })
+        } else {
+          cb(null, []);
         }
       },
       sameHashTags: function(cb) {
@@ -138,10 +140,35 @@ stream.on('tweet', function(tweet) {
         //merge three queries together to EventCandidate
         var tempUnion = union(results.nearThisTweet, results.sameHashTags);
         var possibleEvent = union(tempUnion, results.sameUserMentions);
+        var newTweetEntry = new Tweet(
+          {
+            id: tweet.id, 
+            createdAt: new Date(tweet.created_at), 
+            message: tweet.text, 
+            coordinates: tweet.coordinates ? 
+                [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined,
+            hashtags: hashtags,
+            user_mentions: user_mentions
+          }
+        ).save(function(err, newTweet) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("successfully saved tweet: " + newTweet.id);
+          }
+        });
+
         //If there are enough tweets in possibleEvent array, save as EventCandidate.
         if (possibleEvent.length >= 2) {
-          //***** Before saving the event candidate, calculate center lat/long
+          //***** Before saving the event candidate, calculate center lat/long.
+          var center = undefined;
+          if (results.nearThisTweet.length > 0) {
+            center = findCenter(results.nearThisTweet.concat(newTweetEntry));
+          }
+          console.log("center: " + center);
+          possibleEvent.push(newTweetEntry);
           EventCandidate.create( {
+            center: center,
             tweets: possibleEvent,
             createdAt: new Date()
           }, function(err, newEvent) {
@@ -157,23 +184,6 @@ stream.on('tweet', function(tweet) {
       }
   });
 
-  Tweet.create(
-    {
-      id: tweet.id, 
-      createdAt: new Date(tweet.created_at), 
-      message: tweet.text, 
-      coordinates: tweet.coordinates ? 
-          [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined,
-      hashtags: hashtags,
-      user_mentions: user_mentions
-
-    }, function(err, newTweet) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("successfully saved tweet: " + newTweet.id);
-      }
-    });
 });
 
 //Create socket.io rooms
@@ -195,9 +205,22 @@ function union(arr1, arr2) {
   for(var i = 0; i < arr1.length; i++) {
     for(var j = arr1.length; j < union.length; j++) {
       if (union[i].id === union[j].id) {
-        union.splice(i,1);
+        union.splice(j,1);
       }
     }
   }
   return union;
+}
+
+function findCenter(queryResult) {
+  var latSum = 0;
+  var lonSum = 0;
+  var count = 0;
+  queryResult.forEach(function(o) {
+    latSum += o.coordinates[1];
+    lonSum += o.coordinates[0];
+    count++;
+  });
+
+  return [lonSum/count, latSum/count];
 }
