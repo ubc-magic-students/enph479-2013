@@ -10,7 +10,7 @@ public class DataRetrievalModule {
 	
 	public void retrieveFromBennu() throws Exception {
 	
-		final int job_interval = 60 * 60;
+		final int job_interval = 1 * 60;
 		final int fetch_interval = job_interval * 2; // in seconds
 		String start_datetime = "undefined";
 
@@ -18,6 +18,7 @@ public class DataRetrievalModule {
 		WoTDataFetcher wdf = new WoTDataFetcher();
 		System.setProperty("jsse.enableSNIExtension", "false");
 
+		// data we started inputing data into bennu
 		start_datetime = "2013 Nov 08 13:00:00";
 
 		// prepare for fetching
@@ -48,6 +49,15 @@ public class DataRetrievalModule {
 				t.printStackTrace();
 				System.err.println("Error in fetching from bennu...");
 			}
+		}
+	}
+	
+	public void wrappingUpRetrivalModule() throws InterruptedException {
+		
+		System.out.println("Please press stop if during test, otherwise system jobs initializing in 10 seconds...");
+		for(int i = 9; i > 0; i--) {
+			System.out.println(i);
+			Thread.sleep(5*1000);
 		}
 	}
 	

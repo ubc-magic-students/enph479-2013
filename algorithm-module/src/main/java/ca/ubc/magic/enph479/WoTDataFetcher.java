@@ -49,8 +49,8 @@ public class WoTDataFetcher {
 		this.ref_datetime = _start_time;
 		
 		this.fetch_count_max = (int)(double)(10.0*60.0/(((double)this.fetch_interval+(double)this.job_fetch_interval)/2.0));
-		if(this.fetch_count_max > 150)
-			this.fetch_count_max = 150;
+		if(this.fetch_count_max > 100)
+			this.fetch_count_max = 100;
 		else if(this.fetch_count_max < 40)
 			this.fetch_count_max = 40;
 		

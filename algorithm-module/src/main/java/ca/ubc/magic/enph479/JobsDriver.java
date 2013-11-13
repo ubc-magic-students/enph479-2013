@@ -26,6 +26,7 @@ public class JobsDriver {
 			//retrive from Bennu for old data first
 			DataRetrievalModule drm = new DataRetrievalModule();
 			drm.retrieveFromBennu();
+			drm.wrappingUpRetrivalModule();
 			
 			//initialize WoTDataFetcher
 			WoTDataFetcher wdf = new WoTDataFetcher();
