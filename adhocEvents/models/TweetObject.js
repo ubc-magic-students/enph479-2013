@@ -2,8 +2,7 @@ var mongoose = require('mongoose');
 
 var tweetObjectSchema = mongoose.Schema({
 	id: { type: Number, unique: true },
-	//createdAt: {type: Date, expires: 5, default: new Date()},
-	createdAt: {type: Date, default: new Date()},
+	createdAt: {type: Date, expires: 30*60, default: new Date()},
 	message: {type: String, default: null },
 	coordinates:  {
 		index: '2dsphere',
