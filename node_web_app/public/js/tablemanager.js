@@ -5,7 +5,7 @@ function TableManager(regions) {
     this.initializeDataset();
   });
 
-  this.subscribe(EVENTS.SAVE_REGION_UPDATE, function(data) {
+  this.subscribe(EVENTS.REGION_UPDATE, function(data) {
     this.saveLastUpdated(data);
   });
 

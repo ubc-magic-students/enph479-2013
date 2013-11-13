@@ -15,6 +15,12 @@ var mediator = (function(){
         }
         return this;
     };
+
+    registerCallbacks = function(registry) {
+        registry.forEach(function(element) {
+            subscribe(element.channel, element.fn);
+        });
+    }
  
     return {
         channels: {},
@@ -23,6 +29,7 @@ var mediator = (function(){
         installTo: function(obj){
             obj.subscribe = subscribe;
             obj.publish = publish;
+            obj.registerCallbacks = registerCallbacks;
         }
     };
  

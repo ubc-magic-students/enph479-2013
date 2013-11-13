@@ -5,7 +5,7 @@ function SocketManager() {
   this.socket = io.connect('http://localhost');
 
   this.subscribe(EVENTS.INITIALIZE, function() {
-    
+
     this.socket.on(SOCKET_EVENTS.REGION_UPDATE, function(data) {
       data = $.parseJSON(data.data)
       mediator.publish(EVENTS.REGION_UPDATE, data);

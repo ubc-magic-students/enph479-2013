@@ -1,41 +1,52 @@
-// The TimeManager object manages the time-date display
+// The TimeManager object manages the time-date display / message box
 function TimeManager() {
+  var lastUpdated;  // stores the time of the last region data update
+
+  // Add event handlers to the Time Manager
   mediator.installTo(this);
-  this.lastUpdated;
-
-  this.subscribe(EVENTS.INITIALIZE, function () {
-      $('#time-date').text('Not updated');
-  });
-
-  this.subscribe(EVENTS.SAVE_REGION_UPDATE, function() {
-    this.lastUpdated = new Date();
-  });
-
-  this.subscribe(EVENTS.SHOW_REGION_UPDATE, function() {
-    if (this.lastUpdated !== undefined) {
-      $('#time-date').text('Last Updated: ' + this.lastUpdated.toLocaleTimeString() + ' ' + this.lastUpdated.toLocaleDateString());
-    } else {
-      $('#time-date').text('Not updated');
+  this.registerCallbacks([{ 
+      channel: EVENTS.INITIALIZE,
+      fn: function () {
+        $('#time-date').text('Not updated');
+      }
+    }, {
+      channel: EVENTS.REGION_UPDATE,
+      fn: function() {
+        this.lastUpdated = new Date();
+      }
+    }, {
+      channel: EVENTS.SHOW_REGION_UPDATE,
+      fn: function() {
+        if (this.lastUpdated !== undefined) {
+          $('#time-date').text('Last Updated: ' + this.lastUpdated.toLocaleTimeString() + ' ' + this.lastUpdated.toLocaleDateString());
+        } else {
+          $('#time-date').text('Not updated');
+        }
+      }
+    }, {
+      channel: EVENTS.CALL_FOR_TIMEPLAY,
+      fn: function() {
+        $('#time-date').text("Going back in time, please stand by...");
+      }
+    }, {
+      channel: EVENTS.INITIALIZE_TIMEPLAY,
+      fn: function() {
+        $('#time-date').text("Time traveling commencing...");
+      }
+    }, {
+      channel: EVENTS.SHOW_TIMEPLAY,
+      fn: function(time, tableData) {
+        $('#time-date').text('Playback Time: ' + time);
+      }
+    }, {
+      channel: EVENTS.STOP_TIMEPLAY,
+      fn: function() {
+        if (this.lastUpdated !== undefined) {
+          $('#time-date').text('Last Updated: ' + this.lastUpdated.toLocaleTimeString() + ' ' + this.lastUpdated.toLocaleDateString());
+        } else {
+          $('#time-date').text('Not updated');
+        }
+      }
     }
-  });
-
-  this.subscribe(EVENTS.CALL_FOR_TIMEPLAY, function () {
-    $('#time-date').text("Going back in time, please stand by...");
-  });
-
-  this.subscribe(EVENTS.INITIALIZE_TIMEPLAY, function () {
-    $('#time-date').text("Time traveling commencing...");
-  });
-
-  this.subscribe(EVENTS.SHOW_TIMEPLAY, function(time, tableData) {
-    $('#time-date').text('Playback Time: ' + time);
-  });
-
-  this.subscribe(EVENTS.STOP_TIMEPLAY, function() {
-    if (this.lastUpdated !== undefined) {
-      $('#time-date').text('Last Updated: ' + this.lastUpdated.toLocaleTimeString() + ' ' + this.lastUpdated.toLocaleDateString());
-    } else {
-      $('#time-date').text('Not updated');
-    }
-  })
+  ]);
 }
