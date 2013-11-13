@@ -1,11 +1,5 @@
 /*************************** Setup *********************************/
 
-var SOCKET_ROOMS = {
-  TIMEPLAY_FEED: "timeplayFeed",
-  REGION_FEED: "regionFeed",
-  TWEET_FEED: "tweetFeed"
-};
-
 var SOCKET_EVENTS = {
   REGION_UPDATE: "regionUpdate",
   TWEET_UPDATE: "tweetUpdate",
@@ -47,7 +41,7 @@ io.sockets.on('connection', function (socket) {
       tweetRetriever.checkForNewTweets();
     } ,150000);
 
-    
+
 
     var regionRetriever = new RegionRetriever(connection);
 

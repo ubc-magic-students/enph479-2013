@@ -36,13 +36,11 @@ function ButtonManager(mapMaker, map) {
 
   this.initializeButtons = function() {
     var overviewDiv = document.createElement('div');
-    var homeControl = new HomeControl(overviewDiv, this.map, this);
-    overviewDiv.index = 1;
+    this.overviewButton = this.mapMaker.makeControl(overviewDiv, 'backbutton', 'Click to set the map to Vancouver', 'Overview');
     this.map.controls[google.maps.ControlPosition.LEFT_TOP].push(overviewDiv);
 
     var replayDiv = document.createElement('div');
-    var replayControl = new ReplayControl(replayDiv, this.map, this);
-    replayDiv.index = 1;
+    this.replayButton = this.mapMaker.makeControl(replayDiv, 'replaybutton', 'Click to stop replay', 'Stop Replay');
     this.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(replayDiv);
 
     var divOptions = {
@@ -130,7 +128,6 @@ function ButtonManager(mapMaker, map) {
     var that = this;
     google.maps.event.removeListener(this.replayListener);
     this.replayListener = google.maps.event.addDomListener(this.replayButton, 'click', function() {
-      //that.mapManager.appManager.changeState(STATE.VANCOUVER_ETERNITY);
       mediator.publish(EVENTS.STOP_TIMEPLAY);
     });
   }
@@ -139,75 +136,9 @@ function ButtonManager(mapMaker, map) {
     var that = this;
     google.maps.event.removeListener(this.overviewListener);
     this.overviewListener = google.maps.event.addDomListener(this.overviewButton, 'click', function() {
-      //that.mapManager.infowindow.close();
-      //that.mapManager.appManager.changeState(STATE.VANCOUVER_ETERNITY);
       mediator.publish(EVENTS.ZOOM_OUT);
     });
   }
-}
-
-// The HomeControl object holds the configuration for generating the Overview button
-function HomeControl(controlDiv, map, buttonManager) {
-
-  // Set CSS styles for the DIV containing the control
-  // Setting padding to 5 px will offset the control
-  // from the edge of the map
-  controlDiv.style.padding = '5px';
-
-  // Set CSS for the control border
-  var controlUI = document.createElement('div');
-  controlUI.id = 'backbutton';
-  controlUI.style.backgroundColor = 'white';
-  controlUI.style.borderStyle = 'solid';
-  controlUI.style.borderWidth = '1px';
-  controlUI.style.cursor = 'pointer';
-  controlUI.style.textAlign = 'center';
-  controlUI.style.visibility = 'hidden';
-  controlUI.title = 'Click to set the map to Vancouver';
-  controlDiv.appendChild(controlUI);
-
-  // Set CSS for the control interior
-  var controlText = document.createElement('div');
-  controlText.style.fontFamily = 'Arial,sans-serif';
-  controlText.style.fontSize = '12px';
-  controlText.style.paddingLeft = '4px';
-  controlText.style.paddingRight = '4px';
-  controlText.innerHTML = 'Overview';
-  controlUI.appendChild(controlText);
-
-  buttonManager.overviewButton = controlUI;
-}
-
-// The ReplayControl object holds the configuration for generating the Replay button
-function ReplayControl(controlDiv, map, buttonManager) {
-
-  // Set CSS styles for the DIV containing the control
-  // Setting padding to 5 px will offset the control
-  // from the edge of the map
-  controlDiv.style.padding = '5px';
-
-  // Set CSS for the control border
-  var controlUI = document.createElement('div');
-  controlUI.id = 'replaybutton';
-  controlUI.style.backgroundColor = 'white';
-  controlUI.style.borderStyle = 'solid';
-  controlUI.style.borderWidth = '1px';
-  controlUI.style.cursor = 'pointer';
-  controlUI.style.textAlign = 'center';
-  controlUI.style.visibility = 'hidden';
-  controlUI.title = 'Click to replay the last 24 hours';
-  controlDiv.appendChild(controlUI);
-
-  // Set CSS for the control interior
-  var controlText = document.createElement('div');
-  controlText.style.fontFamily = 'Arial,sans-serif';
-  controlText.style.fontSize = '12px';
-  controlText.style.paddingLeft = '4px';
-  controlText.style.paddingRight = '4px';
-  controlText.innerHTML = 'Stop Replay';
-  controlUI.appendChild(controlText);
-
-  buttonManager.replayButton = controlUI;
 }
 
    /************

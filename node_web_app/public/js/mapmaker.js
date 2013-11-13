@@ -67,4 +67,32 @@ function MapMaker() {
       maxWidth: 300
     });
   };
+
+  this.makeControl = function(controlDiv, id, title, text) {
+    controlDiv.style.padding = '5px';
+    controlDiv.index = 1;
+
+    // Set CSS for the control border
+    var controlUI = document.createElement('div');
+    controlUI.id = id;
+    controlUI.style.backgroundColor = 'white';
+    controlUI.style.borderStyle = 'solid';
+    controlUI.style.borderWidth = '1px';
+    controlUI.style.cursor = 'pointer';
+    controlUI.style.textAlign = 'center';
+    controlUI.style.visibility = 'hidden';
+    controlUI.title = title;
+    controlDiv.appendChild(controlUI);
+
+    // Set CSS for the control interior
+    var controlText = document.createElement('div');
+    controlText.style.fontFamily = 'Arial,sans-serif';
+    controlText.style.fontSize = '12px';
+    controlText.style.paddingLeft = '4px';
+    controlText.style.paddingRight = '4px';
+    controlText.innerHTML = text;
+    controlUI.appendChild(controlText);
+
+    return controlUI;
+  }
 }
