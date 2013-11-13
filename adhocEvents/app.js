@@ -10,7 +10,7 @@ var express = require('express')
   , server = http.createServer(app)
   , io = require('socket.io').listen(server)
   , mongoose = require('mongoose')
-  , async = require('async');
+  , clusterCreator = require('./clusterCreator.js');
 server.listen(3000);
 
 // Set application configuration details
@@ -24,7 +24,7 @@ app.configure(function () {
 });
 
 //Connect to mongoose
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://localhost/test_environment');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function() {
@@ -35,10 +35,10 @@ var Tweet = require('./models/TweetObject.js');
 var EventCandidate = require('./models/EventCandidate.js');
 
 //Import from bennu
-var bennu = require('./bennu.js');
+/*var bennu = require('./bennu.js');
   bennu.on('bennu', function(data) {
   //console.log(data);
-});
+});*/
 
 
 //Import credential information
@@ -55,6 +55,7 @@ var T = new Twit({
 });
 
 var stream = T.stream('statuses/filter', {locations: constants.boundary});
+console.log("Starting straming from Twitter inside: " + constants.boundary);
 stream.on('tweet', function(tweet) {
   console.log("tweet ID: " + tweet.id 
     + " at: " + tweet.created_at 
@@ -75,114 +76,42 @@ stream.on('tweet', function(tweet) {
       user_mentions.push(u.screen_name.toLowerCase());
     })
   }
-  //******Before searching tweets, search EventCandidates to check if this tweet can be added to the event candidate.
 
-  //Search for other tweets that have similar traits as this tweet.
-  async.series({
-      nearThisTweet: function(cb) {
-        // search mongodb for tweets that are near the current tweet.
-        if (tweet.coordinates) {
-          /*Tweet.geoNear(
-            tweet.coordinates.coordinates, 
-              { 
-                spherical: true,
-                maxDistance: constants.maxDistance/constants.earthRadius,
-                distanceMultiplier: constants.earthRadius
-              }, function(err, result, stats) {
-                console.log(result);
-            })*/
-          Tweet.find()
-            .near('coordinates', {
-                center: tweet.coordinates.coordinates, 
-                spherical: true, 
-                maxDistance: constants.maxDistance/constants.earthRadius,
-                distanceMultiplier: constants.earthRadius
-            }).exec(function(err, result) {
-              if(err) {
-                console.log(err);
-              } else {
-                console.log("geoNear: ");
-                console.log(result);
-                cb(null, result);
-              }
-            })
-        } else {
-          cb(null, []);
-        }
-      },
-      sameHashTags: function(cb) {
-        Tweet.find({ hashtags: {$in : hashtags}}, function(err, result) {
-          if(err) {
-            console.log(err);
-          } else {
-            console.log("sameHashTags: ");
-            console.log(result);
-            cb(null, result);
-          }
-        });
-      },
-      sameUserMentions: function(cb) {
-        Tweet.find({ user_mentions: {$in : user_mentions}}, function(err, result) {
-          if(err) {
-            console.log(err);
-          } else {
-            console.log("sameUserMentions: ");
-            console.log(result);
-            cb(null, result);
-          }
-        });
-      }
-    }, 
-    function(err, results) {
-      if(err) {
-        console.log(err);
-      } else {
-        //merge three queries together to EventCandidate
-        var tempUnion = union(results.nearThisTweet, results.sameHashTags);
-        var possibleEvent = union(tempUnion, results.sameUserMentions);
-        var newTweetEntry = new Tweet(
-          {
-            id: tweet.id, 
-            createdAt: new Date(tweet.created_at), 
-            message: tweet.text, 
-            coordinates: tweet.coordinates ? 
-                [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined,
-            hashtags: hashtags,
-            user_mentions: user_mentions
-          }
-        ).save(function(err, newTweet) {
+  //create new tweet entry
+  new Tweet(
+    {
+      id: tweet.id, 
+      createdAt: new Date(tweet.created_at), 
+      message: tweet.text, 
+      coordinates: tweet.coordinates ? 
+          [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined,
+      hashtags: hashtags,
+      user_mentions: user_mentions
+    }
+  ).save(function(err, newTweet) {
+    if (err) {
+      console.log(err);
+    } else {
+        console.log("successfully saved tweet: " + newTweet.id);
+
+        //******Before searching tweets, search EventCandidates to check if this tweet can be added to the event candidate.
+
+        clusterCreator.searchSimilarTweets(newTweet, function(err, center, results) {
           if (err) {
             console.log(err);
           } else {
-            console.log("successfully saved tweet: " + newTweet.id);
+            clusterCreator.createEventCandidate(results, center, function(err, eventCandidate) {
+              if(err) {
+                console.log(err);
+              } else {
+                console.log("New Event Candidate: ");
+                console.log(eventCandidate);
+              }
+            });
           }
         });
-
-        //If there are enough tweets in possibleEvent array, save as EventCandidate.
-        if (possibleEvent.length >= 2) {
-          //***** Before saving the event candidate, calculate center lat/long.
-          var center = undefined;
-          if (results.nearThisTweet.length > 0) {
-            center = findCenter(results.nearThisTweet.concat(newTweetEntry));
-          }
-          console.log("center: " + center);
-          possibleEvent.push(newTweetEntry);
-          EventCandidate.create( {
-            center: center,
-            tweets: possibleEvent,
-            createdAt: new Date()
-          }, function(err, newEvent) {
-            if(err) {
-              console.log(err);
-            } else {
-              console.log("event candidate saved");
-              console.log(newEvent);
-            }
-          })
-        }
-
       }
-  });
+    });
 
 });
 
@@ -198,29 +127,3 @@ io.sockets.on('connection', function (socket) {
 app.get('/', function (req, res) {
     res.render('index.jade');
 });
-
-//Helper functions
-function union(arr1, arr2) {
-  var union = arr1.concat(arr2);
-  for(var i = 0; i < arr1.length; i++) {
-    for(var j = arr1.length; j < union.length; j++) {
-      if (union[i].id === union[j].id) {
-        union.splice(j,1);
-      }
-    }
-  }
-  return union;
-}
-
-function findCenter(queryResult) {
-  var latSum = 0;
-  var lonSum = 0;
-  var count = 0;
-  queryResult.forEach(function(o) {
-    latSum += o.coordinates[1];
-    lonSum += o.coordinates[0];
-    count++;
-  });
-
-  return [lonSum/count, latSum/count];
-}

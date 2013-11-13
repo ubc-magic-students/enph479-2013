@@ -16,7 +16,8 @@
     "connect": ">=1.9.1",
     "socket.io": "0.9.6",
     "twit": ">=1.1.10",
-    "async": ">=0.2.5"
+    "async": ">=0.2.5",
+    "nodeunit": ">=0.7.4"
   },
   "version": "0.0.1",
   "private": true,

@@ -5,8 +5,16 @@ var EventCandidateSchema = mongoose.Schema({
 	center: {type: [Number], index: "2dsphere"},
 	//***** need to add hash tags aggregated,
 	//***** need to add user_mentions aggregated
+	//***** need to distinguish between tweets that contribute to location and tweets that don't.
 	tweets: {type: [Tweet.schema], default: null},
 	createdAt: {type: Date, default: new Date()/*, expires: */}
+});
+
+EventCandidateSchema.pre('save', function(next) {
+	if(this.isNew && Array.isArray(this.center) && 0 === this.center.length) {
+		this.center = undefined;
+	}
+	next();
 });
 
 var Candidate = mongoose.model('EventCandidate', EventCandidateSchema);

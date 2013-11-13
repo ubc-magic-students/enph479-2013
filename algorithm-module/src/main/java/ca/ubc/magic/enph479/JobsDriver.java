@@ -12,21 +12,27 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
+import ca.ubc.magic.enph479.builder.DataRetrievalModule;
+
 public class JobsDriver {
 
 	public static void main(String[] args) {
 		try {
-			final int job_interval = 0;
+			final int job_interval = 5;
 			final int fetch_interval = job_interval*2; //in seconds
 			String start_datetime = "undefined";
-			boolean is_demo = true; //fetch from a custom defined starting time if true, current starting time is false
+			boolean is_demo = false; //fetch from a custom defined starting time if true, current starting time is false
+			
+			//retrive from Bennu for old data first
+			DataRetrievalModule drm = new DataRetrievalModule();
+			drm.retrieveFromBennu();
 			
 			//initialize WoTDataFetcher
 			WoTDataFetcher wdf = new WoTDataFetcher();
 			
 			if(is_demo)
 			{
-				start_datetime = "2013 Nov 09 1:00:00";
+				start_datetime = "2013 Nov 08 13:00:00";
 			}
 			else {
 				Date date_now = new Date();
@@ -55,6 +61,8 @@ public class JobsDriver {
 			schedule.getContext().put("wdf", wdf);
 			schedule.scheduleJob(job, trigger);
 			schedule.start();
+			
+			System.out.println("Job Started!");
 			
 		} catch (Throwable t) {
 			System.err.println("Error while initializing WotDataFetcher...");
