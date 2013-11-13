@@ -153,6 +153,8 @@ function MapManager(regions, mapMaker, map) {
           }
         }, this);
         that.addplaybackTweets(playTweet);
+      } else {
+        mediator.publish(EVENTS.STOP_TIMEPLAY);
       }
     }, speed);
   }

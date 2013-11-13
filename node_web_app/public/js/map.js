@@ -33,41 +33,4 @@ function AppManager(regions) {
 
   this.regions = regions;
   this.regionIdForRegionView = -1;
-
-  /*this.changeState = function(state, region) {
-    console.log("STATE CHANGE: " + state);
-    console.log("REGION CHANGE: " + region);
-    this.state = state;
-    this.regionIdforRegionView = region;
-    if (region !== undefined) {
-      //this.mapManager.changeState(state, region);
-    } else {
-      //this.mapManager.changeState(state, -1);
-    }
-    
-    if (state === STATE.VANCOUVER_PLAYBACK) {
-      //this.callForPlaybackData();
-    } else {
-      mediator.publish(EVENTS.SHOW_UPDATE);
-      console.log('clear interval called');
-      clearInterval(this.playbackId);
-      //this.timeManager.showLastUpdated();
-      this.regionIdForRegionView = -1;
-      if (state === STATE.REGION_ETERNITY) {
-        this.justCallForPlaybackData();
-        this.regionIdForRegionView = region;
-        //this.tableManager.showLastUpdatedRegion(region);
-      } else {
-        //this.tableManager.showLastUpdated();
-      }
-      this.playbackTweets.forEach(function(element) {
-        element.hide();
-      }, this);
-      this.playbackTweets = [];
-    }
-  }
-
-  this.justCallForPlaybackData = function() {
-    this.socketManager.getTimePlay();
-  }*/
 }

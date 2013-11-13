@@ -36,13 +36,7 @@ app.configure(function () {
 
 // Create socket.io rooms
 io.sockets.on('connection', function (socket) {
-  socket.on('join ' + SOCKET_ROOMS.REGION_FEED, function (data) {
-    socket.join(SOCKET_ROOMS.REGION_FEED);
-  });
 
-  socket.on('join ' + SOCKET_ROOMS.TWEET_FEED, function (data) {
-    console.log('JOINED DBCONNECt');
-    socket.join(SOCKET_ROOMS.TWEET_FEED);
 
     var tweetRetriever = new TweetRetriever(connection, socket);
     tweetRetriever.initializeTweets();
@@ -53,22 +47,13 @@ io.sockets.on('connection', function (socket) {
       tweetRetriever.checkForNewTweets();
     } ,150000);
 
-    /*var regionRetriever = new RegionRetriever(connection);
-      socket.join('regionrequest');
-      socket.on('time_play_request', function() {
-        regionRetriever.getHistoryData();
-      });*/
-  });
-
-  socket.on('join ' + SOCKET_ROOMS.TIMEPLAY_FEED, function() {
-    socket.join(SOCKET_ROOMS.TIMEPLAY_FEED);
+    
 
     var regionRetriever = new RegionRetriever(connection);
 
     socket.on(SOCKET_EVENTS.TIMEPLAY_REQUEST, function() {
       regionRetriever.getHistoryData();
     });
-  });
   
   function TweetRetriever(connection, socket) {
     this.tweets = [];
@@ -173,9 +158,7 @@ io.sockets.on('connection', function (socket) {
     this.sendNewTweets = function(rows) {
       io.sockets.emit(SOCKET_EVENTS.TIMEPLAY_RESPONSE, { data: rows });
     }
-
   }
-
 });
 
 /*************************** Pages *********************************/

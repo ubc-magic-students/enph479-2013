@@ -12,12 +12,6 @@ var EVENTS = {
   STOP_TIMEPLAY: "stopTimePlay"
 };
 
-var SOCKET_ROOMS = {
-  TIMEPLAY_FEED: "timeplayFeed",
-  REGION_FEED: "regionFeed",
-  TWEET_FEED: "tweetFeed"
-};
-
 var SOCKET_EVENTS = {
   REGION_UPDATE: "regionUpdate",
   TWEET_UPDATE: "tweetUpdate",
