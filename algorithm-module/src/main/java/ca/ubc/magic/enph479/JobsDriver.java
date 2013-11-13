@@ -43,7 +43,7 @@ public class JobsDriver {
 			
 			//prepare for fetching
 			if(!wdf.prepareForFetching(fetch_interval, job_interval, start_datetime)) {
-				System.out.println("Error while initializing WotDataFetcher...");
+				System.err.println("Error while initializing WotDataFetcher...");
 				return;
 			}
 			

@@ -90,7 +90,7 @@ public class DataManipulationProcessor {
 			catch(Exception ex) {
 				json_string_twitter = "";
 				if(is_debug)
-	            	System.out.println("WoT Kit API not responding to HTTP request: " + ex.getMessage());
+	            	System.err.println("WoT Kit API not responding to HTTP request: " + ex.getMessage());
 			}
 		}
 	}
@@ -117,7 +117,7 @@ public class DataManipulationProcessor {
 			catch(Exception ex) {
 				json_string_weather = "";
 				if(is_debug)
-	            	System.out.println("Weather API not responding to HTTP request: " + ex.getMessage());
+	            	System.err.println("Weather API not responding to HTTP request: " + ex.getMessage());
 			}
 		}
 	}
@@ -143,7 +143,7 @@ public class DataManipulationProcessor {
 	        		tweet = gson.fromJson(obj , TwitterObject.class);
 	        	}
 	        	catch(Exception ex){
-	        		System.err.println("Current tweet object cannot be parsed because: " + ex.getMessage());
+	        		System.out.println("Current tweet object cannot be parsed because: " + ex.getMessage());
 	        		continue;
 	        	}
 	        	
@@ -155,7 +155,7 @@ public class DataManipulationProcessor {
 		        	double lat = tweet.getLatitude();
 		        	double lng = tweet.getLongitude();
 		        	if (!region_info.isVancouver(lat, lng)) {
-		        		System.out.println("Tweet is out of bound of Vancouver, neglected...");
+		        		System.out.println("tweet is out of bound of Vancouver, neglected...");
 		        	}
 		        	else {
 		        		
@@ -166,15 +166,15 @@ public class DataManipulationProcessor {
 		        		//calculate weather score
 		        		tweet.calculateWeatherScore();
 		        		if(is_debug)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " calculating weather score successful!");
+		        			System.out.println(tweet.getId() + " calculating weather score successful!");
 
 		        		//set region
 		        		if(is_debug)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region...");
+		        			System.out.println(tweet.getId() + " getting region...");
 		        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeather_score(), tweet.getSentiment());
 		        		tweet.setRegion(region_index);
 		        		if(is_debug)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region successful!");
+		        			System.out.println(tweet.getId() + " getting region successful!");
 		        		
 		        		//add current tweet to list
 		        		ltweets_incoming.add(tweet);
@@ -258,7 +258,7 @@ public class DataManipulationProcessor {
         	catch(Exception ex) {
         		String tmp = json_string_weather;
         		//{"message":"Error: Not found city","cod":"404"}
-        		System.out.println("Weather API not responding to lat lng request: Not found city code 404");
+        		System.err.println("Weather API not responding to lat lng request: Not found city code 404");
         		return new WeatherObject();
         	}
         	

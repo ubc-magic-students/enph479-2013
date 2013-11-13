@@ -43,10 +43,10 @@ public class DataRetrievalModule {
 				}
 				
 				String jsonData = wdf.fetchNewData();
-				System.out.println("Going through while loop.....");
+				System.out.println("continue fetching from bennu...");
 			} catch (Throwable t) {
 				t.printStackTrace();
-				System.err.println("Error in the driver.");
+				System.err.println("Error in fetching from bennu...");
 			}
 		}
 	}

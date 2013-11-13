@@ -17,6 +17,7 @@ import org.jsoup.select.Elements;
  * @author chris.yoon90@gmail.com
  *
  */
+@Deprecated
 public class CrawlNHL {
 	
 	private final static String URL = "http://canucks.nhl.com/club/stats.htm";
