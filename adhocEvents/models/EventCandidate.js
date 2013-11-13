@@ -9,6 +9,13 @@ var EventCandidateSchema = mongoose.Schema({
 	createdAt: {type: Date, default: new Date()/*, expires: */}
 });
 
+EventCandidateSchema.pre('save', function(next) {
+	if(this.isNew && Array.isArray(this.center) && 0 === this.center.length) {
+		this.center = undefined;
+	}
+	next();
+});
+
 var Candidate = mongoose.model('EventCandidate', EventCandidateSchema);
 
 module.exports = Candidate;

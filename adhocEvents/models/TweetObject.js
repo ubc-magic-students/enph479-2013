@@ -17,6 +17,13 @@ tweetObjectSchema.index({
 	coordinates: '2dsphere'
 })
 
+tweetObjectSchema.pre('save', function(next) {
+	if(this.isNew && Array.isArray(this.coordinates) && 0 === this.coordinates.length) {
+		this.coordinates = undefined;
+	}
+	next();
+});
+
 var Tweet = mongoose.model('Tweet', tweetObjectSchema);
 
 module.exports = Tweet;

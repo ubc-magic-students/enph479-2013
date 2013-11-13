@@ -1,6 +1,4 @@
-module.exports = new Helper();
-
-function Helper(){
+module.exports = function (){
 
   //Helper functions
   var union = function(arr1, arr2) {
@@ -32,4 +30,4 @@ function Helper(){
     union : union,
     findCenter : findCenter
   }
-}
+}();
