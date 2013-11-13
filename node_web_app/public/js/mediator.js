@@ -6,6 +6,7 @@ var mediator = (function(){
     },
  
     publish = function(channel){
+        console.log('mediator called: ' + channel);
         if (!mediator.channels[channel]) return false;
         var args = Array.prototype.slice.call(arguments, 1);
         for (var i = 0, l = mediator.channels[channel].length; i < l; i++) {

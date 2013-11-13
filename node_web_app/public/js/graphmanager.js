@@ -1,4 +1,10 @@
 function GraphManager() {
+  mediator.installTo(this);
+
+  this.subscribe(EVENTS.INITIALIZE_TIMEPLAY, function(data) {
+    //this.updateRegionGraph(data, regionId);
+  });
+
   this.updateRegionGraph = function(data, regionId) {
     var sentiment = [];
     var weather = [];

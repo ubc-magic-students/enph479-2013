@@ -60,5 +60,11 @@ function MapMaker() {
           ,enableEventPropagation: true
         };
     return new InfoBox(labelOptions);
-  }
+  };
+
+  this.makeInfoWindow = function() {
+    return new google.maps.InfoWindow({
+      maxWidth: 300
+    });
+  };
 }

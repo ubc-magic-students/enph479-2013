@@ -1,6 +1,17 @@
 /*************************** Setup *********************************/
-var javaPort = 8080;
-var javaServer = require('net').createServer();
+
+var SOCKET_ROOMS = {
+  TIMEPLAY_FEED: "timeplayFeed",
+  REGION_FEED: "regionFeed",
+  TWEET_FEED: "tweetFeed"
+};
+
+var SOCKET_EVENTS = {
+  REGION_UPDATE: "regionUpdate",
+  TWEET_UPDATE: "tweetUpdate",
+  TIMEPLAY_REQUEST: "timeplayRequest",
+  TIMEPLAY_RESPONSE: "timeplayResponse"
+};
 
 // Instantiate the application
 var express = require('express')
@@ -25,22 +36,22 @@ app.configure(function () {
 
 // Create socket.io rooms
 io.sockets.on('connection', function (socket) {
-  socket.on('join hashtagcloud', function (data) {
-    socket.join('hashtagcloud');
+  socket.on('join ' + SOCKET_ROOMS.REGION_FEED, function (data) {
+    socket.join(SOCKET_ROOMS.REGION_FEED);
   });
 
-  socket.on('join dbconnect', function (data) {
+  socket.on('join ' + SOCKET_ROOMS.TWEET_FEED, function (data) {
     console.log('JOINED DBCONNECt');
-    socket.join('dbconnect');
+    socket.join(SOCKET_ROOMS.TWEET_FEED);
 
     var tweetRetriever = new TweetRetriever(connection, socket);
     tweetRetriever.initializeTweets();
 
-    // Gather new tweets from DB every 15 seconds
+    // Gather new tweets from DB every 150 seconds
     setInterval(function() {
       console.log('CHECKING FOR NEW TWEETS...');
       tweetRetriever.checkForNewTweets();
-    } ,15000);
+    } ,150000);
 
     /*var regionRetriever = new RegionRetriever(connection);
       socket.join('regionrequest');
@@ -49,12 +60,12 @@ io.sockets.on('connection', function (socket) {
       });*/
   });
 
-  socket.on('join regionrequest', function() {
-    socket.join('regionrequest');
+  socket.on('join ' + SOCKET_ROOMS.TIMEPLAY_FEED, function() {
+    socket.join(SOCKET_ROOMS.TIMEPLAY_FEED);
 
     var regionRetriever = new RegionRetriever(connection);
 
-    socket.on('time_play_request', function() {
+    socket.on(SOCKET_EVENTS.TIMEPLAY_REQUEST, function() {
       regionRetriever.getHistoryData();
     });
   });
@@ -114,7 +125,7 @@ io.sockets.on('connection', function (socket) {
     }
 
     this.sendNewTweets = function(rows) {
-      io.sockets.in('dbconnect').emit('new tweets', { data: rows });
+      io.sockets.emit(SOCKET_EVENTS.TWEET_UPDATE, { data: rows });
     }
   }
 
@@ -160,7 +171,7 @@ io.sockets.on('connection', function (socket) {
     }
 
     this.sendNewTweets = function(rows) {
-      io.sockets.in('regionrequest').emit('region history', { data: rows });
+      io.sockets.emit(SOCKET_EVENTS.TIMEPLAY_RESPONSE, { data: rows });
     }
 
   }
@@ -180,6 +191,10 @@ app.get('/', function (req, res) {
 });
 
 /********** Java Backend Import Process ************/
+
+var javaPort = 8080;
+var javaServer = require('net').createServer();
+
 javaServer.on('listening', function () {
    console.log('Server is listening on ' + javaPort);
 });
@@ -198,7 +213,7 @@ javaServer.on('listening', function () {
 
     var firstDataListenner = function (data) {
         console.log('Received namespace from java End: ' + data);
-        io.sockets.in('hashtagcloud').emit('hashtag tweet', { data: String.fromCharCode.apply(String, data) });
+        io.sockets.emit(SOCKET_EVENTS.REGION_UPDATE, { data: String.fromCharCode.apply(String, data) });
         javaSocket.removeListener('data', firstDataListenner);
     }
 

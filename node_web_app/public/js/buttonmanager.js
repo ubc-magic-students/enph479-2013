@@ -1,54 +1,79 @@
-function ButtonManager(mapManager) {
-  this.mapManager = mapManager;
+function ButtonManager(mapMaker, map) {
+  mediator.installTo(this);
+
+  this.mapMaker = mapMaker;
+  this.map = map;
+
   this.overviewButton;
   this.overviewListener;
   this.replayButton;
   this.replayListener;
   var that = this;
 
+  this.subscribe(EVENTS.INITIALIZE, function() {
+    this.initializeButtons();
+  });
+
+  this.subscribe(EVENTS.ZOOM_TO_REGION, function() {
+    this.setRegionEternityState();
+  });
+
+  this.subscribe(EVENTS.ZOOM_OUT, function() {
+    this.setOverviewEternityState();
+  });
+
+  this.subscribe(EVENTS.CALL_FOR_TIMEPLAY, function() {
+    this.setOverviewPreReplayState();
+  });
+
+  this.subscribe(EVENTS.INITIALIZE_TIMEPLAY, function() {
+    this.setOverviewReplayState();
+  });
+
+  this.subscribe(EVENTS.STOP_TIMEPLAY, function() {
+    this.setOverviewEternityState();
+  });
+
   this.initializeButtons = function() {
     var overviewDiv = document.createElement('div');
-    var homeControl = new HomeControl(overviewDiv, this.mapManager.map, this);
+    var homeControl = new HomeControl(overviewDiv, this.map, this);
     overviewDiv.index = 1;
-    this.mapManager.map.controls[google.maps.ControlPosition.LEFT_TOP].push(overviewDiv);
+    this.map.controls[google.maps.ControlPosition.LEFT_TOP].push(overviewDiv);
 
     var replayDiv = document.createElement('div');
-    var replayControl = new ReplayControl(replayDiv, this.mapManager.map, this);
+    var replayControl = new ReplayControl(replayDiv, this.map, this);
     replayDiv.index = 1;
-    this.mapManager.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(replayDiv);
+    this.map.controls[google.maps.ControlPosition.TOP_RIGHT].push(replayDiv);
 
     var divOptions = {
-            gmap: this.mapManager.map,
+            gmap: this.map,
             name: '1X',
             title: "Playback at 10 minutes per second",
             id: "1X",
             action: function(){
-              that.mapManager.appManager.playbackSpeed = 1000;
-              that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
+              mediator.publish(EVENTS.CALL_FOR_TIMEPLAY, 1);
             }
         }
         var optionDiv1 = new optionDiv(divOptions);
         
         var divOptions2 = {
-            gmap: this.mapManager.map,
+            gmap: this.map,
             name: '2X',
             title: "Playback at 20 minutes per second",
             id: "2X",
             action: function(){
-              that.mapManager.appManager.playbackSpeed = 500;
-              that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
+              mediator.publish(EVENTS.CALL_FOR_TIMEPLAY, 2);
             }
         }
         var optionDiv2 = new optionDiv(divOptions2);
 
         var divOptions3 = {
-            gmap: this.mapManager.map,
+            gmap: this.map,
             name: '6X',
             title: "Playback at 1 hour per second",
             id: "6X",
             action: function(){
-              that.mapManager.appManager.playbackSpeed = 166.67;
-              that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
+              mediator.publish(EVENTS.CALL_FOR_TIMEPLAY, 6);
             }
         }
         var optionDiv3 = new optionDiv(divOptions3);
@@ -62,35 +87,18 @@ function ButtonManager(mapManager) {
         var dropDownDiv = new dropDownOptionsDiv(ddDivOptions);               
                 
         var dropDownOptions = {
-            gmap: this.mapManager.map,
+            gmap: this.map,
             name: 'Replay',
             id: 'ddControl',
             title: 'Replay at the selected speed',
             position: google.maps.ControlPosition.RIGHT_TOP,
             dropDown: dropDownDiv 
         }
+        
         var dropDown1 = new dropDownControl(dropDownOptions);      
 
 
-    this.changeState(VANCOUVER_ETERNITY);
-  }
-
-  this.changeState = function(state, region) {
-      //console.log(state);
-      switch(state) {
-        case VANCOUVER_ETERNITY:
-          this.setOverviewEternityState();
-          break;
-        case REGION_ETERNITY:
-          this.setRegionEternityState();
-          break;
-        case VANCOUVER_PLAYBACK:
-          this.setOverviewReplayState();
-          break;
-        default:
-          console.log(state);
-          break;
-      }
+    this.setOverviewEternityState();
   }
 
   this.setOverviewEternityState = function() {
@@ -98,14 +106,6 @@ function ButtonManager(mapManager) {
     $('div#replaybutton').css('visibility', 'hidden');
     $('div#Replay').parent().css('visibility', 'visible');
     $('div#Replay').next().css('display', 'none');
-    this.addPlayEvent();
-  }
-
-  this.setOverviewReplayState = function() {
-    $('div#backbutton').css('visibility', 'hidden');
-    $('div#replaybutton').css('visibility', 'visible');
-    $('div#Replay').parent().css('visibility', 'hidden');
-    this.addStopEvent();
   }
 
   this.setRegionEternityState = function() {
@@ -115,19 +115,23 @@ function ButtonManager(mapManager) {
     this.addOverviewButtonClickEvent();
   }
 
-  this.addPlayEvent = function() {
-    var that = this;
-    google.maps.event.removeListener(this.replayListener);
-    this.replayListener = google.maps.event.addDomListener(this.replayButton, 'click', function() {
-      that.mapManager.appManager.changeState(VANCOUVER_PLAYBACK);
-    });
+  this.setOverviewPreReplayState = function() {
+    $('div#backbutton').css('visibility', 'hidden');
+    $('div#replaybutton').css('visibility', 'hidden');
+    $('div#Replay').parent().css('visibility', 'hidden');
+    this.addStopEvent();
+  }
+
+  this.setOverviewReplayState = function() {
+    $('div#replaybutton').css('visibility', 'visible');
   }
 
   this.addStopEvent = function() {
     var that = this;
     google.maps.event.removeListener(this.replayListener);
     this.replayListener = google.maps.event.addDomListener(this.replayButton, 'click', function() {
-      that.mapManager.appManager.changeState(VANCOUVER_ETERNITY);
+      //that.mapManager.appManager.changeState(STATE.VANCOUVER_ETERNITY);
+      mediator.publish(EVENTS.STOP_TIMEPLAY);
     });
   }
 
@@ -135,8 +139,9 @@ function ButtonManager(mapManager) {
     var that = this;
     google.maps.event.removeListener(this.overviewListener);
     this.overviewListener = google.maps.event.addDomListener(this.overviewButton, 'click', function() {
-      that.mapManager.infowindow.close();
-      that.mapManager.appManager.changeState(VANCOUVER_ETERNITY);
+      //that.mapManager.infowindow.close();
+      //that.mapManager.appManager.changeState(STATE.VANCOUVER_ETERNITY);
+      mediator.publish(EVENTS.ZOOM_OUT);
     });
   }
 }

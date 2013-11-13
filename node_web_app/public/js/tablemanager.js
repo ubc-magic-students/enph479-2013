@@ -1,4 +1,31 @@
 function TableManager(regions) {
+  mediator.installTo(this);
+
+  this.subscribe(EVENTS.INITIALIZE, function() {
+    this.initializeDataset();
+  });
+
+  this.subscribe(EVENTS.SAVE_REGION_UPDATE, function(data) {
+    this.saveLastUpdated(data);
+  });
+
+  this.subscribe(EVENTS.SHOW_REGION_UPDATE, function(regionId) {
+    if (regionId == -1) {
+      this.showLastUpdated();
+    } else {
+      this.showLastUpdatedRegion();
+    }
+  });
+
+  this.subscribe(EVENTS.SHOW_TIMEPLAY, function(time, tableData) {
+    this.updatePlayTable(tableData);
+  });
+
+  this.subscribe(EVENTS.STOP_TIMEPLAY, function () {
+      this.showLastUpdated();
+  });
+  
+
   this.dataset = [];
   this.rowHeader = [];
   this.columnHeader = ['Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];

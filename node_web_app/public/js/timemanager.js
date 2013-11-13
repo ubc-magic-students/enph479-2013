@@ -3,39 +3,15 @@ function TimeManager() {
   mediator.installTo(this);
   this.lastUpdated;
 
-  /*this.saveLastUpdated = function() {
-    this.lastUpdated = new Date();
-  }*/
-
-  /*this.showLastUpdated = function() {
-    if (this.lastUpdated !== undefined) {
-      $('#time-date').text('Last Updated: ' + this.lastUpdated.toLocaleTimeString() + ' ' + this.lastUpdated.toLocaleDateString());
-    } else {
+  this.subscribe(EVENTS.INITIALIZE, function () {
       $('#time-date').text('Not updated');
-    }
-  }*/
-
-  /*this.showPlayTime = function(time) {
-    $('#time-date').text('Playback Time: ' + time);
-  }*/
-
-  /*this.initializeTime = function() {
-    $('#time-date').text('Not updated');
-  }*/
-  
-  /*this.showMessage = function(message) {
-    $('#time-date').text(message);
-  }*/
-
-  this.subscribe('initialize', function () {
-    $('#time-date').text('Not updated');
   });
 
-  this.subscribe('saveUpdate', function() {
+  this.subscribe(EVENTS.SAVE_REGION_UPDATE, function() {
     this.lastUpdated = new Date();
   });
 
-  this.subscribe('showUpdate', function() {
+  this.subscribe(EVENTS.SHOW_REGION_UPDATE, function() {
     if (this.lastUpdated !== undefined) {
       $('#time-date').text('Last Updated: ' + this.lastUpdated.toLocaleTimeString() + ' ' + this.lastUpdated.toLocaleDateString());
     } else {
@@ -43,15 +19,23 @@ function TimeManager() {
     }
   });
 
-  this.subscribe('callForTimePlay', function () {
+  this.subscribe(EVENTS.CALL_FOR_TIMEPLAY, function () {
     $('#time-date').text("Going back in time, please stand by...");
   });
 
-  this.subscribe('initializeTimeplay', function () {
+  this.subscribe(EVENTS.INITIALIZE_TIMEPLAY, function () {
     $('#time-date').text("Time traveling commencing...");
   });
 
-  this.subscribe('showTimePlay', function(arg) {
-    $('#time-date').text('Playback Time: ' + arg);
+  this.subscribe(EVENTS.SHOW_TIMEPLAY, function(time, tableData) {
+    $('#time-date').text('Playback Time: ' + time);
   });
+
+  this.subscribe(EVENTS.STOP_TIMEPLAY, function() {
+    if (this.lastUpdated !== undefined) {
+      $('#time-date').text('Last Updated: ' + this.lastUpdated.toLocaleTimeString() + ' ' + this.lastUpdated.toLocaleDateString());
+    } else {
+      $('#time-date').text('Not updated');
+    }
+  })
 }

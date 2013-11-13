@@ -1,21 +1,22 @@
 // The Region object holds all the map elements and information specific to a region
-function Region(regionInfo, mapManager) {
+function Region(regionInfo, mapMaker, map) {
   var that = this;
+  this.map = map;
   this.count = '-';
   this.tweets = [];
   this.regionId = regionInfo.id;
-  this.mapManager = mapManager;
+  this.mapMaker = mapMaker;
   this.printCount = true;
   this.printTweets = false;
   this.listenedTo = true;
 
-  this.regionBoundary = mapManager.mapMaker.makeRegionBorder(
+  this.regionBoundary = this.mapMaker.makeRegionBorder(
     new google.maps.LatLng(regionInfo.bb[0].lat, regionInfo.bb[0].lng),
     new google.maps.LatLng(regionInfo.bb[1].lat, regionInfo.bb[1].lng)
   );
 
   this.regionListener = google.maps.event.addListener(this.regionBoundary, 'click', function() {
-    that.mapManager.appManager.changeState(REGION_ETERNITY, that.regionId);
+    mediator.publish(EVENTS.ZOOM_TO_REGION, that.regionId);
   });
 
   this.removeRegionListener = function() {
@@ -29,20 +30,20 @@ function Region(regionInfo, mapManager) {
   this.addRegionListener = function() {
     if (this.listenedTo === false) {
       google.maps.event.addListener(this.regionBoundary, 'click', function() {
-        that.mapManager.appManager.changeState(REGION_ETERNITY, that.regionId);
+        mediator.publish(EVENTS.ZOOM_TO_REGION, that.regionId);
       });
       this.listenedTo = true;
     }
   }
 
-  this.regionLabel = mapManager.mapMaker.makeRegionLabel(
+  this.regionLabel = this.mapMaker.makeRegionLabel(
     regionInfo.name,
     this.regionBoundary.bounds.getCenter()
   );
 
   this.showPublicRegion = function() {
-    this.regionBoundary.setMap(mapManager.map);
-    this.regionLabel.setMap(mapManager.map);
+    this.regionBoundary.setMap(this.map);
+    this.regionLabel.setMap(this.map);
     this.tweets.forEach(function(element, index) {
       element.hide();
     }, this);
@@ -51,8 +52,8 @@ function Region(regionInfo, mapManager) {
   }
 
   this.showPrivateRegion = function() {
-    this.regionBoundary.setMap(mapManager.map);
-    this.regionLabel.setMap(mapManager.map);
+    this.regionBoundary.setMap(this.map);
+    this.regionLabel.setMap(this.map);
     this.showTweets();
     this.printCount = true;
     this.printTweets = true;
@@ -68,10 +69,10 @@ function Region(regionInfo, mapManager) {
     this.printTweets = false;
   }
 
-  this.createTweets = function(data) {
+  this.createTweets = function(data, infoWindow) {
     var tweet;
     data.forEach(function(element, index) {
-      tweet = new Tweet(this, new google.maps.LatLng(element.lat, element.lng), element);
+      tweet = new Tweet(new google.maps.LatLng(element.lat, element.lng), element, this.mapMaker, this.map, infoWindow, false);
       this.tweets.push(tweet);
       //console.log('count ' + this.tweets.length);
     }, this);
