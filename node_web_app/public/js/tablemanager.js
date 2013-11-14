@@ -33,7 +33,7 @@ function TableManager(regions) {
 
   var dataset = [];
   var rowHeader = [];
-  var columnHeader = ['Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];
+  var columnHeader = [' ', 'Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];
   var lastUpdated = [];
 
   var initializeRowHeader = function() {
@@ -48,7 +48,7 @@ function TableManager(regions) {
     //this.lastUpdated.push(this.columnHeader);
 
     rowHeader.forEach(function(element) {
-      lastUpdated.push([element, '-', '-', '-']);
+      lastUpdated.push([element, '-', '-', '-', '-']);
     });
     showLastUpdated();
   }
@@ -145,6 +145,14 @@ function TableManager(regions) {
         .text(function(d){
           return (isNaN(d) ? d : (isInt(d) ? d : d.toFixed(3)));
         });
+    $("td.c_name").prepend("<input type='checkbox'>");
+    $("input[type='checkbox']").change(function() {
+      var checkArray = [];
+      $.map($("input[type='checkbox']"), function(val, i) {
+        checkArray.push($(val).is(':checked'));
+      });
+      mediator.publish(EVENTS.CHANGE_GRAPH_VIEW, checkArray);
+    });
   }
 
   function isInt(num) {

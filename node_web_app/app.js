@@ -46,16 +46,17 @@ io.sockets.on('connection', function (socket) {
 
   // Get all tweets in DB when app starts
   DBRetriever.initializeTweets(function(err, result) {
+    console.log(result);
     io.sockets.emit(SOCKET_EVENTS.TWEET_UPDATE, { data: result });
   });
 
 
-  // Get new tweets from DB every 15 seconds
+  // Get new tweets from DB every 150 seconds
   setInterval(function() {
     DBRetriever.checkForNewTweets(function(err, result) {
       io.sockets.emit(SOCKET_EVENTS.TWEET_UPDATE, { data: result });
     });
-  } ,15000);
+  } ,150000);
 
   // Get timeplay data when user requests it
   socket.on(SOCKET_EVENTS.TIMEPLAY_REQUEST, function() {

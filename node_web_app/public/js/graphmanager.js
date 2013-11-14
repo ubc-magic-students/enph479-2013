@@ -1,11 +1,41 @@
 function GraphManager() {
   mediator.installTo(this);
+  var timeplayData;
 
   this.subscribe(EVENTS.INITIALIZE_TIMEPLAY, function(data) {
-    //this.updateRegionGraph(data, regionId);
+    updateRegionGraph(data[0], 1);
   });
 
-  this.updateRegionGraph = function(data, regionId) {
+  this.subscribe(EVENTS.CHANGE_GRAPH_VIEW, function(checkArray) {
+    var data = [];
+    var length;
+    if (timeplayData) {
+      checkArray.forEach(function(element, index) {
+        if (element) {
+          data[index] = { sentiment: [], weather: [] };
+        }
+      });
+
+      timeplayData.forEach(function(element, index) {
+        if (checkArray[element.region]) {
+          data[element.region].sentiment.push(element.sentiment);
+          data[element.region].weather.push(element.weather);
+        }
+      });
+    }
+    if (data.length != 0) {
+      data.forEach(function(element, index) {
+        if (element) {
+          length = element.sentiment.length;
+        }
+      });
+      doubleLineGraph(data, length);
+    }
+  });
+
+  //this.subscribe(EVENTS.);
+
+  var updateRegionGraph = function(data, regionId) {
     var sentiment = [];
     var weather = [];
     console.log(data);
@@ -15,26 +45,31 @@ function GraphManager() {
         sentiment.push(element.sentiment);
         weather.push(element.weather);
       }
-    }, this);
+    });
+
+    timeplayData = data;
     
-    doubleLineGraph(sentiment, weather);
+    doubleLineGraph([{ sentiment: sentiment, weather: weather }], sentiment.length);
   }
 }
 
-function doubleLineGraph(sentiment, weather) {
+function doubleLineGraph(data, length) {
+    $('div#graph').empty();
 // define dimensions of graph
     var m = [80, 80, 80, 80]; // margins
     var w = 800;  // width
     var h = 300; // height
+
+
     
     // create a simple data array that we'll plot with a line (this array represents only the Y values, X will just be the index location)
     //var data1 = [3, 6, 2, 7, 5, 2, 0, 3, 8, 9, 2, 5, 9, 3, 6, 3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 9, 2, 7];
-    data1 = sentiment;
-    data2 = weather;
+    /*data1 = sentiment;
+    data2 = weather;*/
     //var data2 = [543, 367, 215, 56, 65, 62, 87, 156, 287, 398, 523, 685, 652, 674, 639, 619, 589, 558, 605, 574, 564, 496, 525, 476, 432, 458, 421, 387, 375, 368];
 
     // X scale will fit all values from data[] within pixels 0-w
-    var x = d3.scale.linear().domain([0, data1.length]).range([0, w]);
+    var x = d3.scale.linear().domain([0, length]).range([0, w]);
     // Y scale will fit values from 0-10 within pixels h-0 (Note the inverted domain for the y-scale: bigger is up!)
     var y1 = d3.scale.linear().domain([0, 4]).range([h, 0]); // in real world the domain would be dynamically calculated from the data
     var y2 = d3.scale.linear().domain([0, 10]).range([h, 0]);  // in real world the domain would be dynamically calculated from the data
@@ -46,30 +81,22 @@ function doubleLineGraph(sentiment, weather) {
       // assign the X function to plot our line as we wish
       .x(function(d,i) { 
         // verbose logging to show what's actually being done
-        console.log('Plotting X1 value for data point: ' + d + ' using index: ' + i + ' to be at: ' + x(i) + ' using our xScale.');
+        //console.log('Plotting X1 value for data point: ' + d + ' using index: ' + i + ' to be at: ' + x(i) + ' using our xScale.');
         // return the X coordinate where we want to plot this datapoint
         return x(i); 
       })
       .y(function(d) { 
         // verbose logging to show what's actually being done
-        console.log('Plotting Y1 value for data point: ' + d + ' to be at: ' + y1(d) + " using our y1Scale.");
+        //console.log('Plotting Y1 value for data point: ' + d + ' to be at: ' + y1(d) + " using our y1Scale.");
         // return the Y coordinate where we want to plot this datapoint
         return y1(d); 
       })
       
-    // create a line function that can convert data[] into x and y points
     var line2 = d3.svg.line()
-      // assign the X function to plot our line as we wish
       .x(function(d,i) { 
-        // verbose logging to show what's actually being done
-        console.log('Plotting X2 value for data point: ' + d + ' using index: ' + i + ' to be at: ' + x(i) + ' using our xScale.');
-        // return the X coordinate where we want to plot this datapoint
         return x(i); 
       })
       .y(function(d) { 
-        // verbose logging to show what's actually being done
-        console.log('Plotting Y2 value for data point: ' + d + ' to be at: ' + y2(d) + " using our y2Scale.");
-        // return the Y coordinate where we want to plot this datapoint
         return y2(d); 
       })
 
@@ -106,9 +133,16 @@ function doubleLineGraph(sentiment, weather) {
               .attr("transform", "translate(" + (w+15) + ",0)")
               .call(yAxisRight);
       
+
+      data.forEach(function(element) {
+        if (element) {
+          graph.append("svg:path").attr("d", line1(element.sentiment)).attr("class", "data1");
+          graph.append("svg:path").attr("d", line2(element.weather)).attr("class", "data2");
+        }
+      });
       // add lines
       // do this AFTER the axes above so that the line is above the tick-lines
-        graph.append("svg:path").attr("d", line1(data1)).attr("class", "data1");
-        graph.append("svg:path").attr("d", line2(data2)).attr("class", "data2");
+        /*graph.append("svg:path").attr("d", line1(data1)).attr("class", "data1");
+        graph.append("svg:path").attr("d", line2(data2)).attr("class", "data2");*/
 }
    

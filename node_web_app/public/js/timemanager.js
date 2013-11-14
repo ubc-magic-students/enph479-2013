@@ -1,7 +1,6 @@
 // The TimeManager object manages the time-date display / message box
 function TimeManager() {
 
-  // Add event handlers to the Time Manager
   mediator.installTo(this);
   this.registerCallbacks([{ 
       channel:  EVENTS.INITIALIZE,

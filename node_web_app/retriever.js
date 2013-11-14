@@ -41,7 +41,7 @@ module.exports = function(mysql) {
   var initializeTweets = function(callback) {
     findData({ database: 'tweet_data', callback: function(err, rows) {
       tweets = rows;
-      callback(rows);
+      callback(err, rows);
     }});
   }
 
