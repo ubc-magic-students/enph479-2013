@@ -38,12 +38,12 @@ function TableManager(regions) {
 
   var initializeRowHeader = function() {
     regions.forEach(function(element) {
-      var rowHeader.push(element.name);
+      rowHeader.push(element.name);
     });
-  }
+  };
 
   var initializeDataset = function() {
-    var initializeRowHeader();
+    initializeRowHeader();
 
     //this.lastUpdated.push(this.columnHeader);
 
@@ -64,7 +64,7 @@ function TableManager(regions) {
 
   var showLastUpdated = function() {
     console.log('last updated table data rendered');
-    renderTable(this.lastUpdated, this.columnHeader);
+    renderTable(lastUpdated, columnHeader);
   }
 
   var showLastUpdatedRegion = function(regionId) {
@@ -97,14 +97,14 @@ function TableManager(regions) {
               .append("table")
               .append("tbody");
 
-        for(var i = 1; i < this.columnHeader.length; i++) {
+        for(var i = 1; i < columnHeader.length; i++) {
           var num = regionData[i];
           if (i !== 3) {
             num = isNaN(num) ? num : (isInt(num) ? num : num.toFixed(3));
           } 
           tbody.append("tr")
             .selectAll("td")
-            .data([this.columnHeader[i], num])
+            .data([columnHeader[i], num])
             .enter().append("td")
             .attr("class", function(d, i) {
               return i % 2 ? "c_even": "c_odd";

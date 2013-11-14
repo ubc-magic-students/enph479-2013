@@ -19,7 +19,7 @@ function MapManager(regions, mapMaker, map) {
               }
   }, {
     channel:  EVENTS.CALL_FOR_TIMEPLAY,
-    fn:       function() {
+    fn:       function(speed) {
                 goToDisabledCity();
                 playbackSpeed = 1000/speed;
               }
@@ -106,20 +106,20 @@ function MapManager(regions, mapMaker, map) {
     if (data !== null) {
       var regionTweets = [];
       regions.forEach(function(element) {
-          regionTweets.push([]);
-      }, this);
+        regionTweets.push([]);
+      });
 
       var numRegions = regionTweets.length;
       data.forEach(function(element, index){
         if (element.region >= 0 && element.region < numRegions) {
           regionTweets[element.region].push(element);
         }
-      }, this);
+      });
       
       // add tweets to each region
       regionTweets.forEach(function(element, index){
         regionObjects[index].createTweets(element, infoWindow);
-      }, this);
+      });
     }
   }
 
@@ -152,7 +152,7 @@ function MapManager(regions, mapMaker, map) {
             return true;
           }
         }, this);
-        that.addplaybackTweets(playTweet);
+        addplaybackTweets(playTweet);
       } else {
         mediator.publish(EVENTS.STOP_TIMEPLAY);
       }
@@ -163,7 +163,7 @@ function MapManager(regions, mapMaker, map) {
     tweets.forEach(function(element, index) {
       var vTweet = new Tweet(new google.maps.LatLng(element.lat, element.lng), element, mapMaker, map, infoWindow, true);
       vTweet.show();
-      this.playbackTweets.push(vTweet);
+      playbackTweets.push(vTweet);
     }, this);
   };
 }

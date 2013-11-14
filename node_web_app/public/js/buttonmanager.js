@@ -6,12 +6,12 @@ function ButtonManager(mapMaker, map) {
                   initializeButtons();
                 }
     }, {
-      channel:  EVENTS.ZOOM_TO_REGION
+      channel:  EVENTS.ZOOM_TO_REGION,
       fn:       function() {
                   setRegionEternityState();
                 }
     }, {
-      channel:  EVENTS.ZOOM_OUT
+      channel:  EVENTS.ZOOM_OUT,
       fn:       function() {
                   setOverviewEternityState();
                 }

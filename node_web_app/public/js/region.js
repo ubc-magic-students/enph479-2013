@@ -7,12 +7,12 @@ function Region(regionInfo, mapMaker, map) {
   var printTweets = false;
   var listenedTo = true;
 
-  var regionBoundary = mapMaker.makeRegionBorder(
+  this.regionBoundary = mapMaker.makeRegionBorder(
     new google.maps.LatLng(regionInfo.bb[0].lat, regionInfo.bb[0].lng),
     new google.maps.LatLng(regionInfo.bb[1].lat, regionInfo.bb[1].lng)
   );
 
-  var regionListener = google.maps.event.addListener(regionBoundary, 'click', function() {
+  var regionListener = google.maps.event.addListener(this.regionBoundary, 'click', function() {
     mediator.publish(EVENTS.ZOOM_TO_REGION, regionInfo.id);
   });
 
@@ -25,7 +25,7 @@ function Region(regionInfo, mapMaker, map) {
 
   this.addRegionListener = function() {
     if (listenedTo === false) {
-      google.maps.event.addListener(regionBoundary, 'click', function() {
+      google.maps.event.addListener(this.regionBoundary, 'click', function() {
         mediator.publish(EVENTS.ZOOM_TO_REGION, regionInfo.id);
       });
       listenedTo = true;
@@ -34,11 +34,11 @@ function Region(regionInfo, mapMaker, map) {
 
   var regionLabel = mapMaker.makeRegionLabel(
     regionInfo.name,
-    regionBoundary.bounds.getCenter()
+    this.regionBoundary.bounds.getCenter()
   );
 
   this.showPublicRegion = function() {
-    regionBoundary.setMap(map);
+    this.regionBoundary.setMap(map);
     regionLabel.setMap(map);
     tweets.forEach(function(element, index) {
       element.hide();
@@ -48,7 +48,7 @@ function Region(regionInfo, mapMaker, map) {
   }
 
   this.showPrivateRegion = function() {
-    regionBoundary.setMap(map);
+    this.regionBoundary.setMap(map);
     regionLabel.setMap(map);
     this.showTweets();
     printCount = true;
@@ -56,7 +56,7 @@ function Region(regionInfo, mapMaker, map) {
   }
 
   this.hideRegion = function() {
-    regionBoundary.setMap(null);
+    this.regionBoundary.setMap(null);
     regionLabel.setMap(null);
     tweets.forEach(function(element, index) {
       element.hide();

@@ -12,7 +12,7 @@ var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server)
-  , mysql = require('mysql');
+  , mysql = require('mysql')
   , DBRetriever = require('./retriever')(mysql);
 server.listen(8090);
 
@@ -45,16 +45,23 @@ app.get('/', function (req, res) {
 io.sockets.on('connection', function (socket) {
 
   // Get all tweets in DB when app starts
-  io.sockets.emit(SOCKET_EVENTS.TWEET_UPDATE, { data: DBRetriever.initializeTweets(); })
+  DBRetriever.initializeTweets(function(err, result) {
+    io.sockets.emit(SOCKET_EVENTS.TWEET_UPDATE, { data: result });
+  });
 
-  // Get new tweets from DB every 150 seconds
+
+  // Get new tweets from DB every 15 seconds
   setInterval(function() {
-    DBRetriever.checkForNewTweets();
-  } ,150000);
+    DBRetriever.checkForNewTweets(function(err, result) {
+      io.sockets.emit(SOCKET_EVENTS.TWEET_UPDATE, { data: result });
+    });
+  } ,15000);
 
   // Get timeplay data when user requests it
   socket.on(SOCKET_EVENTS.TIMEPLAY_REQUEST, function() {
-    DBRetriever.getTimeplayData();
+    DBRetriever.getTimeplayData(function(err, result) {
+      io.sockets.emit(SOCKET_EVENTS.TIMEPLAY_RESPONSE, { data: result });
+    });
   });
 });
 

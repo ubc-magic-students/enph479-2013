@@ -1,6 +1,6 @@
 // The Tweet object holds all the tweet information
 function Tweet(pos, tweetObject, mapMaker, map, infoWindow, expiring) {
-
+  var that = this;
   var marker = mapMaker.makeTweetMarker(pos);
   var message = tweetObject.message;
   var timestamp = new Date(tweetObject.timestamp);
@@ -15,9 +15,9 @@ function Tweet(pos, tweetObject, mapMaker, map, infoWindow, expiring) {
               + '</div>';
 
   var listener = google.maps.event.addListener(marker, 'click', function() {
-      infowindow.close();
-      infowindow.setContent(infoContent);
-      infowindow.open(map, marker)
+      infoWindow.close();
+      infoWindow.setContent(infoContent);
+      infoWindow.open(map, marker)
   });
   this.show = function() {
     marker.setMap(map);
