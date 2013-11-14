@@ -39,19 +39,25 @@ stream.on('tweet', function (tweet) {
           method: 'GET',
           uri: 'http://api.openweathermap.org/data/2.5/weather?lat='+tweet.coordinates.coordinates[1]+'&lon='+tweet.coordinates.coordinates[0]
         }, function(error, response, body) {
-          console.log("Weather: " + body);
-          temperature = JSON.parse(body).main.temp;
-          console.log("Temperature: " + temperature);
-          if (JSON.parse(body).main.rain){
-            if (JSON.parse(body).main.rain["1h"]) {
-              precipitation = JSON.parse(body).main.rain["1h"];
-            } else if (JSON.parse(body).main.rain["3h"]) {
-              precipitation = JSON.parse(body).main.rain["3h"];
-            }
+          if (body == 'failed to connect') {
+            temperature = -1;
+            precipitation = -1;
           } else {
-            precipitation = 0;
+            console.log("Weather: " + body);
+            temperature = JSON.parse(body).main.temp;
+            console.log("Temperature: " + temperature);
+            if (JSON.parse(body).main.rain){
+              if (JSON.parse(body).main.rain["1h"]) {
+                precipitation = JSON.parse(body).main.rain["1h"];
+              } else if (JSON.parse(body).main.rain["3h"]) {
+                precipitation = JSON.parse(body).main.rain["3h"];
+              }
+            } else {
+              precipitation = 0;
+            }
+            console.log("Precipitation: " + precipitation);
           }
-          console.log("Precipitation: " + precipitation);
+          
           
           request({
             method: 'POST',
