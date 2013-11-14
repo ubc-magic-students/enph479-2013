@@ -35,6 +35,7 @@ function TableManager(regions) {
   var rowHeader = [];
   var columnHeader = [' ', 'Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];
   var lastUpdated = [];
+  var checkArray = [];
 
   var initializeRowHeader = function() {
     regions.forEach(function(element) {
@@ -111,6 +112,19 @@ function TableManager(regions) {
             })
             .text(function(c) {return c;});
         }
+    $("td.c_name").prepend("<input type='checkbox'>");
+    $.map($("input[type='checkbox']"), function(val, i) {
+      if (checkArray[i]) {
+        $(val).prop('checked', true);
+      }
+    });
+    $("input[type='checkbox']").change(function() {
+      checkArray = [];
+      $.map($("input[type='checkbox']"), function(val, i) {
+        checkArray.push($(val).is(':checked'));
+      });
+      mediator.publish(EVENTS.CHANGE_GRAPH_VIEW, checkArray);
+    });
 
   }
 
@@ -146,8 +160,13 @@ function TableManager(regions) {
           return (isNaN(d) ? d : (isInt(d) ? d : d.toFixed(3)));
         });
     $("td.c_name").prepend("<input type='checkbox'>");
+    $.map($("input[type='checkbox']"), function(val, i) {
+      if (checkArray[i]) {
+        $(val).prop('checked', true);
+      }
+    });
     $("input[type='checkbox']").change(function() {
-      var checkArray = [];
+      checkArray = [];
       $.map($("input[type='checkbox']"), function(val, i) {
         checkArray.push($(val).is(':checked'));
       });
