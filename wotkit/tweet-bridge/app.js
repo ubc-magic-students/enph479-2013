@@ -39,7 +39,7 @@ stream.on('tweet', function (tweet) {
           method: 'GET',
           uri: 'http://api.openweathermap.org/data/2.5/weather?lat='+tweet.coordinates.coordinates[1]+'&lon='+tweet.coordinates.coordinates[0]
         }, function(error, response, body) {
-          //console.log("Weather: " + body);
+          console.log("Weather: " + body);
           temperature = JSON.parse(body).main.temp;
           console.log("Temperature: " + temperature);
           if (JSON.parse(body).main.rain){
