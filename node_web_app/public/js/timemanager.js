@@ -38,9 +38,7 @@ function TimeManager() {
       fn:       function() {
                   showLastUpdated();  
                 }
-      }
-    }
-  ]);
+  }]);
 
   var lastUpdated;  // stores the time of the last region data update
 

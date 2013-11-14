@@ -1,84 +1,89 @@
 function TableManager(regions) {
   mediator.installTo(this);
+  this.registerCallbacks([{ 
+      channel:  EVENTS.INITIALIZE,
+      fn:       function () {
+                  initializeDataset();
+                }
+    }, {
+      channel:  EVENTS.REGION_UPDATE,
+      fn:       function(data) {
+                  saveLastUpdated(data);
+                }
+    }, {
+      channel:  EVENTS.SHOW_REGION_UPDATE,
+      fn:       function(regionId) {
+                  if (regionId == -1) {
+                    showLastUpdated();
+                  } else {
+                    showLastUpdatedRegion();
+                  }
+                }
+    }, {
+      channel:  EVENTS.SHOW_TIMEPLAY,
+      fn:       function(time, tableData) {
+                  updatePlayTable(tableData);
+                }
+    }, {
+      channel:  EVENTS.STOP_TIMEPLAY,
+      fn:       function() {
+                  showLastUpdated();  
+                }
+  }]);
 
-  this.subscribe(EVENTS.INITIALIZE, function() {
-    this.initializeDataset();
-  });
+  var dataset = [];
+  var rowHeader = [];
+  var columnHeader = ['Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];
+  var lastUpdated = [];
 
-  this.subscribe(EVENTS.REGION_UPDATE, function(data) {
-    this.saveLastUpdated(data);
-  });
-
-  this.subscribe(EVENTS.SHOW_REGION_UPDATE, function(regionId) {
-    if (regionId == -1) {
-      this.showLastUpdated();
-    } else {
-      this.showLastUpdatedRegion();
-    }
-  });
-
-  this.subscribe(EVENTS.SHOW_TIMEPLAY, function(time, tableData) {
-    this.updatePlayTable(tableData);
-  });
-
-  this.subscribe(EVENTS.STOP_TIMEPLAY, function () {
-      this.showLastUpdated();
-  });
-  
-
-  this.dataset = [];
-  this.rowHeader = [];
-  this.columnHeader = ['Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];
-  this.lastUpdated = [];
-
-  this.initializeRowHeader = function() {
+  var initializeRowHeader = function() {
     regions.forEach(function(element) {
-      this.rowHeader.push(element.name);
-    }, this);
+      var rowHeader.push(element.name);
+    });
   }
 
-  this.initializeDataset = function() {
-    this.initializeRowHeader();
+  var initializeDataset = function() {
+    var initializeRowHeader();
 
     //this.lastUpdated.push(this.columnHeader);
 
-    this.rowHeader.forEach(function(element) {
-      this.lastUpdated.push([element, '-', '-', '-']);
-    }, this);
-    this.showLastUpdated();
+    rowHeader.forEach(function(element) {
+      lastUpdated.push([element, '-', '-', '-']);
+    });
+    showLastUpdated();
   }
 
-  this.saveLastUpdated = function(data) {
-    this.lastUpdated = [];
+  var saveLastUpdated = function(data) {
+    lastUpdated = [];
     //this.lastUpdated.push(this.columnHeader);
   
-    this.rowHeader.forEach(function(element, index) {
-      this.lastUpdated.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
-    }, this);
+    rowHeader.forEach(function(element, index) {
+      lastUpdated.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
+    });
   }
 
-  this.showLastUpdated = function() {
+  var showLastUpdated = function() {
     console.log('last updated table data rendered');
-    this.renderTable(this.lastUpdated, this.columnHeader);
+    renderTable(this.lastUpdated, this.columnHeader);
   }
 
-  this.showLastUpdatedRegion = function(regionId) {
+  var showLastUpdatedRegion = function(regionId) {
     console.log('last updated table data for region rendered: ' + 'regionId ' + regionId);
-    this.renderTableForRegion(regionId);
+    renderTableForRegion(regionId);
   }
 
-  this.updatePlayTable = function(data) {
-    this.dataset = [];
+  var updatePlayTable = function(data) {
+    dataset = [];
     //this.dataset.push(['Neighbourhood', 'Sentiment', 'Weather']);
   
-    this.rowHeader.forEach(function(element, index) {
-      this.dataset.push([element, data[index].sentiment, data[index].weather]);
-    }, this);
-    this.renderTable(this.dataset, ['Neighbourhood', 'Sentiment', 'Weather']);
+    rowHeader.forEach(function(element, index) {
+      dataset.push([element, data[index].sentiment, data[index].weather]);
+    });
+    renderTable(dataset, ['Neighbourhood', 'Sentiment', 'Weather']);
   }
 
-  this.renderTableForRegion = function(regionId) {
-    var regionData = this.lastUpdated[regionId];
+  var renderTableForRegion = function(regionId) {
+    var regionData = lastUpdated[regionId];
     console.log("Render Table for Region: " + regionData[0]);
     $("#table").empty();
     d3.select("#table")
@@ -109,7 +114,7 @@ function TableManager(regions) {
 
   }
 
-  this.renderTable = function(dataset, columnHeader) {
+  renderTable = function(dataset, columnHeader) {
     $("#table").empty();
     var table = d3.select("#table")
               .append("table"),

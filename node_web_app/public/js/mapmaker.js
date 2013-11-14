@@ -94,5 +94,48 @@ function MapMaker() {
     controlUI.appendChild(controlText);
 
     return controlUI;
+  };
+
+  this.makeOptionDiv = function(options) {
+    var control = document.createElement('DIV');
+    control.className = "dropDownItemDiv";
+    control.title = options.title;
+    control.id = options.id;
+    control.innerHTML = options.name;
+    google.maps.event.addDomListener(control,'click',options.action);
+    return control;
+  }
+
+  this.makeDropDownOptionsDiv = function(options) {
+    var container = document.createElement('DIV');
+    container.className = "dropDownOptionsDiv";
+    container.id = options.id;
+      
+    for(i=0; i<options.items.length; i++){
+      container.appendChild(options.items[i]);
+    }
+    return container;   
+  }
+
+  this.makeDropDownControl = function(options) {
+    var container = document.createElement('DIV');
+    container.className = 'container';
+    
+    var control = document.createElement('DIV');
+    control.className = 'dropDownControl';
+    control.innerHTML = options.name;
+    control.id = options.name;
+    var arrow = document.createElement('IMG');
+    arrow.src = "http://maps.gstatic.com/mapfiles/arrow-down.png";
+    arrow.className = 'dropDownArrow';
+    control.appendChild(arrow);           
+    container.appendChild(control);    
+    container.appendChild(options.dropDown);
+        
+    options.gmap.controls[options.position].push(container);
+    google.maps.event.addDomListener(container,'click',function(event){
+      event.stopPropagation();
+      (document.getElementById('myddOptsDiv').style.display == 'block') ? document.getElementById('myddOptsDiv').style.display = 'none' : document.getElementById('myddOptsDiv').style.display = 'block';
+    });
   }
 }
