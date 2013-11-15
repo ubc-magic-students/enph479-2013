@@ -1,57 +1,90 @@
 function TableManager(regions) {
-  this.dataset = [];
-  this.rowHeader = [];
-  this.columnHeader = ['Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];
-  this.lastUpdated = [];
+  mediator.installTo(this);
+  this.registerCallbacks([{ 
+      channel:  EVENTS.INITIALIZE,
+      fn:       function () {
+                  initializeDataset();
+                }
+    }, {
+      channel:  EVENTS.REGION_UPDATE,
+      fn:       function(data) {
+                  saveLastUpdated(data);
+                }
+    }, {
+      channel:  EVENTS.SHOW_REGION_UPDATE,
+      fn:       function(regionId) {
+                  if (regionId == -1) {
+                    showLastUpdated();
+                  } else {
+                    showLastUpdatedRegion();
+                  }
+                }
+    }, {
+      channel:  EVENTS.SHOW_TIMEPLAY,
+      fn:       function(time, tableData) {
+                  updatePlayTable(tableData);
+                }
+    }, {
+      channel:  EVENTS.STOP_TIMEPLAY,
+      fn:       function() {
+                  showLastUpdated();  
+                }
+  }]);
 
-  this.initializeRowHeader = function() {
+  var dataset = [];
+  var rowHeader = [];
+  var columnHeader = [' ', 'Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];
+  var lastUpdated = [];
+  var checkArray = [];
+
+  var initializeRowHeader = function() {
     regions.forEach(function(element) {
-      this.rowHeader.push(element.name);
-    }, this);
-  }
+      rowHeader.push(element.name);
+    });
+  };
 
-  this.initializeDataset = function() {
-    this.initializeRowHeader();
+  var initializeDataset = function() {
+    initializeRowHeader();
 
     //this.lastUpdated.push(this.columnHeader);
 
-    this.rowHeader.forEach(function(element) {
-      this.lastUpdated.push([element, '-', '-', '-']);
-    }, this);
-    this.showLastUpdated();
+    rowHeader.forEach(function(element) {
+      lastUpdated.push([element, '-', '-', '-', '-']);
+    });
+    showLastUpdated();
   }
 
-  this.saveLastUpdated = function(data) {
-    this.lastUpdated = [];
+  var saveLastUpdated = function(data) {
+    lastUpdated = [];
     //this.lastUpdated.push(this.columnHeader);
   
-    this.rowHeader.forEach(function(element, index) {
-      this.lastUpdated.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
-    }, this);
+    rowHeader.forEach(function(element, index) {
+      lastUpdated.push([element, data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
+    });
   }
 
-  this.showLastUpdated = function() {
+  var showLastUpdated = function() {
     console.log('last updated table data rendered');
-    this.renderTable(this.lastUpdated, this.columnHeader);
+    renderTable(lastUpdated, columnHeader);
   }
 
-  this.showLastUpdatedRegion = function(regionId) {
+  var showLastUpdatedRegion = function(regionId) {
     console.log('last updated table data for region rendered: ' + 'regionId ' + regionId);
-    this.renderTableForRegion(regionId);
+    renderTableForRegion(regionId);
   }
 
-  this.updatePlayTable = function(data) {
-    this.dataset = [];
+  var updatePlayTable = function(data) {
+    dataset = [];
     //this.dataset.push(['Neighbourhood', 'Sentiment', 'Weather']);
   
-    this.rowHeader.forEach(function(element, index) {
-      this.dataset.push([element, data[index].sentiment, data[index].weather]);
-    }, this);
-    this.renderTable(this.dataset, ['Neighbourhood', 'Sentiment', 'Weather']);
+    rowHeader.forEach(function(element, index) {
+      dataset.push([element, data[index].sentiment, data[index].weather]);
+    });
+    renderTable(dataset, ['Neighbourhood', 'Sentiment', 'Weather']);
   }
 
-  this.renderTableForRegion = function(regionId) {
-    var regionData = this.lastUpdated[regionId];
+  var renderTableForRegion = function(regionId) {
+    var regionData = lastUpdated[regionId];
     console.log("Render Table for Region: " + regionData[0]);
     $("#table").empty();
     d3.select("#table")
@@ -65,24 +98,37 @@ function TableManager(regions) {
               .append("table")
               .append("tbody");
 
-        for(var i = 1; i < this.columnHeader.length; i++) {
+        for(var i = 1; i < columnHeader.length; i++) {
           var num = regionData[i];
           if (i !== 3) {
             num = isNaN(num) ? num : (isInt(num) ? num : num.toFixed(3));
           } 
           tbody.append("tr")
             .selectAll("td")
-            .data([this.columnHeader[i], num])
+            .data([columnHeader[i], num])
             .enter().append("td")
             .attr("class", function(d, i) {
               return i % 2 ? "c_even": "c_odd";
             })
             .text(function(c) {return c;});
         }
+    $("td.c_name").prepend("<input type='checkbox'>");
+    $.map($("input[type='checkbox']"), function(val, i) {
+      if (checkArray[i]) {
+        $(val).prop('checked', true);
+      }
+    });
+    $("input[type='checkbox']").change(function() {
+      checkArray = [];
+      $.map($("input[type='checkbox']"), function(val, i) {
+        checkArray.push($(val).is(':checked'));
+      });
+      mediator.publish(EVENTS.CHANGE_GRAPH_VIEW, checkArray);
+    });
 
   }
 
-  this.renderTable = function(dataset, columnHeader) {
+  renderTable = function(dataset, columnHeader) {
     $("#table").empty();
     var table = d3.select("#table")
               .append("table"),
@@ -113,6 +159,19 @@ function TableManager(regions) {
         .text(function(d){
           return (isNaN(d) ? d : (isInt(d) ? d : d.toFixed(3)));
         });
+    $("td.c_name").prepend("<input type='checkbox'>");
+    $.map($("input[type='checkbox']"), function(val, i) {
+      if (checkArray[i]) {
+        $(val).prop('checked', true);
+      }
+    });
+    $("input[type='checkbox']").change(function() {
+      checkArray = [];
+      $.map($("input[type='checkbox']"), function(val, i) {
+        checkArray.push($(val).is(':checked'));
+      });
+      mediator.publish(EVENTS.CHANGE_GRAPH_VIEW, checkArray);
+    });
   }
 
   function isInt(num) {

@@ -1,62 +1,33 @@
 // The Tweet object holds all the tweet information
-function Tweet(region, pos, tweetObject) {
-  this.marker = region.mapManager.mapMaker.makeTweetMarker(pos);
-  this.message = tweetObject.message;
-  this.timestamp = new Date(tweetObject.timestamp);
-  this.sentiment = tweetObject.sentimentPolarity;
-  this.weather = tweetObject.weatherScore;
-  this.infoContent = '<div class="bubble-info">' 
+function Tweet(pos, tweetObject, mapMaker, map, infoWindow, expiring) {
+  var that = this;
+  var marker = mapMaker.makeTweetMarker(pos);
+  var message = tweetObject.message;
+  var timestamp = new Date(tweetObject.timestamp);
+  var sentiment = tweetObject.sentimentPolarity;
+  var weather = tweetObject.weatherScore;
+  var infoContent = '<div class="bubble-info">' 
               + '<dl>'
-              + '<dt>' + this.timestamp + '</dt>'
-              + '<dd>' + this.message + '</dd>' + '</br>'
-              + '<dt>Sentiment Score: ' + this.sentiment + ' | Weather Score: ' + this.weather.toFixed(3) + '</dt>'
+              + '<dt>' + timestamp + '</dt>'
+              + '<dd>' + message + '</dd>' + '</br>'
+              + '<dt>Sentiment Score: ' + sentiment + ' | Weather Score: ' + weather.toFixed(3) + '</dt>'
               + '</dl>'
               + '</div>';
-  this.infowindow = region.mapManager.infowindow;
-  var that = this;
-  this.listener = google.maps.event.addListener(this.marker, 'click', function() {
-      that.infowindow.close();
-      that.infowindow.setContent(that.infoContent);
-      that.infowindow.open(region.mapManager.map, that.marker)
-      //region.mapManager.appManager.tweetManager.showTweet(that.message);
-  }, this);
-  this.show = function() {
-    this.marker.setMap(region.mapManager.map);
-  }
-  this.hide = function() {
-    this.marker.setMap(null);
-  }
-}
 
-// The VancouverTweet object holds all the tweet information
-function VancouverTweet(appManager, pos, tweetObject) {
-  this.marker = appManager.mapManager.mapMaker.makeTweetMarker(pos);
-  this.message = tweetObject.message;
-  this.timestamp = new Date(tweetObject.timestamp);
-  this.sentiment = tweetObject.sentimentPolarity;
-  this.weather = tweetObject.weatherScore;
-  this.infoContent = '<div class="bubble-info">' 
-              + '<dl>'
-              + '<dt>' + this.timestamp + '</dt>'
-              + '<dd>' + this.message + '</dd>'
-              + '<dt>Sentiment Score: ' + this.sentiment + ' | Weather Score: ' + this.weather.toFixed(3) + '</dt>'
-              + '</dl>'
-              + '</div>';
-  this.infowindow = appManager.mapManager.infowindow;
-  var that = this;
-  this.listener = google.maps.event.addListener(this.marker, 'click', function() {
-      that.infowindow.close();
-      that.infowindow.setContent(that.infoContent);
-      that.infowindow.open(appManager.mapManager.map, that.marker)
-      //region.mapManager.appManager.tweetManager.showTweet(that.message);
-  }, this);
+  var listener = google.maps.event.addListener(marker, 'click', function() {
+      infoWindow.close();
+      infoWindow.setContent(infoContent);
+      infoWindow.open(map, marker)
+  });
   this.show = function() {
-    this.marker.setMap(appManager.mapManager.map);
-    setTimeout(function() {
-      that.hide();
-    }, 2000);
+    marker.setMap(map);
+    if (expiring) {
+      setTimeout(function() {
+        that.hide();
+      }, 2000);
+    }
   }
   this.hide = function() {
-    this.marker.setMap(null);
+    marker.setMap(null);
   }
 }

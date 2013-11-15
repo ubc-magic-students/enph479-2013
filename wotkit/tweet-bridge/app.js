@@ -32,26 +32,39 @@ stream.on('tweet', function (tweet) {
         uri: sentiment140URLstring,
         body: JSON.stringify({"data" : [{ "text" : tweet.text }]})
       }, function(error, response, body) {
-        sentiment = JSON.parse(body).data[0].polarity;
-        console.log("Sentiment: " + sentiment);
+      	try {
+          sentiment = JSON.parse(body).data[0].polarity;
+          console.log("Sentiment: " + sentiment);
+      	} catch(err) {
+          console.log("Sentiment api error: " + err);
+          sentiment = -1;
+        }
+
+
 
         request({
           method: 'GET',
           uri: 'http://api.openweathermap.org/data/2.5/weather?lat='+tweet.coordinates.coordinates[1]+'&lon='+tweet.coordinates.coordinates[0]
         }, function(error, response, body) {
-          //console.log("Weather: " + body);
-          temperature = JSON.parse(body).main.temp;
-          console.log("Temperature: " + temperature);
-          if (JSON.parse(body).main.rain){
-            if (JSON.parse(body).main.rain["1h"]) {
-              precipitation = JSON.parse(body).main.rain["1h"];
-            } else if (JSON.parse(body).main.rain["3h"]) {
-              precipitation = JSON.parse(body).main.rain["3h"];
-            }
-          } else {
+          try {
+            var weather = JSON.parse(body);
+            console.log("Weather: " + body);
+            temperature = weather.main.temp;
+            console.log("Temperature: " + temperature);
             precipitation = 0;
+            if (weather.rain){
+              if (weather.rain["1h"]) {
+                precipitation = weather.rain["1h"];
+              } else if (weather.rain["3h"]) {
+                precipitation = weather.rain["3h"];
+              }
+            }
+            console.log("Precipitation: " + precipitation);
+          } catch(err) {
+            console.log("Weather api error: " + err);
+            temperature = -1;
+            precipitation = -1;
           }
-          console.log("Precipitation: " + precipitation);
           
           request({
             method: 'POST',
