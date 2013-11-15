@@ -25,13 +25,13 @@ function MapMaker() {
     });
   }
 
-  this.makeRegionBorder = function(sw, ne) {
+  this.makeRegionBorder = function(sw, ne, fillColor) {
     return new google.maps.Rectangle({
-      strokeColor: '#FF0000',
+      strokeColor: '#000000',
       strokeOpacity: 1,
       strokeWeight: 2,
-      fillColor: '#FF0000',
-      fillOpacity: 0,
+      fillColor: fillColor || '#FF0000',
+      fillOpacity: (fillColor ? 0.5 : 0),
       bounds: new google.maps.LatLngBounds(sw,ne)
     });
   }

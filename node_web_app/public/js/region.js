@@ -25,6 +25,7 @@ function Region(regionInfo, mapMaker, map) {
 
   this.addRegionListener = function() {
     if (listenedTo === false) {
+      console.log('listenenr added');
       google.maps.event.addListener(this.regionBoundary, 'click', function() {
         mediator.publish(EVENTS.ZOOM_TO_REGION, regionInfo.id);
       });
@@ -36,6 +37,32 @@ function Region(regionInfo, mapMaker, map) {
     regionInfo.name,
     this.regionBoundary.bounds.getCenter()
   );
+
+  this.changeRegionColor = function(sentiment, weather) {
+    if (sentiment !== undefined && weather !== undefined) {
+      // red is positive sentiment, blue is negative
+      sentiment = Math.round(sentiment / 4 * 255);
+      var color_string = "rgb " + sentiment + " 00 " + new String(255-sentiment);
+      rgbColor = tinycolor(color_string);
+      hsvColor = rgbColor.toHsl();
+
+      // lighter color is good weather, darker is bad
+      if (weather == -1) {
+        weather = 5;
+      }
+      weather = Math.round(weather * 5);
+      hsvColor.v = weather + 50;
+      var color = tinycolor(hsvColor).toRgbString();
+    }
+
+    this.regionBoundary.setMap(null);
+    this.regionBoundary = mapMaker.makeRegionBorder(
+      new google.maps.LatLng(regionInfo.bb[0].lat, regionInfo.bb[0].lng),
+      new google.maps.LatLng(regionInfo.bb[1].lat, regionInfo.bb[1].lng),
+      color || null
+    );
+    this.regionBoundary.setMap(map);
+  }
 
   this.showPublicRegion = function() {
     this.regionBoundary.setMap(map);

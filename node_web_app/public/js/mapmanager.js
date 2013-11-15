@@ -18,6 +18,16 @@ function MapManager(regions, mapMaker, map) {
                 goToCity();
               }
   }, {
+    channel:  EVENTS.REGION_UPDATE,
+    fn:       function(data) {
+                saveLastUpdated(data);
+              }
+  }, {
+    channel:  EVENTS.SHOW_REGION_UPDATE,
+    fn:       function() {
+                showLastUpdated();
+              }
+  }, {
     channel:  EVENTS.CALL_FOR_TIMEPLAY,
     fn:       function(speed) {
                 goToDisabledCity();
@@ -34,15 +44,20 @@ function MapManager(regions, mapMaker, map) {
                 playback(data[0], data[1], playbackSpeed);
               }
   }, {
-    channel: EVENTS.STOP_TIMEPLAY,
+    channel:  EVENTS.SHOW_TIMEPLAY,
+    fn:       function(time, tableData) {
+                showTimeplay(tableData);
+              }
+  }, {
+    channel:  EVENTS.STOP_TIMEPLAY,
     fn:       function() {
-                clearInterval(playbackId);
-                enableRegions();
+                stopTimeplay();
               }
   }]);
 
   var regionObjects = [];
   var infoWindow = mapMaker.makeInfoWindow();
+  var lastUpdated;
 
   var playbackSpeed;
   var playbackTweets = [];
@@ -166,4 +181,35 @@ function MapManager(regions, mapMaker, map) {
       playbackTweets.push(vTweet);
     }, this);
   };
+
+  var showTimeplay = function(tableData) {
+    tableData.forEach(function(element, index) {
+      regionObjects[index].changeRegionColor(element.sentiment, element.weather);
+    });
+  }
+
+  var stopTimeplay = function() {
+    clearInterval(playbackId);
+    showLastUpdated();
+    enableRegions();
+  }
+
+  var saveLastUpdated = function(data) {
+    lastUpdated = [];
+    data.forEach(function(element, index) {
+      lastUpdated.push([data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
+    });
+  }
+
+  var showLastUpdated = function() {
+    if (lastUpdated) {
+      regionObjects.forEach(function(element, index) {
+        element.changeRegionColor(lastUpdated[index][0], lastUpdated[index][1]);
+      })
+    } else {
+      regionObjects.forEach(function(element) {
+        element.changeRegionColor();
+      });
+    }
+  }
 }
