@@ -26,7 +26,7 @@ public class WeatherJob implements Job{
 			
 			String message = wdf.fetchNewData(false);
 			if (message.length() != 0) {	
-				System.out.println("New Tweets detected!");
+				//System.out.println("New Tweets detected!");
 				
 				try {
 					Socket nodejs  = new Socket("localhost", TCPPORT);

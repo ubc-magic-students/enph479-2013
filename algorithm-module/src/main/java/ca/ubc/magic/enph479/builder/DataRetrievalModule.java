@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import ca.ubc.magic.enph479.BennuStatus;
 import ca.ubc.magic.enph479.WoTDataFetcher;
 
 public class DataRetrievalModule {
@@ -13,6 +14,7 @@ public class DataRetrievalModule {
 		final int job_interval = 5 * 60;
 		final int fetch_interval = job_interval * 2; // in seconds
 		String start_datetime = "undefined";
+		BennuStatus bs = new BennuStatus();
 
 		// initialize WoTDataFetcher
 		WoTDataFetcher wdf = new WoTDataFetcher();
@@ -29,6 +31,12 @@ public class DataRetrievalModule {
 		}
 
 		System.out.println("===================================\r\nStarting to Fetch from Bennu for old data...");
+		System.out.println("please wait a moment as this process may take up to 30 sec/1 day of tweet data depending on the processor and internet speed...");
+		Thread.sleep(500);
+		System.out.println("Initializing...");
+		Thread.sleep(1*2000);
+		bs.getBennuStatus();
+		
 		// start fetching using while/for loop
 		while (true) {
 			try {
@@ -54,10 +62,10 @@ public class DataRetrievalModule {
 	
 	public void wrappingUpRetrivalModule() throws InterruptedException {
 		
-		System.out.println("Please press stop if during test, otherwise system jobs initializing in 10 seconds...");
-		for(int i = 9; i > 0; i--) {
+		System.out.println("Please press stop if during test, otherwise initializing real-time jobs fetcher in");
+		for(int i = 10; i > 0; i--) {
 			System.out.println(i);
-			Thread.sleep(5*1000);
+			Thread.sleep(1000);
 		}
 	}
 	

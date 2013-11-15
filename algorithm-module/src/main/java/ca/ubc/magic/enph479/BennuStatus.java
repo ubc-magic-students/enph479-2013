@@ -9,9 +9,9 @@ import java.net.URL;
  * @author richardlee@hotmail.ca 
  */
  
-public class Bennu_Status {
+public class BennuStatus {
 	
-    public static void main(String args[]) throws Exception {
+    public void getBennuStatus() throws Exception {
  
         String[] hostList = { "https://bennu.magic.ubc.ca/wotkit/sensors/91539/monitor",
         		"http://richardxlee.com",
@@ -29,7 +29,7 @@ public class Bennu_Status {
  
     }
  
-    public static String getStatus(String url) throws IOException {
+    private String getStatus(String url) throws IOException {
  
         String result = "";
         try {

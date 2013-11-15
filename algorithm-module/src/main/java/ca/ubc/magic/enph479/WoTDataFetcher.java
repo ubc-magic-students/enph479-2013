@@ -54,6 +54,8 @@ public class WoTDataFetcher {
 		else if(this.fetch_count_max < 40)
 			this.fetch_count_max = 40;
 		
+		System.out.println("Fetch_count_max has been dynamically determined to be: " + this.fetch_count_max);
+		
 		dbh = new DB_Handler();
 		dbh.prepareDB();
 		/*if(dbh.prepareDB()) {
