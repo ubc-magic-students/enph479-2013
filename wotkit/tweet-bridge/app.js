@@ -53,15 +53,14 @@ stream.on('tweet', function (tweet) {
             console.log("Weather: " + body);
             temperature = JSON.parse(body).main.temp;
             console.log("Temperature: " + temperature);
+	    precipitation = 0;
             if (JSON.parse(body).main.rain){
               if (JSON.parse(body).main.rain["1h"]) {
                 precipitation = JSON.parse(body).main.rain["1h"];
               } else if (JSON.parse(body).main.rain["3h"]) {
                 precipitation = JSON.parse(body).main.rain["3h"];
-              }
-            } else {
-              precipitation = 0;
-            }
+	      }
+	    }
             console.log("Precipitation: " + precipitation);
           }
           
