@@ -32,8 +32,14 @@ stream.on('tweet', function (tweet) {
         uri: sentiment140URLstring,
         body: JSON.stringify({"data" : [{ "text" : tweet.text }]})
       }, function(error, response, body) {
-        sentiment = JSON.parse(body).data[0].polarity;
-        console.log("Sentiment: " + sentiment);
+      	try {
+          sentiment = JSON.parse(body).data[0].polarity;
+          console.log("Sentiment: " + sentiment);
+      	} catch(err) {
+          console.log("Sentiment api error: " + err);
+        }
+
+        sentiment = -1;
 
         request({
           method: 'GET',
