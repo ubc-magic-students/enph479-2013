@@ -42,6 +42,7 @@ function MapManager(regions, mapMaker, map) {
     channel:  EVENTS.INITIALIZE_TIMEPLAY,
     fn:       function(data) {
                 playback(data[0], data[1], playbackSpeed);
+
               }
   }, {
     channel:  EVENTS.SHOW_TIMEPLAY,
@@ -141,6 +142,10 @@ function MapManager(regions, mapMaker, map) {
   var playback = function(regionData, tweetData, speed) {
     var regionLength = regions.length;
 
+    regionObjects.forEach(function(element) {
+      element.hideRegionCount();
+    });
+
     function setCharAt(str,index,chr) {
       if(index > str.length-1) return str;
       return str.substr(0,index) + chr + str.substr(index+1);
@@ -205,10 +210,12 @@ function MapManager(regions, mapMaker, map) {
     if (lastUpdated) {
       regionObjects.forEach(function(element, index) {
         element.changeRegionColor(lastUpdated[index][0], lastUpdated[index][1]);
+        element.changeRegionCount(lastUpdated[index][2]);
       })
     } else {
       regionObjects.forEach(function(element) {
         element.changeRegionColor();
+        element.changeRegionCount('-');
       });
     }
   }

@@ -36,15 +36,37 @@ function MapMaker() {
     });
   }
 
-  this.makeRegionLabel = function(name, pos, flag) {
+  this.makeRegionLabel = function(name, pos) {
     var pixelOffset = new google.maps.Size(-25, -25);
     var width = "55px";
     if (name == "Shaughnessy") {
       width = "75px";
-      pixelOffset = new google.maps.Size(-35, 5);
+      pixelOffset = new google.maps.Size(-35, -45);
     }
     var labelOptions = {
            content: name
+          ,boxStyle: {
+             border: "1px solid black"
+            ,textAlign: "center"
+            ,fontSize: "8pt"
+            ,width: width
+           }
+          ,disableAutoPan: true
+          ,pixelOffset: pixelOffset
+          ,position: pos
+          ,closeBoxURL: ""
+          ,isHidden: false
+          ,pane: "mapPane"
+          ,enableEventPropagation: true
+        };
+    return new InfoBox(labelOptions);
+  };
+
+  this.makeRegionCountLabel = function(number, pos) {
+    var pixelOffset = new google.maps.Size(-10, 10);
+    var width = "20px";
+    var labelOptions = {
+           content: number
           ,boxStyle: {
              border: "1px solid black"
             ,textAlign: "center"

@@ -25,7 +25,6 @@ function Region(regionInfo, mapMaker, map) {
 
   this.addRegionListener = function() {
     if (listenedTo === false) {
-      console.log('listenenr added');
       google.maps.event.addListener(this.regionBoundary, 'click', function() {
         mediator.publish(EVENTS.ZOOM_TO_REGION, regionInfo.id);
       });
@@ -37,6 +36,14 @@ function Region(regionInfo, mapMaker, map) {
     regionInfo.name,
     this.regionBoundary.bounds.getCenter()
   );
+
+  var regionCountLabel = mapMaker.makeRegionCountLabel('-', this.regionBoundary.bounds.getCenter());
+
+  this.changeRegionCount = function(count) {
+    regionCountLabel.setMap(null);
+    regionCountLabel = mapMaker.makeRegionCountLabel(count, this.regionBoundary.bounds.getCenter());
+    regionCountLabel.setMap(map);
+  }
 
   this.changeRegionColor = function(sentiment, weather) {
     if (sentiment !== undefined && weather !== undefined) {
@@ -64,9 +71,14 @@ function Region(regionInfo, mapMaker, map) {
     this.regionBoundary.setMap(map);
   }
 
+  this.hideRegionCount = function() {
+    regionCountLabel.setMap(null);
+  }
+
   this.showPublicRegion = function() {
     this.regionBoundary.setMap(map);
     regionLabel.setMap(map);
+    regionCountLabel.setMap(map);
     tweets.forEach(function(element, index) {
       element.hide();
     });
@@ -77,6 +89,7 @@ function Region(regionInfo, mapMaker, map) {
   this.showPrivateRegion = function() {
     this.regionBoundary.setMap(map);
     regionLabel.setMap(map);
+    regionCountLabel.setMap(map);
     this.showTweets();
     printCount = true;
     printTweets = true;
@@ -85,6 +98,7 @@ function Region(regionInfo, mapMaker, map) {
   this.hideRegion = function() {
     this.regionBoundary.setMap(null);
     regionLabel.setMap(null);
+    regionCountLabel.setMap(null);
     tweets.forEach(function(element, index) {
       element.hide();
     });
