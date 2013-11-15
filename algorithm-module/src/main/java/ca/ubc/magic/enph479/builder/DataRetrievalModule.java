@@ -10,7 +10,7 @@ public class DataRetrievalModule {
 	
 	public void retrieveFromBennu() throws Exception {
 	
-		final int job_interval = 1 * 60;
+		final int job_interval = 5 * 60;
 		final int fetch_interval = job_interval * 2; // in seconds
 		String start_datetime = "undefined";
 
@@ -43,7 +43,7 @@ public class DataRetrievalModule {
 					return;
 				}
 				
-				String jsonData = wdf.fetchNewData();
+				String jsonData = wdf.fetchNewData(true);
 				System.out.println("continue fetching from bennu...");
 			} catch (Throwable t) {
 				t.printStackTrace();

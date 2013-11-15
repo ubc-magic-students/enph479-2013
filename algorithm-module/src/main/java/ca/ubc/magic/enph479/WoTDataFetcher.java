@@ -27,7 +27,7 @@ public class WoTDataFetcher {
 	private int fetch_interval = 0; //in seconds
 	private int job_fetch_interval = 0; //in seconds
 	private String ref_datetime = null; //reference time in system for fetching
-	private int fetch_count = -1;
+	private int fetch_count = 0;
 	private int fetch_count_max = 0;
 	
 	public HashMap<Integer, TwitterObject> getAllTweetsData() throws Exception {
@@ -81,6 +81,7 @@ public class WoTDataFetcher {
 		dmp.toListFromJsonParser(wot_type.twitter);
 	}
 	
+	@Deprecated
 	public ArrayList<TweetInstance> fetchData() throws Exception {
 		//calculate start time and end time from ref_datetime
 		Date date_start_time = new Date(ref_datetime);
@@ -127,7 +128,10 @@ public class WoTDataFetcher {
 	}
 	
 	//public ArrayList<TwitterObject> fetchNewData() throws Exception {
-	public String fetchNewData() throws Exception {
+	public String fetchNewData(boolean _isInitialization) throws Exception {
+		//_isInitialization represent whether we are fetching from bennu for initialization: true, or fetching real time: false
+		if(_isInitialization)
+			this.fetch_count_max = 0;
 		
 		//calculate start time and end time from ref_datetime
 		Date date_start_time = new Date(ref_datetime);

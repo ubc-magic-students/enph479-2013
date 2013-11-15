@@ -24,7 +24,7 @@ public class WeatherJob implements Job{
 			SchedulerContext schedulerContext = arg0.getScheduler().getContext();
 			WoTDataFetcher wdf = (WoTDataFetcher) schedulerContext.get("wdf");
 			
-			String message = wdf.fetchNewData();
+			String message = wdf.fetchNewData(false);
 			if (message.length() != 0) {	
 				System.out.println("New Tweets detected!");
 				
