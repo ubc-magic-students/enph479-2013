@@ -64,7 +64,7 @@ exports.setUp =function (callback) {
 				message: "message 3", 
 				coordinates: [-123.11662473, 49.28305239],
 				hashtags: ["test1", "test3"],
-				user_mentions: ["user2, user3"]
+				user_mentions: ["user1", "user2", "user3"]
 			},
 			{
 				id: 4, 
@@ -80,7 +80,15 @@ exports.setUp =function (callback) {
 				message: "message 5", 
 				coordinates: undefined,
 				hashtags: ["test5"],
-				user_mentions: []
+				user_mentions: ['user1']
+			},
+			{
+				id: 6, 
+				createdAt: new Date(), 
+				message: "message 6", 
+				coordinates: undefined,
+				hashtags: ["test6"],
+				user_mentions: ['user6']
 			}];
 			Tweet.create(objects, function(err) {
 				if(err) {
@@ -131,7 +139,6 @@ exports.test_findCenter = function(test) {
 
 exports.test_clusterCreator = function(test) {
 	var clusterCreator = require('./../clusterCreator.js');
-	clusterCreator.setMinNumTweets(3);
 	Tweet.findOne({id: 1}, function(err, result) {
 		if(err) {
 			console.log(err);
@@ -140,18 +147,17 @@ exports.test_clusterCreator = function(test) {
 				if(err) {
 					console.log(err);
 				}
-				test.strictEqual( -123.11795739666667, center[0], "Center lon does not equal the actual value.");
-				test.strictEqual( 49.28272112333334, center[1], "Center lat does not equal the actual value.");
-
 				clusterCreator.createEventCandidate(results, center, function(err, result) {
-					test.strictEqual(4, result.tweets.length, "Tweets array does not match the size.");
-					var array = [];
-					result.tweets.forEach(function(o) {
-						array.push(o.id);
-					});
-					array.forEach(function(e) {
-						test.notStrictEqual(-1, array.indexOf(e), "indexOf returned -1.");
-					})
+					/*var length = result.tweets.atsRelated.length 
+						+ result.tweets.hashtagRelated.length 
+						+ result.tweets.geoRelated.length;*/
+					var length = 0;
+					for (key in result.tweets) {
+						if(Array.isArray(result.tweets[key])) {
+							length += result.tweets[key].length
+						}
+					}
+					test.strictEqual(5, length, "Tweets array does not match the size.");
 					test.done();
 				});
 			});
