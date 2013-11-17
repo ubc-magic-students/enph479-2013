@@ -30,5 +30,13 @@ function AppManager() {
     }
   });
 
+  this.subscribe(EVENTS.ZOOM_TO_REGION, function(regionId) {
+    this.regionIdForRegionView = regionId;
+  });
+
+  this.subscribe(EVENTS.ZOOM_OUT, function() {
+    this.regionIdForRegionView = -1;
+  });
+
   this.regionIdForRegionView = -1;
 }

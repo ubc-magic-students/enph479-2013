@@ -24,8 +24,8 @@ function MapManager(regions, mapMaker, map) {
               }
   }, {
     channel:  EVENTS.SHOW_REGION_UPDATE,
-    fn:       function() {
-                showLastUpdated();
+    fn:       function(regionId) {
+                showLastUpdated(regionId);
               }
   }, {
     channel:  EVENTS.CALL_FOR_TIMEPLAY,
@@ -201,22 +201,33 @@ function MapManager(regions, mapMaker, map) {
 
   var saveLastUpdated = function(data) {
     lastUpdated = [];
-    data.forEach(function(element, index) {
+    regionObjects.forEach(function(element, index) {
       lastUpdated.push([data[index].currentSentimentAverage, data[index].currentWeatherAverage, data[index].tweetCount]);
     });
   }
 
-  var showLastUpdated = function() {
-    if (lastUpdated) {
-      regionObjects.forEach(function(element, index) {
-        element.changeRegionColor(lastUpdated[index][0], lastUpdated[index][1]);
-        element.changeRegionCount(lastUpdated[index][2]);
-      })
+  var showLastUpdated = function(regionId) {
+    if (regionId && regionId !== -1) {
+      if (lastUpdated) {
+        regionObjects[regionId].changeRegionColor(lastUpdated[regionId][0], lastUpdated[regionId][1]);
+        regionObjects[regionId].changeRegionCount(lastUpdated[regionId][2]);
+      } else {
+        regionObjects[regionId].changeRegionColor();
+        regionObjects[regionId].changeRegionCount('-');
+      }
+      
     } else {
-      regionObjects.forEach(function(element) {
-        element.changeRegionColor();
-        element.changeRegionCount('-');
-      });
+      if (lastUpdated) {
+        regionObjects.forEach(function(element, index) {
+          element.changeRegionColor(lastUpdated[index][0], lastUpdated[index][1]);
+          element.changeRegionCount(lastUpdated[index][2]);
+        });
+      } else {
+        regionObjects.forEach(function(element) {
+          element.changeRegionColor();
+          element.changeRegionCount('-');
+        });
+      }
     }
   }
 }

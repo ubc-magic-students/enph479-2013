@@ -16,7 +16,7 @@ function TableManager(regions) {
                   if (regionId == -1) {
                     showLastUpdated();
                   } else {
-                    showLastUpdatedRegion();
+                    showLastUpdatedRegion(regionId);
                   }
                 }
     }, {
@@ -33,7 +33,7 @@ function TableManager(regions) {
 
   var dataset = [];
   var rowHeader = [];
-  var columnHeader = [' ', 'Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];
+  var columnHeader = ['Neighbourhood', 'Sentiment', 'Weather', '# of Tweets'];
   var lastUpdated = [];
   var checkArray = [];
 
@@ -49,7 +49,7 @@ function TableManager(regions) {
     //this.lastUpdated.push(this.columnHeader);
 
     rowHeader.forEach(function(element) {
-      lastUpdated.push([element, '-', '-', '-', '-']);
+      lastUpdated.push([element, '-', '-', '-']);
     });
     showLastUpdated();
   }

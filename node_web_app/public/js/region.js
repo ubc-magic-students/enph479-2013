@@ -41,7 +41,7 @@ function Region(regionInfo, mapMaker, map) {
 
   this.changeRegionCount = function(count) {
     regionCountLabel.setMap(null);
-    regionCountLabel = mapMaker.makeRegionCountLabel(count, this.regionBoundary.bounds.getCenter());
+    regionCountLabel = mapMaker.makeRegionCountLabel(count || '-', this.regionBoundary.bounds.getCenter());
     regionCountLabel.setMap(map);
   }
 
@@ -61,7 +61,7 @@ function Region(regionInfo, mapMaker, map) {
       hsvColor.v = weather + 50;
       var color = tinycolor(hsvColor).toRgbString();
     }
-
+    this.removeRegionListener();
     this.regionBoundary.setMap(null);
     this.regionBoundary = mapMaker.makeRegionBorder(
       new google.maps.LatLng(regionInfo.bb[0].lat, regionInfo.bb[0].lng),
@@ -69,6 +69,7 @@ function Region(regionInfo, mapMaker, map) {
       color || null
     );
     this.regionBoundary.setMap(map);
+    this.addRegionListener();
   }
 
   this.hideRegionCount = function() {
