@@ -10,6 +10,7 @@ $(function() {
 
   var tableManager = new TableManager(REGIONS);
   var graphManager = new GraphManager();
+  var wordCloudManager = new WordCloudManager();
 
   var appManager = new AppManager();
 
@@ -36,6 +37,14 @@ function AppManager() {
 
   this.subscribe(EVENTS.ZOOM_OUT, function() {
     this.regionIdForRegionView = -1;
+  });
+
+  this.subscribe(EVENTS.CALL_FOR_TIMEPLAY, function() {
+    this.state = STATE.VANCOUVER_PLAYBACK;
+  });
+
+  this.subscribe(EVENTS.STOP_TIMEPLAY, function() {
+    this.state = STATE.VANCOUVER_ETERNITY;
   });
 
   this.regionIdForRegionView = -1;
