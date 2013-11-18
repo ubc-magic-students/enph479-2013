@@ -58,6 +58,7 @@ public class WoTDataFetcher {
 		
 		dbh = new DB_Handler();
 		dbh.prepareDB();
+		dbh.emptyDB();
 		/*if(dbh.prepareDB()) {
 			//retrieve existing tweet data from DB before fetching any new data
 			ArrayList<TwitterObject> ltweets = dbh.retrieveDBTweet();

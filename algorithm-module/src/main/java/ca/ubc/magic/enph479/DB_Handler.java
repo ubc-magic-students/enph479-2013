@@ -95,6 +95,28 @@ public class DB_Handler {
         }
 	}*/
 	
+	public Boolean emptyDB() throws Exception {
+		
+		if(_skipDB)
+			return true;
+		
+		try {
+			
+			Statement st = con.createStatement();
+			String mysql_delete1_command = "delete from tweet_data where db_id!=0";
+			String mysql_delete2_command = "delete from timeplay_data where db_id!=0";
+			System.out.println("DB statement: " + mysql_delete1_command);
+			st.executeUpdate(mysql_delete1_command);
+			System.out.println("DB statement: " + mysql_delete2_command);
+			st.executeUpdate(mysql_delete2_command);
+            return true;
+            
+        } catch (SQLException ex) {
+        	System.err.println("DB Writting Error: " + ex.getMessage());
+        	return false;
+        }
+	}
+	
 	public Boolean writeToDBTweet(ArrayList<TwitterObject> _ltweets_incoming) throws Exception {
 		
 		if(_skipDB)
