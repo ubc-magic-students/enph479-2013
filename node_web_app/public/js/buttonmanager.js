@@ -147,6 +147,7 @@ function ButtonManager(mapMaker, map) {
 
   var addPauseEvent = function() {
     $('#playbackbutton').click(function() {
+      $('#playbackbutton').off('click');
       mediator.publish(EVENTS.PAUSE_TIMEPLAY);
       $('#playbackbutton > button').text('Resume');
       addResumeEvent();
@@ -155,6 +156,7 @@ function ButtonManager(mapMaker, map) {
 
   var addResumeEvent = function() {
     $('#playbackbutton').click(function() {
+      $('#playbackbutton').off('click');
       mediator.publish(EVENTS.RESUME_TIMEPLAY);
       $('#playbackbutton > button').text('Pause');
       addPauseEvent();

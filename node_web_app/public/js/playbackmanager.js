@@ -80,7 +80,6 @@ function PlaybackManager(regions) {
 
   var stopPlayback = function() {
     clearInterval(playbackId);
-    mediator.publish(EVENTS.STOP_TIMEPLAY);
     currentPlaybackInstance = 0;
   }
 

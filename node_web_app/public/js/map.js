@@ -10,7 +10,7 @@ $(function() {
 
   var tableManager = new TableManager(REGIONS);
   var graphManager = new GraphManager();
-  var wordCloudManager = new WordCloudManager();
+  //var wordCloudManager = new WordCloudManager();
 
   var playbackManager = new PlaybackManager(REGIONS);
   var sliderManager = new SliderManager(REGIONS);
