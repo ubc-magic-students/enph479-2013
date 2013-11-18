@@ -34,6 +34,7 @@ db.once('open', function() {
 var Tweet = require('./models/TweetObject.js');
 var EventCandidate = require('./models/EventCandidate.js');
 
+clearDb();
 //Import from bennu
 /*var bennu = require('./bennu.js');
   bennu.on('bennu', function(data) {
@@ -127,3 +128,21 @@ io.sockets.on('connection', function (socket) {
 app.get('/', function (req, res) {
     res.render('index.jade');
 });
+
+function clearDb() {
+  Tweet.remove({}, function(err) {
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("Removed all docs for tweets.");
+    }
+  });
+
+  EventCandidate.remove({}, function(err) {
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("Removed all docs for EventCandidate.");
+    }
+  });
+}
