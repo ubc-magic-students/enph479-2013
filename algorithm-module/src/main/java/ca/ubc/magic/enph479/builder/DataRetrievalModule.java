@@ -9,7 +9,7 @@ import ca.ubc.magic.enph479.WoTDataFetcher;
 
 public class DataRetrievalModule {
 	
-	public void retrieveFromBennu() throws Exception {
+	public WoTDataFetcher retrieveFromBennu() throws Exception {
 	
 		final int job_interval = 5 * 60;
 		final int fetch_interval = job_interval * 2; // in seconds
@@ -20,14 +20,15 @@ public class DataRetrievalModule {
 		WoTDataFetcher wdf = new WoTDataFetcher();
 		System.setProperty("jsse.enableSNIExtension", "false");
 
-		// data we started inputing data into bennu
-		start_datetime = "2013 Nov 08 13:00:00";
+		// date we started inputing data into bennu
+		//start_datetime = "2013 Nov 08 13:00:00";
+		start_datetime = "2013 Nov 17 13:00:00";
 
 		// prepare for fetching
 		if (!wdf.prepareForFetching(fetch_interval, job_interval,
 				start_datetime)) {
 			System.out.println("Error while initializing WotDataFetcher...");
-			return;
+			return null;
 		}
 
 		System.out.println("===================================\r\nStarting to Fetch from Bennu for old data...");
@@ -35,7 +36,7 @@ public class DataRetrievalModule {
 		Thread.sleep(500);
 		System.out.println("Initializing...");
 		Thread.sleep(1*2000);
-		bs.getBennuStatus();
+		//bs.getBennuStatus();
 		
 		// start fetching using while/for loop
 		while (true) {
@@ -48,7 +49,7 @@ public class DataRetrievalModule {
 				Date date_current_time = new Date();
 				if(date_ref_time.after(date_current_time)) {
 					System.out.println("Finished Fetching from Bennu for old data...\r\n===================================");
-					return;
+					return wdf;
 				}
 				
 				String jsonData = wdf.fetchNewData(true);

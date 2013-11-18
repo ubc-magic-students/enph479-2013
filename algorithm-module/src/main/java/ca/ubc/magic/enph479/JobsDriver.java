@@ -1,16 +1,8 @@
 package ca.ubc.magic.enph479;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.impl.StdSchedulerFactory;
+import java.io.DataOutputStream;
+import java.net.ConnectException;
+import java.net.Socket;
 
 import ca.ubc.magic.enph479.builder.DataRetrievalModule;
 
@@ -18,6 +10,40 @@ public class JobsDriver {
 
 	public static void main(String[] args) {
 		try {
+			final int job_interval = 5;
+			final int fetch_interval = job_interval*2; //in seconds
+			String start_datetime = "undefined";
+			boolean is_demo = false; //fetch from a custom defined starting time if true, current starting time is false
+			final int TCPPORT = 8080;
+			WoTDataFetcher wdf = null;
+			
+			//retrive from Bennu for old data first
+			DataRetrievalModule drm = new DataRetrievalModule();
+			wdf = drm.retrieveFromBennu();
+			drm.wrappingUpRetrivalModule();
+			
+			//continue fetching as in real time
+			String message = wdf.fetchNewData(false);
+			if (message.length() != 0) {	
+				//System.out.println("New Tweets detected!");
+				
+				try {
+					Socket nodejs  = new Socket("localhost", TCPPORT);
+					DataOutputStream outbound = new DataOutputStream(nodejs.getOutputStream());
+					outbound.write(message.getBytes("UTF-8"));
+					nodejs.close();
+				}
+				catch (ConnectException c) {
+					System.err.println("No one is listening to the port");
+				}
+			}
+			
+		} catch (Throwable t) {
+			System.err.println("Error while initializing WotDataFetcher...");
+			t.printStackTrace();
+		}
+		
+		/*try {
 			final int job_interval = 5;
 			final int fetch_interval = job_interval*2; //in seconds
 			String start_datetime = "undefined";
@@ -68,7 +94,7 @@ public class JobsDriver {
 		} catch (Throwable t) {
 			System.err.println("Error while initializing WotDataFetcher...");
 			t.printStackTrace();
-		}
+		}*/
 
 	}
 
