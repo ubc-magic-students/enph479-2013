@@ -11,6 +11,7 @@ public class DataRetrievalModule {
 	
 	public WoTDataFetcher retrieveFromBennu() throws Exception {
 	
+		//retrieve old data from bennu
 		final int job_interval = 5 * 60;
 		final int fetch_interval = job_interval * 2; // in seconds
 		String start_datetime = "undefined";
