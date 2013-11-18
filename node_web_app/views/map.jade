@@ -10,13 +10,11 @@ block append styles
 block append content
   div#sidebar
     div#time-date
-    div#tweet-box
     div#table
-    div#slider
+    div#wordcloud
   div#map-canvas
+  div#slider
   div#graph.aGraph
-  div#wordcloud
-
 
 block append scripts
     script(type='text/javascript', src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js')
@@ -35,6 +33,7 @@ block append scripts
     script(type='text/javascript', src='/js/mapmanager.js')
     script(type='text/javascript', src='/js/buttonmanager.js')
     script(type='text/javascript', src='/js/wordcloudmanager.js')
+    script(type='text/javascript', src='/js/playbackmanager.js')
     script(type='text/javascript', src='/js/mapmaker.js')
     script(type='text/javascript', src='/js/tweet.js')
     script(type='text/javascript', src='/js/region.js')

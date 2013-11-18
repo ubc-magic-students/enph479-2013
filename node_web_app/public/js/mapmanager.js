@@ -41,13 +41,12 @@ function MapManager(regions, mapMaker, map) {
   }, {
     channel:  EVENTS.INITIALIZE_TIMEPLAY,
     fn:       function(data) {
-                playback(data[0], data[1], playbackSpeed);
-
+                startTimeplay();
               }
   }, {
     channel:  EVENTS.SHOW_TIMEPLAY,
-    fn:       function(time, tableData) {
-                showTimeplay(tableData);
+    fn:       function(playbackInstance) {
+                showTimeplay(playbackInstance);
               }
   }, {
     channel:  EVENTS.STOP_TIMEPLAY,
@@ -59,10 +58,6 @@ function MapManager(regions, mapMaker, map) {
   var regionObjects = [];
   var infoWindow = mapMaker.makeInfoWindow();
   var lastUpdated;
-
-  var playbackSpeed;
-  var playbackTweets = [];
-  var playbackId;
 
   var initializeRegions = function() {
     regions.forEach(function(element) {
@@ -139,62 +134,27 @@ function MapManager(regions, mapMaker, map) {
     }
   }
 
-  var playback = function(regionData, tweetData, speed) {
-    var regionLength = regions.length;
-
+  var startTimeplay = function() {
     regionObjects.forEach(function(element) {
       element.hideRegionCount();
     });
-
-    function setCharAt(str,index,chr) {
-      if(index > str.length-1) return str;
-      return str.substr(0,index) + chr + str.substr(index+1);
-    }
-    
-    var arrayPIT;
-    playbackId = setInterval(function() {
-      var playTweet = [];
-      if (regionData.length !== 0) {
-        arrayPIT = regionData.splice(0,regionLength);
-        arrayPIT[0].timestamp = setCharAt(arrayPIT[0].timestamp, 19, '.');
-
-        mediator.publish(EVENTS.SHOW_TIMEPLAY, new Date(arrayPIT[0].timestamp), arrayPIT);
-        
-        var tweet_date;
-        
-        var play_date = new Date(arrayPIT[0].timestamp);
-
-        tweetData.some(function(element, index) {
-          tweet_date = new Date(element.timestamp);
-          if (play_date > tweet_date) {
-            playTweet.push(tweetData.shift());
-          } else {
-            return true;
-          }
-        }, this);
-        addplaybackTweets(playTweet);
-      } else {
-        mediator.publish(EVENTS.STOP_TIMEPLAY);
-      }
-    }, speed);
   }
 
-  var addplaybackTweets = function(tweets) {
+  var addPlaybackTweets = function(tweets) {
     tweets.forEach(function(element, index) {
       var vTweet = new Tweet(new google.maps.LatLng(element.lat, element.lng), element, mapMaker, map, infoWindow, true);
       vTweet.show();
-      playbackTweets.push(vTweet);
     }, this);
   };
 
-  var showTimeplay = function(tableData) {
-    tableData.forEach(function(element, index) {
+  var showTimeplay = function(playbackInstance) {
+    addPlaybackTweets(playbackInstance.tweets);
+    playbackInstance.regionData.forEach(function(element, index) {
       regionObjects[index].changeRegionColor(element.sentiment, element.weather);
     });
   }
 
   var stopTimeplay = function() {
-    clearInterval(playbackId);
     showLastUpdated();
     enableRegions();
   }

@@ -8,7 +8,6 @@ function SocketManager() {
 
     this.socket.on(SOCKET_EVENTS.REGION_UPDATE, function(data) {
       data = $.parseJSON(data.data)
-      console.log(data);
       mediator.publish(EVENTS.REGION_UPDATE, data);
     });
 

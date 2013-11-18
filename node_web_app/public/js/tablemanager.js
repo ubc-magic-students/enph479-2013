@@ -21,8 +21,8 @@ function TableManager(regions) {
                 }
     }, {
       channel:  EVENTS.SHOW_TIMEPLAY,
-      fn:       function(time, tableData) {
-                  updatePlayTable(tableData);
+      fn:       function(playbackInstance) {
+                  updatePlayTable(playbackInstance.regionData);
                 }
     }, {
       channel:  EVENTS.STOP_TIMEPLAY,

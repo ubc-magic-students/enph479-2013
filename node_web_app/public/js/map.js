@@ -12,10 +12,12 @@ $(function() {
   var graphManager = new GraphManager();
   var wordCloudManager = new WordCloudManager();
 
+  var playbackManager = new PlaybackManager(REGIONS);
+
   var appManager = new AppManager();
 
   google.maps.event.addDomListener(window, 'load', function() {
-    mediator.publish(EVENTS.INITIALIZE)
+    mediator.publish(EVENTS.INITIALIZE);
   });
 });
 

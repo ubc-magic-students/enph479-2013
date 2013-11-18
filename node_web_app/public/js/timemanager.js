@@ -29,8 +29,8 @@ function TimeManager() {
                 }
     }, {
       channel:  EVENTS.SHOW_TIMEPLAY,
-      fn:       function(time, tableData) {
-                  $('#time-date').text('Playback Time: ' + time);
+      fn:       function(playbackInstance) {
+                  $('#time-date').text('Playback Time: ' + playbackInstance.timestamp);
                 }
     }, {
       channel:  EVENTS.STOP_TIMEPLAY,
