@@ -95,6 +95,28 @@ public class DB_Handler {
         }
 	}*/
 	
+	public Boolean emptyDB() throws Exception {
+		
+		if(_skipDB)
+			return true;
+		
+		try {
+			
+			Statement st = con.createStatement();
+			String mysql_delete1_command = "delete from tweet_data where db_id!=0";
+			String mysql_delete2_command = "delete from timeplay_data where db_id!=0";
+			System.out.println("DB statement: " + mysql_delete1_command);
+			st.executeUpdate(mysql_delete1_command);
+			System.out.println("DB statement: " + mysql_delete2_command);
+			st.executeUpdate(mysql_delete2_command);
+            return true;
+            
+        } catch (SQLException ex) {
+        	System.err.println("DB Writting Error: " + ex.getMessage());
+        	return false;
+        }
+	}
+	
 	public Boolean writeToDBTweet(ArrayList<TwitterObject> _ltweets_incoming) throws Exception {
 		
 		if(_skipDB)
@@ -177,7 +199,7 @@ public class DB_Handler {
         }
 	}
 	
-public Boolean writeToDBScores(ArrayList<regionX> lRegions) throws Exception {
+public Boolean writeToDBScores(ArrayList<regionX> lRegions, String currentTime) throws Exception {
 		
 		if(_skipDB)
 			return true;
@@ -205,15 +227,17 @@ public Boolean writeToDBScores(ArrayList<regionX> lRegions) throws Exception {
 			//String mysql_insert_command = "INSERT INTO timeplay_data " + "VALUES (1, 1, 'Jan 01 1800 23:59:59', 2, 4)";
 			String mysql_insert_command = "INSERT INTO timeplay_data VALUES";
 			
+			/*
 			Date date_now = new Date();
 			DateFormat date_format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
 			date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String start_datetime = date_format.format(date_now);
+			*/
 			
 			for(int i = 0; i < lRegions.size(); i++) {
 				
 				mysql_insert_command += " ("
-						+ (cur_id + i) + "," + i + "," + "\"" + start_datetime + "\"" + ","
+						+ (cur_id + i) + "," + i + "," + "\"" + currentTime + "\"" + ","
 						+ lRegions.get(i).sentiment_ave + ", " + lRegions.get(i).weather_ave + ")";
 						
 				if(i < lRegions.size()-1)
