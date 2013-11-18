@@ -177,7 +177,7 @@ public class DB_Handler {
         }
 	}
 	
-public Boolean writeToDBScores(ArrayList<regionX> lRegions) throws Exception {
+public Boolean writeToDBScores(ArrayList<regionX> lRegions, String currentTime) throws Exception {
 		
 		if(_skipDB)
 			return true;
@@ -205,15 +205,17 @@ public Boolean writeToDBScores(ArrayList<regionX> lRegions) throws Exception {
 			//String mysql_insert_command = "INSERT INTO timeplay_data " + "VALUES (1, 1, 'Jan 01 1800 23:59:59', 2, 4)";
 			String mysql_insert_command = "INSERT INTO timeplay_data VALUES";
 			
+			/*
 			Date date_now = new Date();
 			DateFormat date_format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
 			date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String start_datetime = date_format.format(date_now);
+			*/
 			
 			for(int i = 0; i < lRegions.size(); i++) {
 				
 				mysql_insert_command += " ("
-						+ (cur_id + i) + "," + i + "," + "\"" + start_datetime + "\"" + ","
+						+ (cur_id + i) + "," + i + "," + "\"" + currentTime + "\"" + ","
 						+ lRegions.get(i).sentiment_ave + ", " + lRegions.get(i).weather_ave + ")";
 						
 				if(i < lRegions.size()-1)

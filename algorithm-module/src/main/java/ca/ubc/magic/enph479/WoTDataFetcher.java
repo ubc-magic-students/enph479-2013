@@ -192,7 +192,7 @@ public class WoTDataFetcher {
 		if(fetch_count > fetch_count_max) {
 			fetch_count=0;
 			ArrayList<regionX> lRegions = dmp.getCurrentlRegionObjectsForTimePlay();
-			dbh.writeToDBScores(lRegions);
+			dbh.writeToDBScores(lRegions, ref_datetime);
 		}
 		
 		//get all new incoming tweets
