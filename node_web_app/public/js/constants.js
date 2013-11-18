@@ -8,6 +8,9 @@ var EVENTS = {
   CALL_FOR_TIMEPLAY: "callForTimePlay",       // when user requests playback
   INITIALIZE_TIMEPLAY: "initializeTimePlay",  // when playback data is receeved
   SHOW_TIMEPLAY: "showTimePlay",              // when playback data is shown
+  PAUSE_TIMEPLAY: "pauseTimePlay",
+  TIMEPLAY_JUMP: "timeplayJump",
+  RESUME_TIMEPLAY: "resumeTimePlay",
   STOP_TIMEPLAY: "stopTimePlay",              // when playback is stopped
   CHANGE_GRAPH_VIEW: "changeGraphView"        // when user selects different regions to display on graph
 };

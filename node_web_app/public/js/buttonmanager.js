@@ -94,7 +94,9 @@ function ButtonManager(mapMaker, map) {
         position: google.maps.ControlPosition.RIGHT_TOP,
         dropDown: dropDownDiv 
     }
-    var dropDown1 = mapMaker.makeDropDownControl(dropDownOptions);      
+    var dropDown1 = mapMaker.makeDropDownControl(dropDownOptions);
+
+    $("#playbackbutton").append('<button type="button">Pause</button>');
 
     setOverviewEternityState();
   }
@@ -104,12 +106,14 @@ function ButtonManager(mapMaker, map) {
     $('div#replaybutton').css('visibility', 'hidden');
     $('div#Replay').parent().css('visibility', 'visible');
     $('div#Replay').next().css('display', 'none');
+    $("#playbackbutton").css('visibility', 'hidden');
   }
 
   var setRegionEternityState = function() {
     $('div#backbutton').css('visibility', 'visible');
     $('div#replaybutton').css('visibility', 'hidden');
     $('div#Replay').parent().css('visibility', 'hidden');
+    $("#playbackbutton").css('visibility', 'hidden');
     addOverviewButtonClickEvent();
   }
 
@@ -117,11 +121,14 @@ function ButtonManager(mapMaker, map) {
     $('div#backbutton').css('visibility', 'hidden');
     $('div#replaybutton').css('visibility', 'hidden');
     $('div#Replay').parent().css('visibility', 'hidden');
+    $("#playbackbutton").css('visibility', 'hidden');
     addStopEvent();
   }
 
   var setOverviewReplayState = function() {
     $('div#replaybutton').css('visibility', 'visible');
+    $("#playbackbutton").css('visibility', 'visible');
+    addPauseEvent();
   }
 
   var addStopEvent = function() {
@@ -135,6 +142,22 @@ function ButtonManager(mapMaker, map) {
     google.maps.event.removeListener(overviewListener);
     overviewListener = google.maps.event.addDomListener(overviewButton, 'click', function() {
       mediator.publish(EVENTS.ZOOM_OUT);
+    });
+  }
+
+  var addPauseEvent = function() {
+    $('#playbackbutton').click(function() {
+      mediator.publish(EVENTS.PAUSE_TIMEPLAY);
+      $('#playbackbutton > button').text('Resume');
+      addResumeEvent();
+    });
+  }
+
+  var addResumeEvent = function() {
+    $('#playbackbutton').click(function() {
+      mediator.publish(EVENTS.RESUME_TIMEPLAY);
+      $('#playbackbutton > button').text('Pause');
+      addPauseEvent();
     });
   }
 }

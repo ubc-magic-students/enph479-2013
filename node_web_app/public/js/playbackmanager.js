@@ -8,16 +8,31 @@ function PlaybackManager(regions) {
   var playbackTweets = [];
   var playbackId;
 
+  var currentPlaybackInstance = 0;
+
   this.subscribe(EVENTS.CALL_FOR_TIMEPLAY, function(speed) {
     playbackSpeed = 1000/speed;
   });
 
   this.subscribe(EVENTS.INITIALIZE_TIMEPLAY, function(data) {
+    var data = JSON.parse(JSON.stringify(data));
     processPlayback(data[0], data[1]);
   });
 
   this.subscribe(EVENTS.STOP_TIMEPLAY, function() {
     stopPlayback();
+  });
+
+  this.subscribe(EVENTS.PAUSE_TIMEPLAY, function() {
+    pausePlayback();
+  });
+
+  this.subscribe(EVENTS.RESUME_TIMEPLAY, function() {
+    resumePlayback();
+  });
+
+  this.subscribe(EVENTS.TIMEPLAY_JUMP, function(playbackInstanceCounter) {
+    currentPlaybackInstance = playbackInstanceCounter;
   });
 
   var processPlayback = function(regionData, tweetData) {
@@ -33,6 +48,7 @@ function PlaybackManager(regions) {
 
     while (regionData.length !== 0) {
       playbackInstances[indexCounter] = {};
+      playbackInstances[indexCounter].indexCounter = indexCounter;
       playbackInstances[indexCounter].regionData = regionData.splice(0, regionLength);
       playbackInstances[indexCounter].timestamp = (new Date(setCharAt(playbackInstances[indexCounter].regionData[0].timestamp, 19, '.'))).toLocaleString();
       playbackInstances[indexCounter].tweets = [];
@@ -48,22 +64,33 @@ function PlaybackManager(regions) {
       indexCounter++;
     }
     playbackInstancesLength = playbackInstances.length;
+    playPlayback();
+  }
 
-    //play playback
-    playbackCounter = 0;
+  var playPlayback = function() {
     playbackId = setInterval(function() {
-      if (playbackCounter <= playbackInstancesLength) {
-        mediator.publish(EVENTS.SHOW_TIMEPLAY, playbackInstances[playbackCounter]);
-        playbackCounter++;
+      if (currentPlaybackInstance <= playbackInstancesLength) {
+        mediator.publish(EVENTS.SHOW_TIMEPLAY, playbackInstances[currentPlaybackInstance]);
+        currentPlaybackInstance++;
       } else {
-        mediator.publish(EVENTS.STOP_TIMEPLAY);
+        stopPlayback();
       }
     }, playbackSpeed);
-  }
+  };
 
   var stopPlayback = function() {
     clearInterval(playbackId);
+    mediator.publish(EVENTS.STOP_TIMEPLAY);
+    currentPlaybackInstance = 0;
   }
+
+  var pausePlayback = function() {
+    clearInterval(playbackId);
+  };
+
+  var resumePlayback = function() {
+    playPlayback();
+  };
 
   function setCharAt(str,index,chr) {
     if(index > str.length-1) return str;

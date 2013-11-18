@@ -13,6 +13,7 @@ $(function() {
   var wordCloudManager = new WordCloudManager();
 
   var playbackManager = new PlaybackManager(REGIONS);
+  var sliderManager = new SliderManager(REGIONS);
 
   var appManager = new AppManager();
 
