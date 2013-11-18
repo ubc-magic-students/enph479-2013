@@ -58,6 +58,8 @@ public class WoTDataFetcher {
 		
 		dbh = new DB_Handler();
 		dbh.prepareDB();
+		System.out.println("emptying database...");
+		Thread.sleep(2000);
 		dbh.emptyDB();
 		/*if(dbh.prepareDB()) {
 			//retrieve existing tweet data from DB before fetching any new data
