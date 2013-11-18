@@ -7,17 +7,17 @@ function GraphManager() {
     $.map($("input[type='checkbox']"), function(val, i) {
       checkArray.push($(val).is(':checked'));
     });
-    updateRegionGraph(data[0], checkArray);
+    timeplayData = JSON.parse(JSON.stringify(data[0]));
+    console.log(timeplayData[0]);
+    updateRegionGraph(checkArray);
   });
 
   this.subscribe(EVENTS.CHANGE_GRAPH_VIEW, function(checkArray) {
-    updateRegionGraph(timeplayData, checkArray);
+    updateRegionGraph(checkArray);
   });
 
-  var updateRegionGraph = function(inputData, checkArray) {
-    if (!timeplayData && inputData) {
-      timeplayData = inputData;
-    }
+  var updateRegionGraph = function(checkArray) {
+    console.log(timeplayData[0]);
     var data = [];
     var length;
     if (timeplayData) {
@@ -40,6 +40,8 @@ function GraphManager() {
           length = element.sentiment.length;
         }
       });
+      console.log("graph data");
+      console.log(data);
       doubleLineGraph(data, length);
     }
   }

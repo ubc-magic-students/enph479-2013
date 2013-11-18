@@ -32,11 +32,9 @@ function PlaybackManager(regions) {
     var play_date;
 
     while (regionData.length !== 0) {
-      console.log('Iterating through regionData');
       playbackInstances[indexCounter] = {};
       playbackInstances[indexCounter].regionData = regionData.splice(0, regionLength);
-      playbackInstances[indexCounter].timestamp = setCharAt(playbackInstances[indexCounter].regionData[0].timestamp, 19, '.');
-
+      playbackInstances[indexCounter].timestamp = (new Date(setCharAt(playbackInstances[indexCounter].regionData[0].timestamp, 19, '.'))).toLocaleString();
       playbackInstances[indexCounter].tweets = [];
       play_date = new Date(playbackInstances[indexCounter].timestamp);
       tweetData.some(function(element, index) {
@@ -54,9 +52,7 @@ function PlaybackManager(regions) {
     //play playback
     playbackCounter = 0;
     playbackId = setInterval(function() {
-      console.log('playbackCounter: ' + playbackCounter + ', playbackLength: ' + playbackInstancesLength);
       if (playbackCounter <= playbackInstancesLength) {
-        console.log('displaying playback: ' + playbackCounter);
         mediator.publish(EVENTS.SHOW_TIMEPLAY, playbackInstances[playbackCounter]);
         playbackCounter++;
       } else {

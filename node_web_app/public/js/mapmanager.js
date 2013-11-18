@@ -40,7 +40,7 @@ function MapManager(regions, mapMaker, map) {
               }
   }, {
     channel:  EVENTS.INITIALIZE_TIMEPLAY,
-    fn:       function(data) {
+    fn:       function() {
                 startTimeplay();
               }
   }, {
@@ -138,6 +138,7 @@ function MapManager(regions, mapMaker, map) {
     regionObjects.forEach(function(element) {
       element.hideRegionCount();
     });
+    disableRegions();
   }
 
   var addPlaybackTweets = function(tweets) {
