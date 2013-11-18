@@ -3,6 +3,9 @@ package ca.ubc.magic.enph479;
 import java.io.DataOutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import ca.ubc.magic.enph479.builder.DataRetrievalModule;
 
@@ -22,9 +25,16 @@ public class JobsDriver {
 			wdf = drm.retrieveFromBennu();
 			drm.wrappingUpRetrivalModule();
 			
+			//get now datetime
+			Date date_now = new Date();
+			DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
+			//date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
+			start_datetime = date_format.format(date_now);
+			
 			//continue fetching as in real time
+			wdf.updateFetchingRules(job_interval, fetch_interval, start_datetime);
 			String message = wdf.fetchNewData(false);
-			if (message.length() != 0) {	
+			if (message.length() != 0) {
 				//System.out.println("New Tweets detected!");
 				
 				try {

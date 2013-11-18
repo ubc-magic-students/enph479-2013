@@ -72,6 +72,20 @@ public class WoTDataFetcher {
 		return true;
 	}
 	
+	public void updateFetchingRules(int _fetch_interval, int _job_fetch_interval, String _start_time) {
+		this.fetch_interval = _fetch_interval;
+		this.job_fetch_interval = _job_fetch_interval;
+		this.ref_datetime = _start_time;
+		
+		this.fetch_count_max = (int)(double)(10.0*60.0/(((double)this.fetch_interval+(double)this.job_fetch_interval)/2.0));
+		if(this.fetch_count_max > 100)
+			this.fetch_count_max = 100;
+		else if(this.fetch_count_max < 40)
+			this.fetch_count_max = 40;
+		
+		System.out.println("Fetch_count_max has been dynamically determined to be: " + this.fetch_count_max);
+	}
+	
 	public void prepareForFetchingLess() throws Exception  {
 		dmp = new DataManipulationProcessor();
 	}
@@ -132,8 +146,10 @@ public class WoTDataFetcher {
 	//public ArrayList<TwitterObject> fetchNewData() throws Exception {
 	public String fetchNewData(boolean _isInitialization) throws Exception {
 		//_isInitialization represent whether we are fetching from bennu for initialization: true, or fetching real time: false
-		if(_isInitialization)
+		if(_isInitialization) {
+			System.out.println("fetch_count_max been overwritten for initialization to be 0");
 			this.fetch_count_max = 0;
+		}
 		
 		//calculate start time and end time from ref_datetime
 		Date date_start_time = new Date(ref_datetime);
