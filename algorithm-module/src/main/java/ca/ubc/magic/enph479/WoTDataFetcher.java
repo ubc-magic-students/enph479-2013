@@ -190,12 +190,17 @@ public class WoTDataFetcher {
 		//dmp.removeDuplicates(wot_type.twitter);
 		
 		System.out.println("fetch count: " + fetch_count);
+		//get ref_time in specific format
+		Date date_ref_timedate = new Date(ref_datetime);
+		DateFormat date_format_new = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
+		date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
+		String start_datetime = date_format_new.format(date_ref_timedate);
 		//write average scores to database every n fetches for timeplay feature
 		fetch_count++;
 		if(fetch_count > fetch_count_max) {
 			fetch_count=0;
 			ArrayList<regionX> lRegions = dmp.getCurrentlRegionObjectsForTimePlay();
-			dbh.writeToDBScores(lRegions, ref_datetime);
+			dbh.writeToDBScores(lRegions, start_datetime);
 		}
 		
 		//get all new incoming tweets
