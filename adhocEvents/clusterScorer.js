@@ -1,12 +1,12 @@
 var EventCandidate = require('./models/EventCandidate.js');
 var natural = require('natural'),
 	TfIdf = natural.TfIdf;
-natural.natural.PorterStemmer.attach();
+natural.PorterStemmer.attach();
 
 module.exports = function() {
 	var getSentimentScore = function(message, callback) {
 		var sentimentRequestJSON = {
-			data: [{"text": o.message}];
+			data: [{"text": o.message}]
 		};
 		var sentimentRequest ={
 			hostname: 'www.sentiment140.com',
@@ -15,7 +15,7 @@ module.exports = function() {
 			headers: {
 				"Content-Type": "application/json",
 				"Content-Length": Buffer.byteLength(JSON.stringify(sentimentRequestJSON))
-			};
+			}
 		}
 		require('http').request(sentimentRequest, function(res) {
 			var body = "";
@@ -47,9 +47,8 @@ module.exports = function() {
 		return map;
 	}
 
-	var filterTweetsWithCommonTheme = function(tweets) {
-		var theme = getFrequentHashtag(tweets);
-		var relevantTweets {
+	var filterTweetsWithCommonTheme = function(tweets, theme) {
+		var relevantTweets = {
 			geoRelated : [],
 			hashtagRelated: [],
 			atsRelated: [],
@@ -76,7 +75,7 @@ module.exports = function() {
 
 	var getFrequentHashtag = function(tweets) {
 		var map = [];
-
+		
 		for(key in tweets) {
 			if(Array.isArray(tweets[key])) {
 				tweets[key].forEach(function(tweet) {
@@ -90,7 +89,7 @@ module.exports = function() {
 				});
 			}
 		}
-
+		
 		var maxFreq = 0;
 		var hashtag = null;
 		for(key in map) {
@@ -128,6 +127,7 @@ module.exports = function() {
 	}
 
 	return {
+		filterTweetsWithCommonTheme : filterTweetsWithCommonTheme,
 		getFrequentHashtag : getFrequentHashtag,
 		getUserMentionsFrequency : getUserMentionsFrequency
 	}

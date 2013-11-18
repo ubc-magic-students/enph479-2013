@@ -96,11 +96,11 @@ stream.on('tweet', function(tweet) {
 
         //******Before searching tweets, search EventCandidates to check if this tweet can be added to the event candidate.
 
-        clusterCreator.searchSimilarTweets(newTweet, function(err, center, results) {
+        clusterCreator.searchSimilarTweets(newTweet, function(err, results) {
           if (err) {
             console.log(err);
           } else {
-            clusterCreator.createEventCandidate(results, center, function(err, eventCandidate) {
+            clusterCreator.createEventCandidate(results, function(err, eventCandidate) {
               if(err) {
                 console.log(err);
               } else {

@@ -3,7 +3,7 @@ var Tweet = require('./TweetObject.js');
 
 var EventCandidateSchema = mongoose.Schema({
 	center: {type: [Number], index: "2dsphere"},
-	//***** need to add a map of hash tags,
+	theme: {type: String, default: null},
 	//***** need to add a map of user_mentions,
 	//***** need to distinguish between tweets that contribute to location and tweets that don't.
 	//***** need to add a map of words ordered by frequency of appearance
@@ -13,13 +13,20 @@ var EventCandidateSchema = mongoose.Schema({
 			hashtagRelated: {type: [Tweet.schema], default: null},
 			atsRelated: {type: [Tweet.schema], default: null}
 		},
-	createdAt: {type: Date, default: new Date()/*, expires: */}
+	createdAt: {type: Date},
+	updatedAt: {type: Date}
 });
 
 EventCandidateSchema.pre('save', function(next) {
 	if(this.isNew && Array.isArray(this.center) && 0 === this.center.length) {
 		this.center = undefined;
 	}
+	var date = new Date();
+	this.updatedAt = date;
+	if(!this.createdAt) {
+		this.createdAt = date;
+	}
+
 	next();
 });
 

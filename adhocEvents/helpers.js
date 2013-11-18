@@ -1,3 +1,5 @@
+var constants = require("./models/constants.js");
+
 module.exports = function (){
 
   //Helper functions
@@ -11,6 +13,12 @@ module.exports = function (){
       }
     }
     return union;
+  }
+
+  var calculateDistance = function(lat1, lon1, lat2, lon2) {
+    var R = constants.earthRadius; // km
+    return Math.acos(Math.sin(lat1)*Math.sin(lat2) 
+        + Math.cos(lat1)*Math.cos(lat2) * Math.cos(lon2-lon1)) * R;
   }
 
   var findCenter = function(queryResult) {
@@ -28,6 +36,7 @@ module.exports = function (){
 
   return {
     union : union,
-    findCenter : findCenter
+    findCenter : findCenter,
+    calculateDistance : calculateDistance
   }
 }();

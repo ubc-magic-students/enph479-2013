@@ -3,6 +3,7 @@ var Tweet = require('./models/TweetObject.js');
 var EventCandidate = require('./models/EventCandidate.js');
 var constants = require('./models/constants.js');
 var helpers = require('./helpers.js');
+var clusterScorer = require('./clusterScorer.js');
 
 module.exports = function() {
 
@@ -43,19 +44,27 @@ module.exports = function() {
 
     }
 
-    var createEventCandidate = function(queryResults, center, callback) {
+    var createEventCandidate = function(queryResults, callback) {
         var possibleEvent = removeDuplicatedQueries(queryResults.nearThisTweet, queryResults.sameHashTags, queryResults.sameUserMentions);
+        var theme = clusterScorer.getFrequentHashtag(queryResults);
+        var filteredPossibleEvent = clusterScorer.filterTweetsWithCommonTheme(possibleEvent, theme);
+
+        var center = undefined;
+        // Calculate the center only if 
+        if(filteredPossibleEvent.geoRelated.length > 2) {
+            center = helpers.findCenter(filteredPossibleEvent.geoRelated);
+        }
 
         //If there are enough tweets in possibleEvent array, save as EventCandidate.
-        if (possibleEvent.length >= minNumTweets) {
+        if (filteredPossibleEvent.length >= minNumTweets) {
           EventCandidate.create( {
             center: center,
+            theme: theme,
             tweets: {
-                geoRelated: possibleEvent.geoRelated,
-                hashtagRelated: possibleEvent.hashtagRelated,
-                atsRelated: possibleEvent.atsRelated
+                geoRelated: filteredPossibleEvent.geoRelated,
+                hashtagRelated: filteredPossibleEvent.hashtagRelated,
+                atsRelated: filteredPossibleEvent.atsRelated
             },
-            createdAt: new Date()
           }, function(err, newEvent) {
             if(!err) {
               console.log("event candidate saved");
@@ -64,6 +73,8 @@ module.exports = function() {
               callback(err, newEvent);
             
           });
+        } else {
+
         }
     }
 
@@ -94,7 +105,6 @@ module.exports = function() {
         		}
     		},
     		sameHashTags: function(cb) {
-    			console.log(currentTweet.hashtags);
     			Tweet.find({ hashtags: {$in : currentTweet.hashtags}}, function(err, result) {
     				if(err) {
     					console.log(err);
@@ -118,11 +128,7 @@ module.exports = function() {
     		} 
     	}, function(err, results) {
             //console.log(results);
-            var center = undefined;
-            if (results.nearThisTweet.length > 0) {
-                center = helpers.findCenter(results.nearThisTweet);
-            }
-            callback(err, center, results);
+            callback(err, results);
     	});
 	}
 

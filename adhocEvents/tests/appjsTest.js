@@ -45,7 +45,7 @@ exports.setUp =function (callback) {
 			{
 				id: 1, 
 				createdAt: new Date(), 
-				message: "message 1", 
+				message: "message 1 #test1 #test2 @user1", 
 				coordinates: [-123.11861873, 49.28306049],
 				hashtags: ["test1", "test2"],
 				user_mentions: ["user1"]
@@ -53,7 +53,7 @@ exports.setUp =function (callback) {
 			{
 				id: 2, 
 				createdAt: new Date(), 
-				message: "message 2", 
+				message: "message 2 #test2 #test3 @user2", 
 				coordinates: [-123.11862873, 49.28205049],
 				hashtags: ["test2", "test3"],
 				user_mentions: ["user2"]
@@ -61,7 +61,7 @@ exports.setUp =function (callback) {
 			{
 				id: 3, 
 				createdAt: new Date(), 
-				message: "message 3", 
+				message: "message 3 #test1 #test3 @user1, @user2, @user3", 
 				coordinates: [-123.11662473, 49.28305239],
 				hashtags: ["test1", "test3"],
 				user_mentions: ["user1", "user2", "user3"]
@@ -69,7 +69,7 @@ exports.setUp =function (callback) {
 			{
 				id: 4, 
 				createdAt: new Date(), 
-				message: "message 4", 
+				message: "message 4 #test1 #test4 @user4, @user5", 
 				coordinates: undefined,
 				hashtags: ["test1", "test4"],
 				user_mentions: ["user4, user5"]
@@ -77,7 +77,7 @@ exports.setUp =function (callback) {
 			{
 				id: 5, 
 				createdAt: new Date(), 
-				message: "message 5", 
+				message: "message 5 #test5 @user1", 
 				coordinates: undefined,
 				hashtags: ["test5"],
 				user_mentions: ['user1']
@@ -85,7 +85,7 @@ exports.setUp =function (callback) {
 			{
 				id: 6, 
 				createdAt: new Date(), 
-				message: "message 6", 
+				message: "message 6 #test6 @user6", 
 				coordinates: undefined,
 				hashtags: ["test6"],
 				user_mentions: ['user6']
@@ -139,15 +139,16 @@ exports.test_findCenter = function(test) {
 
 exports.test_clusterCreator = function(test) {
 	var clusterCreator = require('./../clusterCreator.js');
+	clusterCreator.setMinNumTweets(2);
 	Tweet.findOne({id: 1}, function(err, result) {
 		if(err) {
 			console.log(err);
 		} else {
-			clusterCreator.searchSimilarTweets(result, function(err, center, results) {
+			clusterCreator.searchSimilarTweets(result, function(err, results) {
 				if(err) {
 					console.log(err);
 				}
-				clusterCreator.createEventCandidate(results, center, function(err, result) {
+				clusterCreator.createEventCandidate(results, function(err, result) {
 					/*var length = result.tweets.atsRelated.length 
 						+ result.tweets.hashtagRelated.length 
 						+ result.tweets.geoRelated.length;*/
@@ -157,7 +158,8 @@ exports.test_clusterCreator = function(test) {
 							length += result.tweets[key].length
 						}
 					}
-					test.strictEqual(5, length, "Tweets array does not match the size.");
+					test.strictEqual("test1", result.theme, "Theme is not test1.");
+					test.strictEqual(3, length, "Tweets array does not match the size.");
 					test.done();
 				});
 			});
