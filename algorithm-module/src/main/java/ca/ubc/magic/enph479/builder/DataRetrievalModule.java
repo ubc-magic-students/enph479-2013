@@ -21,8 +21,8 @@ public class DataRetrievalModule {
 		System.setProperty("jsse.enableSNIExtension", "false");
 
 		// date we started inputing data into bennu
-		start_datetime = "2013 Nov 08 13:00:00";
-		//start_datetime = "2013 Nov 17 13:00:00";
+		//start_datetime = "2013 Nov 08 13:00:00";
+		start_datetime = "2013 Nov 15 13:00:00";
 
 		// prepare for fetching
 		if (!wdf.prepareForFetching(fetch_interval, job_interval,

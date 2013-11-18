@@ -33,19 +33,23 @@ public class JobsDriver {
 			
 			//continue fetching as in real time
 			wdf.updateFetchingRules(job_interval, fetch_interval, start_datetime);
-			String message = wdf.fetchNewData(false);
-			if (message.length() != 0) {
-				//System.out.println("New Tweets detected!");
-				
-				try {
-					Socket nodejs  = new Socket("localhost", TCPPORT);
-					DataOutputStream outbound = new DataOutputStream(nodejs.getOutputStream());
-					outbound.write(message.getBytes("UTF-8"));
-					nodejs.close();
+			
+			while(true) {
+				String message = wdf.fetchNewData(false);
+				if (message.length() != 0) {
+					//System.out.println("New Tweets detected!");
+					
+					try {
+						Socket nodejs  = new Socket("localhost", TCPPORT);
+						DataOutputStream outbound = new DataOutputStream(nodejs.getOutputStream());
+						outbound.write(message.getBytes("UTF-8"));
+						nodejs.close();
+					}
+					catch (ConnectException c) {
+						System.err.println("No one is listening to the port");
+					}
 				}
-				catch (ConnectException c) {
-					System.err.println("No one is listening to the port");
-				}
+				Thread.sleep(job_interval*1000);
 			}
 			
 		} catch (Throwable t) {
