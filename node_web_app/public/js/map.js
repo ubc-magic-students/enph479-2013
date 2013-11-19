@@ -14,6 +14,7 @@ $(function() {
 
   var playbackManager = new PlaybackManager(REGIONS);
   var sliderManager = new SliderManager(REGIONS);
+  var colorLegend = new ColorLegend();
 
   var appManager = new AppManager();
 
