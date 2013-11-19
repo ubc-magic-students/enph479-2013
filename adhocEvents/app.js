@@ -55,7 +55,7 @@ var T = new Twit({
   access_token_secret:  credentials.adhoc_twitter_access.access_token_secret
 });
 
-var stream = T.stream('statuses/filter', {locations: constants.boundary});
+var stream = T.stream('statuses/filter', {locations: constants.boundary, language: 'en'});
 console.log("Starting straming from Twitter inside: " + constants.boundary);
 stream.on('tweet', function(tweet) {
   console.log("tweet ID: " + tweet.id 
@@ -77,6 +77,8 @@ stream.on('tweet', function(tweet) {
       user_mentions.push(u.screen_name.toLowerCase());
     })
   }
+  console.log("hashtags: " + hashtags);
+  console.log("user_mentions: " + user_mentions);
 
   //create new tweet entry
   new Tweet(
