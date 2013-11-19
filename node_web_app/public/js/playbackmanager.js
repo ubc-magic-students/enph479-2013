@@ -33,6 +33,7 @@ function PlaybackManager(regions) {
 
   this.subscribe(EVENTS.TIMEPLAY_JUMP, function(playbackInstanceCounter) {
     currentPlaybackInstance = playbackInstanceCounter;
+    mediator.publish(EVENTS.SHOW_TIMEPLAY, playbackInstances[currentPlaybackInstance]);
   });
 
   var processPlayback = function(regionData, tweetData) {
