@@ -149,17 +149,8 @@ exports.test_clusterCreator = function(test) {
 					console.log(err);
 				}
 				clusterCreator.createEventCandidate(results, function(err, result) {
-					/*var length = result.tweets.atsRelated.length 
-						+ result.tweets.hashtagRelated.length 
-						+ result.tweets.geoRelated.length;*/
-					var length = 0;
-					for (key in result.tweets) {
-						if(Array.isArray(result.tweets[key])) {
-							length += result.tweets[key].length
-						}
-					}
 					test.strictEqual("test1", result.theme, "Theme is not test1.");
-					test.strictEqual(3, length, "Tweets array does not match the size.");
+					test.strictEqual(3, result.tweets.length, "Tweets array does not match the size.");
 					test.done();
 				});
 			});

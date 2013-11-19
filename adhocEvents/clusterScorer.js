@@ -48,47 +48,30 @@ module.exports = function() {
 	}
 
 	var filterTweetsWithCommonTheme = function(tweets, theme) {
-		var relevantTweets = {
-			geoRelated : [],
-			hashtagRelated: [],
-			atsRelated: [],
-			length: 0
-		};
+		var relevantTweets = [];
 
-		for (key in tweets) {
-			if(Array.isArray(tweets[key])) {
-				tweets[key].forEach(function(tweet) {
-					//Check the message of each tweet to see if the theme exists.
-					if(tweet.message.toLowerCase().indexOf(theme) !== -1) {
-						relevantTweets[key].push(tweet);
-					}
-				});
+		tweets.forEach(function(tweet) {
+			//Check the message of each tweet to see if the theme exists.
+			if(tweet.message.toLowerCase().indexOf(theme) !== -1) {
+				relevantTweets.push(tweet);
 			}
-		}
-
-		relevantTweets.length = relevantTweets.geoRelated.length 
-					+ relevantTweets.hashtagRelated.length
-					+ relevantTweets.atsRelated.length;
+		});
 
 		return relevantTweets;
 	}
 
 	var getFrequentHashtag = function(tweets) {
 		var map = [];
-		
-		for(key in tweets) {
-			if(Array.isArray(tweets[key])) {
-				tweets[key].forEach(function(tweet) {
-					tweet.hashtags.forEach(function(hashtag) {
-						if(map[hashtag]) {
-							map[hashtag]++;
-						} else {
-							map[hashtag] = 1;
-						}
-					});
-				});
-			}
-		}
+
+		tweets.forEach(function(tweet) {
+			tweet.hashtags.forEach(function(hashtag) {
+				if(map[hashtag]) {
+					map[hashtag]++;
+				} else {
+					map[hashtag] = 1;
+				}
+			});
+		});
 		
 		var maxFreq = 0;
 		var hashtag = null;
@@ -104,19 +87,16 @@ module.exports = function() {
 	var getUserMentionsFrequency = function(tweets) {
 		var map = [];
 
-		for(key in tweets) {
-			if(Array.isArray(tweets[key])) {
-				tweets[key].forEach(function(tweet) {
-					tweet.user_mentions.forEach(function(hashtag) {
-						if(map[hashtag]) {
-							map[hashtag]++;
-						} else {
-							map[hashtag] = 1;
-						}
-					});
-				});
-			}
-		}
+		tweets.forEach(function(tweet) {
+			tweet.user_mentions.forEach(function(user_mention) {
+				if(map[user_mention]) {
+					map[user_mention]++;
+				} else {
+					map[user_mention] = 1;
+				}
+			});
+		});
+
 		for(key in map) {
 			if (map[key] === 1) {
 				delete map[key];

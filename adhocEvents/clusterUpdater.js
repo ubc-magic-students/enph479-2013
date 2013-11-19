@@ -16,25 +16,16 @@ module.exports = function() {
 	}, garbageCollectionInterval);
 
 	var tweetBelongsToEvent = function(tweet, callback) {
-		EventCandidate.find({}, function(err, results) {
+		/*EventCandidate.find({}, function(err, results) {
 			results.forEach(function(result) {
 				var isSameTheme = tweetContainsTheme(result.theme, tweet);
-				if(result.center) {
-					var distance = helpers.calculateDistance(tweet.coordinates[1], tweet.coordinates[0]
-						, result.center[1], result.center[0]);
-					if( (distance < constants.maxDistance) && isSameTheme === true) {
-						//***** append current tweet into geoRelated
-					} else if((distance > constants.maxDistance) && isSameTheme === true) {
-						//***** append current tweet into hashtagRelated
-					}
-					
-				} else {
-					//***** how would I calculate the center?
-					if(isSameTheme === true) {
-						//***** append current tweet into hashtagRelated
-					}
+				if (isSameTheme === true) {
+
 				}
 			});
+		});*/
+		EventCandidate.findOne({theme: {$in: tweet.hashtags}}, function(err, result) {
+
 		});
 	}
 

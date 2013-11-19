@@ -15,28 +15,33 @@ module.exports = function (){
     return union;
   }
 
-  var calculateDistance = function(lat1, lon1, lat2, lon2) {
-    var R = constants.earthRadius; // km
-    return Math.acos(Math.sin(lat1)*Math.sin(lat2) 
-        + Math.cos(lat1)*Math.cos(lat2) * Math.cos(lon2-lon1)) * R;
+  var calculateDistance = function(latitude1, longitude1, latitude2, longitude2) {
+    var conversion = Math.PI/180;
+    var lat1 = latitude1 * conversion;
+    var lon1 = longitude1 * conversion;
+    var lat2 = latitude2 * conversion;
+    var lon2 = longitude2 * conversion;
+  var R = constants.earthRadius; // km
+  return Math.acos(Math.sin(lat1)*Math.sin(lat2) 
+    + Math.cos(lat1)*Math.cos(lat2) * Math.cos(lon2-lon1)) * R;
   }
 
-  var findCenter = function(queryResult) {
-    var latSum = 0;
-    var lonSum = 0;
-    var count = 0;
-    queryResult.forEach(function(o) {
-      latSum += o.coordinates[1];
-      lonSum += o.coordinates[0];
-      count++;
-    });
+var findCenter = function(tweets) {
+  var latSum = 0;
+  var lonSum = 0;
+  var count = 0;
+  tweets.forEach(function(o) {
+    latSum += o.coordinates[1];
+    lonSum += o.coordinates[0];
+    count++;
+  });
 
-    return [lonSum/count, latSum/count];
-  }
+  return [lonSum/count, latSum/count];
+}
 
-  return {
-    union : union,
-    findCenter : findCenter,
-    calculateDistance : calculateDistance
-  }
+return {
+  union : union,
+  findCenter : findCenter,
+  calculateDistance : calculateDistance
+}
 }();

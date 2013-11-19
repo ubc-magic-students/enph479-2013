@@ -14,57 +14,19 @@ module.exports = function() {
     };
 
     var removeDuplicatedQueries = function(arr1, arr2, arr3) {
-        var tempArr1 = [].concat(arr1);
-        var tempArr2 = [].concat(arr2);
-
-        for(var i = 0; i < tempArr1.length; i++) {
-            for(var j = 0; j < tempArr2.length; j++) {
-                if (tempArr1[i].id === tempArr2[j].id) {
-                    tempArr2.splice(j,1);
-                }
-            }
-        }
-
-        var tempUnion = tempArr1.concat(tempArr2);
-        var tempArr3 = [].concat(arr3);
-        for(var i = 0; i < tempUnion.length; i++) {
-            for(var j = 0; j < tempArr3.length; j++) {
-                if (tempUnion[i].id === tempArr3[j].id) {
-                    tempArr3.splice(j,1);
-                }
-            }
-        }
-
-        return {
-            geoRelated: tempArr1,
-            hashtagRelated: tempArr2,
-            atsRelated: tempArr3,
-            length: tempArr1.length + tempArr2.length + tempArr3.length
-        }
-
+        var tempArr1 = helpers.union(arr1, arr2);
+        var tempArr2 = helpers.union(tempArr1, arr3);
+        return tempArr2;
     }
 
-    var createEventCandidate = function(queryResults, callback) {
-        var possibleEvent = removeDuplicatedQueries(queryResults.nearThisTweet, queryResults.sameHashTags, queryResults.sameUserMentions);
-        var theme = clusterScorer.getFrequentHashtag(queryResults);
+    var createEventCandidate = function(possibleEvent, callback) {
+        var theme = clusterScorer.getFrequentHashtag(possibleEvent);
         var filteredPossibleEvent = clusterScorer.filterTweetsWithCommonTheme(possibleEvent, theme);
-
-        var center = undefined;
-        // Calculate the center only if 
-        if(filteredPossibleEvent.geoRelated.length > 2) {
-            center = helpers.findCenter(filteredPossibleEvent.geoRelated);
-        }
-
         //If there are enough tweets in possibleEvent array, save as EventCandidate.
         if (filteredPossibleEvent.length >= minNumTweets) {
           EventCandidate.create( {
-            center: center,
             theme: theme,
-            tweets: {
-                geoRelated: filteredPossibleEvent.geoRelated,
-                hashtagRelated: filteredPossibleEvent.hashtagRelated,
-                atsRelated: filteredPossibleEvent.atsRelated
-            },
+            tweets: filteredPossibleEvent
           }, function(err, newEvent) {
             if(!err) {
               console.log("event candidate saved");
@@ -73,9 +35,7 @@ module.exports = function() {
               callback(err, newEvent);
             
           });
-        } else {
-
-        }
+        } 
     }
 
 	var searchSimilarTweets = function(currentTweet, callback) {
@@ -128,7 +88,8 @@ module.exports = function() {
     		} 
     	}, function(err, results) {
             //console.log(results);
-            callback(err, results);
+            var possibleEvent = removeDuplicatedQueries(results.nearThisTweet, results.sameHashTags, results.sameUserMentions);
+            callback(err, possibleEvent);
     	});
 	}
 
