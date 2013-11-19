@@ -25,7 +25,7 @@ module.exports = function() {
 			});
 		});*/
 		EventCandidate.findOne({theme: {$in: tweet.hashtags}}, function(err, result) {
-
+			
 		});
 	}
 
