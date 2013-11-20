@@ -77,7 +77,7 @@ module.exports = function(mysql) {
 
   var getTimeplayData = function(userCallback, hour) {
     if(!hour)
-      hour = 24; // change back to 24 when done
+      hour = 24*7; // change back to 24 when done
     var date_now = new Date(new Date().getTime() );
     var date = new Date(date_now.getTime() - hour*60*60*1000).toISOString();
     date_now = date_now.toISOString();
