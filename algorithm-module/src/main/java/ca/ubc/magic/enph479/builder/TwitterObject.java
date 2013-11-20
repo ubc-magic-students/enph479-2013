@@ -131,6 +131,9 @@ public class TwitterObject {
 		if((this.getTemperature()==-999)&&(this.getPrecipitation()==-999)){
 			weather_score = -999;
 		}
+		else{
+			this.setTemperature(this.getTemperature()-273);
+		}
 		if((this.getTemperature()!=-999)&&(this.getPrecipitation()==-999)) {
 			this.setPrecipitation(0.0);
 		}
