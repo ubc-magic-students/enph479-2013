@@ -158,3 +158,46 @@ exports.test_clusterCreator = function(test) {
 	});
 }
 
+exports.test_clusterUpdator = function(test) {
+	var clusterCreator = require('./../clusterCreator.js');
+	var clusterUpdator = require('./../clusterUpdater.js');
+	clusterCreator.setMinNumTweets(2);
+	Tweet.findOne({id: 1}, function(err, result) {
+		var tweet = result;
+		if(err) {
+			console.log(err);
+		} else {
+			clusterCreator.searchSimilarTweets(result, function(err, results) {
+				if(err) {
+					console.log(err);
+				}
+				clusterCreator.createEventCandidate(results, function(err, result) {
+					test.strictEqual("test1", result.theme, "Theme is not test1.");
+					test.strictEqual(3, result.tweets.length, "Tweets array does not match the size.");
+					var tweet = {
+						id: 7, 
+						createdAt: new Date(), 
+						message: "message 7 #test1 #test7 @user7", 
+						coordinates: [-123.11861883, 49.28306047],
+						hashtags: ["test1", "test7"],
+						user_mentions: ["user7"]
+					};
+					Tweet.create(tweet, function(err, newTweet) {
+						if(err) {
+							console.log(err);
+						} else {
+							clusterUpdator.tweetBelongsToEvent(newTweet, function(err, result) {
+								//console.log(result);
+								test.strictEqual(4, result.tweets.length, "Tweets array does not match the size.");
+								test.done();
+							});
+						}
+					})
+					
+				});
+			});
+		}
+	});
+
+}
+
