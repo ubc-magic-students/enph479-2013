@@ -57,8 +57,8 @@ function Region(regionInfo, mapMaker, map) {
       if (weather == -1) {
         weather = 5;
       }
-      weather = Math.round(weather * 5);
-      hsvColor.v = weather + 50;
+      weather = Math.round(weather * 7);
+      hsvColor.v = weather + 30;
       var color = tinycolor(hsvColor).toRgbString();
     }
     this.removeRegionListener();

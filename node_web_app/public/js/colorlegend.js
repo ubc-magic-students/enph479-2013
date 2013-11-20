@@ -4,6 +4,7 @@ function ColorLegend() {
       var color_string = "rgb " + sentiment + " 00 " + new String(255-sentiment);
       rgbColor = tinycolor(color_string);
       hsvColor = rgbColor.toHsl();
+      hsvColor.v = weather + 30;
 
       // lighter color is good weather, darker is bad
       return tinycolor(hsvColor).toRgb();
@@ -33,8 +34,8 @@ var weather;
 var color;
 for (i =0; i < width; i++) {
   for (j = 0; j < height; j++) {
-    sentiment = i / width * 255;
-    weather = j / height * 100;
+    sentiment = 255 - i / width * 255;
+    weather = j / height * 70;
     color = getColor(sentiment, weather);
     setPixel(imageData, j, i, color.r, color.g, color.b, color.a*255);
   }
