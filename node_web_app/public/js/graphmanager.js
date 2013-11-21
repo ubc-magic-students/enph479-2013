@@ -110,6 +110,15 @@ function doubleLineGraph(data, length) {
             .attr("transform", "translate(-15,0)")
             .call(yAxisLeft);
 
+    graph.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", -860)
+    .attr("x", 155)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(90)")
+    .text("weather");
+
         // create right yAxis
         var yAxisRight = d3.svg.axis().scale(y2).ticks(6).orient("right");
         // Add the y-axis to the right
@@ -117,6 +126,15 @@ function doubleLineGraph(data, length) {
               .attr("class", "y axis axisRight")
               .attr("transform", "translate(" + (w+15) + ",0)")
               .call(yAxisRight);
+
+    graph.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("y", -55)
+    .attr("x", -110)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("sentiment");
       
 
       data.forEach(function(element) {
