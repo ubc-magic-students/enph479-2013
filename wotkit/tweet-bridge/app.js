@@ -9,7 +9,7 @@ var T = new Twit(credentials.twitter_access);
 
 var vancouver = ['-123.27', '49.195', '-123.020', '49.315'];
 
-var stream = T.stream('statuses/filter', { locations: vancouver });
+var stream = T.stream('statuses/filter', { locations: vancouver, language: 'en' });
 
 var sentiment140URLstring = "http://www.sentiment140.com/api/bulkClassifyJson?appId=" + credentials.sentiment140_key;
 
