@@ -22,7 +22,7 @@ html { height: 100% }
   canvas#color-legend {
     position: absolute;
     top: 6%;
-    left: 1%;
+    left: 0.25%;
   }
 
   span#sentiment-legend {
@@ -41,11 +41,18 @@ html { height: 100% }
     left: 4.5%;
   }
 
+  span#sentiment-legend-negative {
+    position: absolute;
+    font-size: 12px;
+    top: 14.25%;
+    left: 5.25%;
+  }
+
   span#weather-legend {
     position: absolute;
     font-size: 12px;
     top: 3.75%;
-    left: 1.5%;
+    left: 0.5%;
   }
 
 #table
