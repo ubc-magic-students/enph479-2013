@@ -311,4 +311,16 @@ public class RegionObject {
 		return lRegionObject;
 	}
 	
+	public Boolean clearRegionScores() {
+		
+		for(int i = 0; i < lRegionObject.size(); i++) {
+			lRegionObject.get(i).weather_score = 0;
+			lRegionObject.get(i).weather_ave = 0;
+			lRegionObject.get(i).sentiment_score = 0;
+			lRegionObject.get(i).sentiment_ave = 0;
+		}
+		
+		return true;
+	}
+	
 }

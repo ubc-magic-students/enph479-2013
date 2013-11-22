@@ -200,6 +200,7 @@ public class WoTDataFetcher {
 		if(fetch_count > fetch_count_max) {
 			fetch_count=0;
 			ArrayList<regionX> lRegions = dmp.getCurrentlRegionObjectsForTimePlay();
+			dmp.clearCurrentRegionWeatherSentimentScores();
 			dbh.writeToDBScores(lRegions, start_datetime);
 		}
 		

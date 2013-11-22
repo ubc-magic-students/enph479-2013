@@ -352,5 +352,9 @@ public class DataManipulationProcessor {
 	public String getlJsonRegionObject() {
 		return region_info.getJsonRegionObject();
 	}
+	
+	public Boolean clearCurrentRegionWeatherSentimentScores() {
+		return region_info.clearRegionScores();
+	}
 
 }
