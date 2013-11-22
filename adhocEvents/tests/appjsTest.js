@@ -205,8 +205,3 @@ exports.test_clusterUpdator = function(test) {
 	});
 
 }
-
-exports.test_duplicatesInEventAllowed = function(test) {
-
-}
-

@@ -20,18 +20,16 @@ module.exports = function() {
 
 	var tweetBelongsToEvent = function(tweet, callback) {
 		EventCandidate.find({theme: {$in: tweet.hashtags}}, function(err, results) {
+			//*********** Instead of forEach, refer to async.each
 			results.forEach(function(result) {
 				var tmp = result.tweets;
 				tmp.push(tweet);
 				result.tweets = tmp;
-				//****** find out if one tweet can be added to more than one event. MongoDb may throw an error and if it does, I need to modify things.
-				result.save(function(err) {
-					if(err) {
-						console.log(err);
-					} else {
+				result.save(function(err, updatedEventCandidate) {
+					if(!err) {
 						console.log("successfully updated.");
-						callback(err, result);
 					}
+					callback(err, updatedEventCandidate);
 				});
 			});
 		});
