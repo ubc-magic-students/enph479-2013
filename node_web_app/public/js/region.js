@@ -17,6 +17,7 @@ function Region(regionInfo, mapMaker, map) {
   });
 
   this.removeRegionListener = function() {
+    console.log('region listener removed');
     if (listenedTo === true) {
       google.maps.event.removeListener(regionListener);
       listenedTo = false;
@@ -24,6 +25,7 @@ function Region(regionInfo, mapMaker, map) {
   }
 
   this.addRegionListener = function() {
+    console.log('region listener added');
     if (listenedTo === false) {
       google.maps.event.addListener(this.regionBoundary, 'click', function() {
         mediator.publish(EVENTS.ZOOM_TO_REGION, regionInfo.id);
@@ -69,7 +71,9 @@ function Region(regionInfo, mapMaker, map) {
       color || null
     );
     this.regionBoundary.setMap(map);
-    this.addRegionListener();
+    if (listenedTo == true) {
+      this.addRegionListener();
+    }
   }
 
   this.hideRegionCount = function() {
