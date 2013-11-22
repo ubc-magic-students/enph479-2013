@@ -149,6 +149,8 @@ exports.test_clusterCreator = function(test) {
 					console.log(err);
 				}
 				clusterCreator.createEventCandidate(results, function(err, result) {
+					if(err)
+						console.log(err)
 					test.strictEqual("test1", result.theme, "Theme is not test1.");
 					test.strictEqual(3, result.tweets.length, "Tweets array does not match the size.");
 					test.done();
@@ -172,6 +174,9 @@ exports.test_clusterUpdator = function(test) {
 					console.log(err);
 				}
 				clusterCreator.createEventCandidate(results, function(err, result) {
+					if(err) {
+						console.log(err);
+					}
 					test.strictEqual("test1", result.theme, "Theme is not test1.");
 					test.strictEqual(3, result.tweets.length, "Tweets array does not match the size.");
 					var tweet = {
@@ -198,6 +203,10 @@ exports.test_clusterUpdator = function(test) {
 			});
 		}
 	});
+
+}
+
+exports.test_duplicatesInEventAllowed = function(test) {
 
 }
 

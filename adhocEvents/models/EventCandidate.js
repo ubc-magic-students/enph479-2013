@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-var Tweet = require('./TweetObject.js');
 var constants = require('./constants.js');
 
 var calculateDistance = function(latitude1, longitude1, latitude2, longitude2) {
@@ -54,15 +53,28 @@ var findCluster = function(tweets) {
 	return map[maxNumberTweetsIndex];
 }
 
+var simplifiedTweetSchema = mongoose.Schema({
+	id: { type: Number },
+	createdAt: {type: Date },
+	message: {type: String, default: null },
+	coordinates:  { type: [Number] },
+	hashtags: { type: [String], default: null},
+	user_mentions: {type: [String], default: null}
+});
+
 var EventCandidateSchema = mongoose.Schema({
 	center: {type: [Number], index: "2dsphere"},
 	theme: {type: String, default: null},
 	//***** need to add a map of user_mentions,
 	//***** need to distinguish between tweets that contribute to location and tweets that don't.
 	//***** need to add a map of words ordered by frequency of appearance
-	tweets: {type: [Tweet.schema], default: null},
+	tweets: {type: [simplifiedTweetSchema], default: null},
 	createdAt: {type: Date},
 	updatedAt: {type: Date}
+});
+
+EventCandidateSchema.index({
+	center: '2dsphere'
 });
 
 EventCandidateSchema.pre('save', true, function(next, done) {
@@ -77,11 +89,15 @@ EventCandidateSchema.pre('save', true, function(next, done) {
 
 EventCandidateSchema.pre('save', true, function(next, done) {
 	next();
-	if (this.tweets.length > 1) {
+	if (this.tweets.length > 2) {
 		var cluster = findCluster(this.tweets);
 		//console.log(cluster);
 		//console.log(findCenter(cluster));
-		this.center = findCenter(cluster);
+		if (cluster.length <= 2) {
+			this.center = undefined;
+		} else {
+			this.center = findCenter(cluster);
+		}
 	} else {
 		this.center = undefined;
 	}

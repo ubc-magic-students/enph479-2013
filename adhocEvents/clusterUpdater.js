@@ -19,14 +19,6 @@ module.exports = function() {
 	}
 
 	var tweetBelongsToEvent = function(tweet, callback) {
-		/*EventCandidate.find({}, function(err, results) {
-			results.forEach(function(result) {
-				var isSameTheme = tweetContainsTheme(result.theme, tweet);
-				if (isSameTheme === true) {
-
-				}
-			});
-		});*/
 		EventCandidate.find({theme: {$in: tweet.hashtags}}, function(err, results) {
 			results.forEach(function(result) {
 				var tmp = result.tweets;
