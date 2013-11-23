@@ -17,6 +17,7 @@ module.exports = function() {
 				}
 			});
 		}, garbageCollectionInterval);
+		console.log("Initializing garbage collection.");
 	}
 
 	var tweetBelongsToEvent = function(tweet, callback) {

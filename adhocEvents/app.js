@@ -10,7 +10,8 @@ var express = require('express')
   , server = http.createServer(app)
   , io = require('socket.io').listen(server)
   , mongoose = require('mongoose')
-  , clusterCreator = require('./clusterCreator.js');
+  , clusterCreator = require('./clusterCreator.js')
+  , clusterUpdater = require('./clusterUpdater.js');
 server.listen(3000);
 
 // Set application configuration details
@@ -56,6 +57,7 @@ var T = new Twit({
 });
 
 var stream = T.stream('statuses/filter', {locations: constants.boundary, language: 'en'});
+clusterUpdater.initGarbageCollection();
 console.log("Starting straming from Twitter inside: " + constants.boundary);
 stream.on('tweet', function(tweet) {
   console.log("tweet ID: " + tweet.id 
@@ -98,21 +100,33 @@ stream.on('tweet', function(tweet) {
         console.log("successfully saved tweet: " + newTweet.id);
 
         //******Before searching tweets, search EventCandidates to check if this tweet can be added to the event candidate.
-
-        clusterCreator.searchSimilarTweets(newTweet, function(err, results) {
-          if (err) {
+        clusterUpdater.tweetBelongsToEvent(newTweet, function(err, updatedEvents) {
+          if(err) {
             console.log(err);
           } else {
-            clusterCreator.createEventCandidate(results, function(err, eventCandidate) {
-              if(err) {
-                console.log(err);
-              } else {
-                console.log("New Event Candidate: ");
-                console.log(eventCandidate);
-              }
-            });
+            if (updatedEvents.length === 0) {
+              clusterCreator.searchSimilarTweets(newTweet, function(err, results) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  clusterCreator.createEventCandidate(results, function(err, eventCandidate) {
+                    if(err) {
+                      console.log(err);
+                    } else {
+                      console.log("New Event Candidate: ");
+                      console.log(eventCandidate);
+                    }
+                  });
+                }
+              });
+            } else {
+              // send updated events to front end?
+              console.log(updatedEvents);
+            }
           }
         });
+
+        
       }
     });
 
