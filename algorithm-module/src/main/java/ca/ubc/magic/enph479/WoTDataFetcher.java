@@ -29,6 +29,9 @@ public class WoTDataFetcher {
 	private String ref_datetime = null; //reference time in system for fetching
 	private int fetch_count = 0;
 	private int fetch_count_max = 0;
+	private int clear_region_scores_count = 0;
+	private int clear_region_scores_count_max = 0;
+	private int clear_region_scores_multiplier = 6;
 	
 	public HashMap<Integer, TwitterObject> getAllTweetsData() throws Exception {
 		return dmp.gettweets_all();
@@ -53,6 +56,8 @@ public class WoTDataFetcher {
 			this.fetch_count_max = 100;
 		else if(this.fetch_count_max < 40)
 			this.fetch_count_max = 40;
+		
+		this.clear_region_scores_count_max = this.fetch_count_max * this.clear_region_scores_multiplier;
 		
 		System.out.println("Fetch_count_max has been dynamically determined to be: " + this.fetch_count_max);
 		
@@ -85,6 +90,8 @@ public class WoTDataFetcher {
 			this.fetch_count_max = 100;
 		else if(this.fetch_count_max < 40)
 			this.fetch_count_max = 40;
+		
+		this.clear_region_scores_count_max = this.fetch_count_max * this.clear_region_scores_multiplier;
 		
 		System.out.println("Fetch_count_max has been dynamically determined to be: " + this.fetch_count_max);
 	}
@@ -152,6 +159,7 @@ public class WoTDataFetcher {
 		if(_isInitialization) {
 			System.out.println("fetch_count_max been overwritten for initialization to be 0");
 			this.fetch_count_max = 0;
+			this.clear_region_scores_count_max = this.clear_region_scores_multiplier;
 		}
 		
 		//calculate start time and end time from ref_datetime
@@ -195,14 +203,6 @@ public class WoTDataFetcher {
 		DateFormat date_format_new = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
 		date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String start_datetime = date_format_new.format(date_ref_timedate);
-		//write average scores to database every n fetches for timeplay feature
-		fetch_count++;
-		if(fetch_count > fetch_count_max) {
-			fetch_count=0;
-			ArrayList<regionX> lRegions = dmp.getCurrentlRegionObjectsForTimePlay();
-			dmp.clearCurrentRegionWeatherSentimentScores();
-			dbh.writeToDBScores(lRegions, start_datetime);
-		}
 		
 		//get all new incoming tweets
 		ArrayList<TwitterObject> ltweets_new = dmp.gettweets_incoming();
@@ -218,6 +218,21 @@ public class WoTDataFetcher {
 		//clear new incoming tweets
 		dmp.clear_tweet_incoming();
 		//return ltweets_new;
+		
+		//write average scores to database every n fetches for timeplay feature
+		fetch_count++;
+		if(fetch_count > fetch_count_max) {
+			fetch_count=0;
+			ArrayList<regionX> lRegions = dmp.getCurrentlRegionObjectsForTimePlay();
+			dbh.writeToDBScores(lRegions, start_datetime);
+			clear_region_scores_count++;
+		}
+		//clear region weather and sentiment scores
+		if(clear_region_scores_count > clear_region_scores_count_max) {
+			clear_region_scores_count=0;
+			dmp.clearCurrentRegionWeatherSentimentScores();
+		}
+		
 		return dmp.getlJsonRegionObject();
 	}
 	

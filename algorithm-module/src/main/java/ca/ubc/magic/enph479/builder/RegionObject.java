@@ -313,11 +313,13 @@ public class RegionObject {
 	
 	public Boolean clearRegionScores() {
 		
+		System.out.println("Clearing region object weather&sentiment scores...");
 		for(int i = 0; i < lRegionObject.size(); i++) {
 			lRegionObject.get(i).weather_score = 0;
 			lRegionObject.get(i).weather_ave = 0;
 			lRegionObject.get(i).sentiment_score = 0;
 			lRegionObject.get(i).sentiment_ave = 0;
+			lRegionObject.get(i).tweet_count = 0;
 		}
 		
 		return true;
