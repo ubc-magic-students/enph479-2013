@@ -1,5 +1,6 @@
 var Tweet = require('./models/TweetObject.js');
 var EventCandidate = require('./models/EventCandidate.js');
+var async = require('async');
 
 module.exports = function() {
 	var garbageCollectionInterval = 1000*60;
@@ -19,19 +20,25 @@ module.exports = function() {
 	}
 
 	var tweetBelongsToEvent = function(tweet, callback) {
-		EventCandidate.find({theme: {$in: tweet.hashtags}}, function(err, results) {
-			//*********** Instead of forEach, refer to async.each
-			results.forEach(function(result) {
-				var tmp = result.tweets;
+		EventCandidate.find({theme: {$in: tweet.hashtags}}, function(err, events) {
+			var updatedEvents = [];
+			var updateEvents = function(item, cb) {
+				var tmp = item.tweets;
 				tmp.push(tweet);
-				result.tweets = tmp;
-				result.save(function(err, updatedEventCandidate) {
-					if(!err) {
-						console.log("successfully updated.");
-					}
-					callback(err, updatedEventCandidate);
+				item.tweets = tmp;
+				item.save(function(err, updatedEventCandidate) {
+					updatedEvents.push(updatedEventCandidate);
+					cb(err);
 				});
-			});
+			}
+
+			async.each(events, updateEvents, function(err) {
+				if(!err) {
+					console.log("All successfully updated.");
+				}
+				callback(err, updatedEvents);
+			});;
+
 		});
 	}
 
@@ -45,7 +52,8 @@ module.exports = function() {
 	}
 
 	return {
-		tweetBelongsToEvent : tweetBelongsToEvent
+		tweetBelongsToEvent : tweetBelongsToEvent,
+		initGarbageCollection : initGarbageCollection
 	}
 
 }();

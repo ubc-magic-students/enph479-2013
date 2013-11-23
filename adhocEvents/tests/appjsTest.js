@@ -191,11 +191,17 @@ exports.test_clusterUpdator = function(test) {
 						if(err) {
 							console.log(err);
 						} else {
-							clusterUpdator.tweetBelongsToEvent(newTweet, function(err, result) {
-								//console.log(result);
-								test.strictEqual(4, result.tweets.length, "Tweets array does not match the size.");
-								test.done();
-							});
+							setTimeout(function() {
+								clusterUpdator.tweetBelongsToEvent(newTweet, function(err, result) {
+									if(err) {
+										console.log(err);
+									} else {
+										//console.log(result);
+										test.strictEqual(4, result[0].tweets.length, "Tweets array does not match the size.");
+										test.done();
+									}
+								});
+							}, 3000);							
 						}
 					})
 					
