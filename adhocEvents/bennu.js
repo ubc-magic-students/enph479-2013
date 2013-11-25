@@ -4,12 +4,12 @@ module.exports = new EventEmitter();
 
 var getData = function(timeStart, timeNow) {
 	var now = new Date().getTime();
-	var start = now - 3600000; //2629743000; //1 month in epoch time
+	var start = now - 1800000; //2629743000; //1 month in epoch time
 	if(timeStart && timeNow) {
 		now = timeNow;
 		start = timeStart;
 	}
-	var bennuURL = "http://bennu.magic.ubc.ca/wotkit/api/sensors/2013enph479.tweets-in-vancouver/data?start=" + start + "&end=" + now;
+	var bennuURL = "http://bennu.magic.ubc.ca/wotkit/api/sensors/2013enph479.tweets-in-vancouver2/data?start=" + start + "&end=" + now;
 	require('http').get(bennuURL, function(res) {
 		var body = "";
    		console.log("WOTKIT STATUS: " + res.statusCode);

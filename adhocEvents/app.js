@@ -11,7 +11,8 @@ var express = require('express')
   , io = require('socket.io').listen(server)
   , mongoose = require('mongoose')
   , clusterCreator = require('./clusterCreator.js')
-  , clusterUpdater = require('./clusterUpdater.js');
+  , clusterUpdater = require('./clusterUpdater.js')
+  , twitter_text = require('twitter-text');
 server.listen(3000);
 
 // Set application configuration details
@@ -33,14 +34,62 @@ db.once('open', function() {
 });
 
 var Tweet = require('./models/TweetObject.js');
-var EventCandidate = require('./models/EventCandidate.js');
+var EventCandidate = require('./model    });
+    tweets.push(tweet);
+  });s/EventCandidate.js');
 
 clearDb();
 //Import from bennu
-/*var bennu = require('./bennu.js');
+var bennu = require('./bennu.js');
   bennu.on('bennu', function(data) {
   //console.log(data);
-});*/
+  var tweets = [];
+  data.forEach(function(d) {
+    var tweet = new Tweet( {
+      id: d.value,
+      createdAt: new Date(d.timestamp),
+      message: d.message,
+      coordinates: [d.lng, d.lat],
+      hashtags: twitter_text.extractHashtags(d.message),
+      user_mentions: twitter_text.extractMentions(d.message)
+    });
+    tweets.push(tweet);
+  });
+
+  var containsHashtag = function(thishashtags, otherhashtags) {
+    thishashtags.forEach(function(h) {
+      if(otherhashtags.indexOf(h) !== -1)
+        return true;
+    });
+    return false;
+  }
+
+  var containsUserMentions = function(thisUserMentions, otherUserMentions) {
+    thisUserMentions.forEach(function(u) {
+      if(otherUserMentions.indexOf(u) !== -1)
+        return true;
+    });
+    return false;
+  }
+
+  tweets.forEach(function(thisTweet) {
+    var eventCandidate = [];
+    tweets.forEach(function(otherTweet) {
+      var dist = helpers.calculateDistance(thisTweet.coordinates[0], thisTweet.coordinates[1], otherTweet.coordinates[0], otherTweet.coordinates[1])
+      if (dist <= constants.maxDistance || containsHashtag(thisTweet.hashtags, otherTweet.hashtags)
+          || constainsUserMentions(thisTweet.user_mentions, otherTweet.user_mentions)) {
+        eventCandidate.push(otherTweet);
+      }
+    });
+    clusterCreator.createEventCandidate(eventCandidate, function(err, newEvent) {
+      if(err) {
+        console.log(err);
+      } else {
+        console.log(newEvent);
+      }
+    })
+  });
+});
 
 
 //Import credential information
