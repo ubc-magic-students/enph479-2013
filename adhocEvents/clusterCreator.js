@@ -21,6 +21,7 @@ module.exports = function() {
 
     var createEventCandidate = function(possibleEvent, callback) {
         var theme = clusterScorer.getFrequentHashtag(possibleEvent);
+        //***** Check EventCandidates table for theme prior to creating a new one
         var filteredPossibleEvent = clusterScorer.filterTweetsWithCommonTheme(possibleEvent, theme);
         //If there are enough tweets in possibleEvent array, save as EventCandidate.
         if (filteredPossibleEvent.length >= minNumTweets) {
