@@ -196,7 +196,7 @@ exports.test_clusterUpdator = function(test) {
 									if(err) {
 										console.log(err);
 									} else {
-										//console.log(result);
+										console.log(result);
 										test.strictEqual(4, result[0].tweets.length, "Tweets array does not match the size.");
 										test.done();
 									}

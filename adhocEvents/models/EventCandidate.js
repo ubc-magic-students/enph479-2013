@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var constants = require('./constants.js');
 var helpers = require('./../helpers.js');
 
-var findCluster = function(tweets) {
+var findClusters = function(tweets) {
 	var map = [];
 	tweets.forEach(function(tweet) {
 		var tmp = [];
@@ -18,7 +18,7 @@ var findCluster = function(tweets) {
 
 	});
 
-	var maxNumberTweetsIndex = 0;
+	/*var maxNumberTweetsIndex = 0;
 	var maxNumberTweets = 0;
 	map.forEach(function(e, index) {
 		if(e.length > maxNumberTweets) {
@@ -27,7 +27,16 @@ var findCluster = function(tweets) {
 		}
 	});
 
-	return map[maxNumberTweetsIndex];
+	return map[maxNumberTweetsIndex];*/
+	var clusters = [];
+	map.forEach(function(e) {
+		if(e.length > 2) {
+			clusters.push(e);
+		}
+	});
+
+	return clusters;
+	
 }
 
 var simplifiedTweetSchema = mongoose.Schema({
@@ -41,17 +50,13 @@ var simplifiedTweetSchema = mongoose.Schema({
 
 var EventCandidateSchema = mongoose.Schema({
 	//***** Event can be held at several different locations. We should hold multiple centers.
-	center: {type: [Number], index: "2dsphere"},
+	centers: {type: []},
 	theme: {type: String, default: null},
 	//***** need to add a map of user_mentions,
 	//***** need to add a map of words ordered by frequency of appearance
 	tweets: {type: [simplifiedTweetSchema], default: null},
 	createdAt: {type: Date},
 	updatedAt: {type: Date}
-});
-
-EventCandidateSchema.index({
-	center: '2dsphere'
 });
 
 EventCandidateSchema.pre('save', true, function(next, done) {
@@ -64,16 +69,19 @@ EventCandidateSchema.pre('save', true, function(next, done) {
 	done();
 });
 
+//***** need to remove duplicates
 EventCandidateSchema.pre('save', true, function(next, done) {
 	next();
 	if (this.tweets.length > 2) {
-		var cluster = findCluster(this.tweets);
-		//console.log(cluster);
-		//console.log(helpers.findCenter(cluster));
-		if (cluster.length <= 2) {
-			this.center = undefined;
+		var clusters = findClusters(this.tweets);
+		if (clusters.length === 0) {
+			this.centers = undefined
 		} else {
-			this.center = helpers.findCenter(cluster);
+			var centers = [];
+			clusters.forEach(function (c) {
+				centers.push(helpers.findCenter(c));
+			});
+			this.centers = centers;
 		}
 	} else {
 		this.center = undefined;
