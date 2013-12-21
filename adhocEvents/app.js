@@ -12,7 +12,8 @@ var express = require('express')
   , mongoose = require('mongoose')
   , clusterCreator = require('./clusterCreator.js')
   , clusterUpdater = require('./clusterUpdater.js')
-  , twitter_text = require('twitter-text');
+  , twitter_text = require('twitter-text')
+  , async = require('async');
 server.listen(3000);
 
 // Set application configuration details
@@ -34,13 +35,12 @@ db.once('open', function() {
 });
 
 var Tweet = require('./models/TweetObject.js');
-var EventCandidate = require('./model    });
-    tweets.push(tweet);
-  });s/EventCandidate.js');
+var EventCandidate = require('./models/EventCandidate.js');
+var HashtagCount = require('./models/HashtagCount.js');
 
-clearDb();
+clearDb(Tweet, EventCandidate, HashtagCount);
 //Import from bennu
-var bennu = require('./bennu.js');
+/*var bennu = require('./bennu.js');
   bennu.on('bennu', function(data) {
   //console.log(data);
   var tweets = [];
@@ -89,97 +89,177 @@ var bennu = require('./bennu.js');
       }
     })
   });
-});
+});*/
 
 
 //Import credential information
 var credentials = require('./credentials.js');
 var constants = require('./models/constants.js');
 
-//Twitter streaming
-var Twit = require('twit');
-var T = new Twit({
-  consumer_key:         credentials.adhoc_twitter_access.consumer_key,
-  consumer_secret:      credentials.adhoc_twitter_access.consumer_secret,
-  access_token:         credentials.adhoc_twitter_access.access_token,
-  access_token_secret:  credentials.adhoc_twitter_access.access_token_secret
-});
+(function() {
+  var hashtagMap = {};
 
-var stream = T.stream('statuses/filter', {locations: constants.boundary, language: 'en'});
-clusterUpdater.initGarbageCollection();
-console.log("Starting straming from Twitter inside: " + constants.boundary);
-stream.on('tweet', function(tweet) {
-  console.log("tweet ID: " + tweet.id 
-    + " at: " + tweet.created_at 
-    + " with message: " + tweet.text
-    + " from: " + (tweet.coordinates ? 
-          [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined));
-  
-  //Get hashtag and user_mentions from the tweet
-  var hashtags = [];
-  var user_mentions = [];
-  if(tweet.entities.hashtags.length !== 0) {
-    tweet.entities.hashtags.forEach(function(h) {
-      hashtags.push(h.text.toLowerCase());
-    })
-  }
-  if(tweet.entities.user_mentions.length !==0) {
-    tweet.entities.user_mentions.forEach(function(u) {
-      user_mentions.push(u.screen_name.toLowerCase());
-    })
-  }
-  console.log("hashtags: " + hashtags);
-  console.log("user_mentions: " + user_mentions);
+  setInterval(function() {
+    console.log("Create hashtagcount");
+    HashtagCount.create({hashtags: hashtagMap}, function(err, hashtagcount) {
+      if(err) {
+        console.log(err);
+      } else {
+        console.log("Successfully created hashtagcount: " + hashtagcount);
+        hashtagMap = {};
 
-  //create new tweet entry
-  new Tweet(
-    {
-      id: tweet.id, 
-      createdAt: new Date(tweet.created_at), 
-      message: tweet.text, 
-      coordinates: tweet.coordinates ? 
-          [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined,
-      hashtags: hashtags,
-      user_mentions: user_mentions
-    }
-  ).save(function(err, newTweet) {
-    if (err) {
-      console.log(err);
-    } else {
-        console.log("successfully saved tweet: " + newTweet.id);
-
-        //******Before searching tweets, search EventCandidates to check if this tweet can be added to the event candidate.
-        clusterUpdater.tweetBelongsToEvent(newTweet, function(err, updatedEvents) {
+        //get all hashtagcount from the database
+        HashtagCount.find({}, function(err, results) {
           if(err) {
             console.log(err);
           } else {
-            if (updatedEvents.length === 0) {
-              clusterCreator.searchSimilarTweets(newTweet, function(err, results) {
-                if (err) {
-                  console.log(err);
+            //console.log("HashtagCount find results: ");
+            //console.log(results);
+            var map = {};
+            results.forEach(function(r) {
+              for(var key in r.hashtags) {
+                if(map[key]) {
+                  map[key] += r.hashtags[key];
                 } else {
-                  clusterCreator.createEventCandidate(results, function(err, eventCandidate) {
-                    if(err) {
-                      console.log(err);
-                    } else {
-                      console.log("New Event Candidate: ");
-                      console.log(eventCandidate);
-                    }
-                  });
+                  map[key] = r.hashtags[key];
+                }
+              }
+            });
+            console.log("Map after union of all hashtagcount: ");
+            console.log(map);
+
+            var collection = [];
+            for(var key in map) {
+              if(map[key] >= 10) {
+                console.log(key + " is greater than 10.");
+                collection.push(key);
+              }
+            }
+
+            var iterator = function(item, cb) {
+              EventCandidate.findOne({theme: item}, function(err, eventCandidate) {
+                if(err) {
+                  cb(err);
+                } else {
+                  if(!eventCandidate) {
+                    console.log("event does not exist so create a new event.");
+                    Tweet.find({ hashtags: {$in : [item]}}, function(err, tweetresult) {
+                      if(err) {
+                        cb(err);
+                      } else {
+                        console.log("event is being created.");
+                        EventCandidate.create( {
+                          theme: item,
+                          tweets: tweetresult
+                        }, function(err, newEvent) {
+                          if(err) {
+                            cb(err);
+                          } else {
+                            console.log("event candidate with theme: " + newEvent.theme + " saved");
+                            cb(null);
+                          }
+                        });
+
+                      }
+                    });
+                  } else {
+                    cb(null);
+                  }
                 }
               });
-            } else {
-              // send updated events to front end?
-              console.log(updatedEvents);
             }
+
+            async.each(collection, iterator, function(err)  {
+              if(err) {
+                console.log(err);
+              }
+            });
+
+            for(var key in map) {
+              if(map[key] >= 10) {
+                console.log("greater than 10");
+                
+              } 
+            }
+
           }
         });
 
-        
       }
     });
+  }, 1000*60);
 
-});
+  //Twitter streaming
+  var Twit = require('twit');
+  var T = new Twit({
+    consumer_key:         credentials.adhoc_twitter_access.consumer_key,
+    consumer_secret:      credentials.adhoc_twitter_access.consumer_secret,
+    access_token:         credentials.adhoc_twitter_access.access_token,
+    access_token_secret:  credentials.adhoc_twitter_access.access_token_secret
+  });
+
+  var stream = T.stream('statuses/filter', {locations: constants.boundary, language: 'en'});
+  clusterUpdater.initGarbageCollection();
+  console.log("Starting straming from Twitter inside: " + constants.boundary);
+  stream.on('tweet', function(tweet) {
+    if(tweet.entities.hashtags.length > 0) {
+      console.log("tweet ID: " + tweet.id 
+        + " at: " + tweet.created_at 
+        + " with message: " + tweet.text
+        + " from: " + (tweet.coordinates ? 
+              [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined));
+      
+      //Get hashtag and user_mentions from the tweet
+      var hashtags = [];
+      var user_mentions = [];
+      if(tweet.entities.hashtags.length !== 0) {
+        tweet.entities.hashtags.forEach(function(h) {
+          hashtags.push(h.text.toLowerCase());
+          if (hashtagMap[h.text.toLowerCase()]) {
+            hashtagMap[h.text.toLowerCase()]++;
+          } else {
+            hashtagMap[h.text.toLowerCase()] = 1;
+          }
+        });
+      }
+      if(tweet.entities.user_mentions.length !==0) {
+        tweet.entities.user_mentions.forEach(function(u) {
+          user_mentions.push(u.screen_name.toLowerCase());
+        });
+      }
+      console.log("hashtags: " + hashtags);
+      console.log("user_mentions: " + user_mentions);
+
+      //create new tweet entry
+      new Tweet(
+        {
+          id: tweet.id, 
+          createdAt: new Date(tweet.created_at), 
+          message: tweet.text, 
+          coordinates: tweet.coordinates ? 
+              [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined,
+          hashtags: hashtags,
+          user_mentions: user_mentions
+        }
+      ).save(function(err, newTweet) {
+        if (err) {
+          console.log(err);
+        } else {
+            console.log("successfully saved tweet: " + newTweet.id);
+            clusterUpdater.tweetBelongsToEvent(newTweet, function(err, updatedEvents) {
+              if(err) {
+                console.log(err);
+              } else {
+                updatedEvents.forEach(function(e) {
+                  console.log("Event: " + e.theme + " updated.");
+                });
+              }
+            });
+          }
+        });
+    }
+  });
+})();
 
 //Create socket.io rooms
 io.sockets.on('connection', function (socket) {
@@ -195,19 +275,13 @@ app.get('/', function (req, res) {
 });
 
 function clearDb() {
-  Tweet.remove({}, function(err) {
-    if(err) {
-      console.log(err);
-    } else {
-      console.log("Removed all docs for tweets.");
-    }
-  });
-
-  EventCandidate.remove({}, function(err) {
-    if(err) {
-      console.log(err);
-    } else {
-      console.log("Removed all docs for EventCandidate.");
-    }
-  });
+  for(var a = 0; a < arguments.length; a++) {
+      arguments[a].remove({}, function(err) {
+      if(err) {
+        console.log(err);
+      } else {
+        console.log("Removed all docs.");      
+      }
+    });
+  }
 }

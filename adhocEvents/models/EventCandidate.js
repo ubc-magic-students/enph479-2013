@@ -51,7 +51,7 @@ var simplifiedTweetSchema = mongoose.Schema({
 var EventCandidateSchema = mongoose.Schema({
 	//***** Event can be held at several different locations. We should hold multiple centers.
 	centers: {type: []},
-	theme: {type: String, default: null},
+	theme: {type: String, default: null, unique: true},
 	//***** need to add a map of user_mentions,
 	//***** need to add a map of words ordered by frequency of appearance
 	tweets: {type: [simplifiedTweetSchema], default: null},
@@ -79,7 +79,17 @@ EventCandidateSchema.pre('save', true, function(next, done) {
 		} else {
 			var centers = [];
 			clusters.forEach(function (c) {
-				centers.push(helpers.findCenter(c));
+				var centerCandidate = helpers.findCenter(c);
+				if (centers.length === 0) {
+					centers.push(centerCandidate);
+				} else {
+					centers.forEach(function(center) {
+						if(helpers.calculateDistance(centerCandidate[1], centerCandidate[0]
+							, center[1], center[0]) > constants.maxDistance) {
+							centers.push(centerCandidate);
+						}
+					});				
+				}
 			});
 			this.centers = centers;
 		}
