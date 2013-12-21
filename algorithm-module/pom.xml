@@ -65,7 +65,7 @@
     <quartz-version>2.2.1</quartz-version>
     <weka-version>3.7.10</weka-version>
     <httpClient-version>4.3</httpClient-version>
-    <moa-version>2013.08</moa-version>
+    <moa-version>2013.11</moa-version>
     <maven-jar-plugin-version>2.4</maven-jar-plugin-version>
     <maven-assembly-plugin-version>2.4</maven-assembly-plugin-version>
     <weka-dev-version>3.7.10</weka-dev-version>
@@ -115,7 +115,7 @@
   		<groupId>nz.ac.waikato.cms.moa</groupId>
   		<artifactId>moa</artifactId>
   		<version>${moa-version}</version>
-  	</dependency>
+  		</dependency>
   	<dependency>
 		<groupId>mysql</groupId>
 		<artifactId>mysql-connector-java</artifactId>
