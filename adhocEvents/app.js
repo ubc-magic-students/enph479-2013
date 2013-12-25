@@ -10,9 +10,6 @@ var express = require('express')
   , server = http.createServer(app)
   , io = require('socket.io').listen(server)
   , mongoose = require('mongoose')
-  , clusterCreator = require('./clusterCreator.js')
-  , clusterUpdater = require('./clusterUpdater.js')
-  , twitter_text = require('twitter-text')
   , async = require('async');
 server.listen(3000);
 
@@ -33,233 +30,6 @@ db.on('error', console.error.bind(console, 'connection error: '));
 db.once('open', function() {
   console.log('Connected to mongodb database');
 });
-
-var Tweet = require('./models/TweetObject.js');
-var EventCandidate = require('./models/EventCandidate.js');
-var HashtagCount = require('./models/HashtagCount.js');
-
-clearDb(Tweet, EventCandidate, HashtagCount);
-//Import from bennu
-/*var bennu = require('./bennu.js');
-  bennu.on('bennu', function(data) {
-  //console.log(data);
-  var tweets = [];
-  data.forEach(function(d) {
-    var tweet = new Tweet( {
-      id: d.value,
-      createdAt: new Date(d.timestamp),
-      message: d.message,
-      coordinates: [d.lng, d.lat],
-      hashtags: twitter_text.extractHashtags(d.message),
-      user_mentions: twitter_text.extractMentions(d.message)
-    });
-    tweets.push(tweet);
-  });
-
-  var containsHashtag = function(thishashtags, otherhashtags) {
-    thishashtags.forEach(function(h) {
-      if(otherhashtags.indexOf(h) !== -1)
-        return true;
-    });
-    return false;
-  }
-
-  var containsUserMentions = function(thisUserMentions, otherUserMentions) {
-    thisUserMentions.forEach(function(u) {
-      if(otherUserMentions.indexOf(u) !== -1)
-        return true;
-    });
-    return false;
-  }
-
-  tweets.forEach(function(thisTweet) {
-    var eventCandidate = [];
-    tweets.forEach(function(otherTweet) {
-      var dist = helpers.calculateDistance(thisTweet.coordinates[0], thisTweet.coordinates[1], otherTweet.coordinates[0], otherTweet.coordinates[1])
-      if (dist <= constants.maxDistance || containsHashtag(thisTweet.hashtags, otherTweet.hashtags)
-          || constainsUserMentions(thisTweet.user_mentions, otherTweet.user_mentions)) {
-        eventCandidate.push(otherTweet);
-      }
-    });
-    clusterCreator.createEventCandidate(eventCandidate, function(err, newEvent) {
-      if(err) {
-        console.log(err);
-      } else {
-        console.log(newEvent);
-      }
-    })
-  });
-});*/
-
-
-//Import credential information
-var credentials = require('./credentials.js');
-var constants = require('./models/constants.js');
-
-(function() {
-  var hashtagMap = {};
-
-  setInterval(function() {
-    console.log("Create hashtagcount");
-    HashtagCount.create({hashtags: hashtagMap}, function(err, hashtagcount) {
-      if(err) {
-        console.log(err);
-      } else {
-        console.log("Successfully created hashtagcount: " + hashtagcount);
-        hashtagMap = {};
-
-        //get all hashtagcount from the database
-        HashtagCount.find({}, function(err, results) {
-          if(err) {
-            console.log(err);
-          } else {
-            //console.log("HashtagCount find results: ");
-            //console.log(results);
-            var map = {};
-            results.forEach(function(r) {
-              for(var key in r.hashtags) {
-                if(map[key]) {
-                  map[key] += r.hashtags[key];
-                } else {
-                  map[key] = r.hashtags[key];
-                }
-              }
-            });
-            console.log("Map after union of all hashtagcount: ");
-            console.log(map);
-
-            var collection = [];
-            for(var key in map) {
-              if(map[key] >= 10) {
-                console.log(key + " is greater than 10.");
-                collection.push(key);
-              }
-            }
-
-            var iterator = function(item, cb) {
-              EventCandidate.findOne({theme: item}, function(err, eventCandidate) {
-                if(err) {
-                  cb(err);
-                } else {
-                  if(!eventCandidate) {
-                    console.log("event does not exist so create a new event.");
-                    Tweet.find({ hashtags: {$in : [item]}}, function(err, tweetresult) {
-                      if(err) {
-                        cb(err);
-                      } else {
-                        console.log("event is being created.");
-                        EventCandidate.create( {
-                          theme: item,
-                          tweets: tweetresult
-                        }, function(err, newEvent) {
-                          if(err) {
-                            cb(err);
-                          } else {
-                            console.log("event candidate with theme: " + newEvent.theme + " saved");
-                            cb(null);
-                          }
-                        });
-
-                      }
-                    });
-                  } else {
-                    cb(null);
-                  }
-                }
-              });
-            }
-
-            async.each(collection, iterator, function(err)  {
-              if(err) {
-                console.log(err);
-              }
-            });
-
-            for(var key in map) {
-              if(map[key] >= 10) {
-                console.log("greater than 10");
-                
-              } 
-            }
-
-          }
-        });
-
-      }
-    });
-  }, 1000*60);
-
-  //Twitter streaming
-  var Twit = require('twit');
-  var T = new Twit({
-    consumer_key:         credentials.adhoc_twitter_access.consumer_key,
-    consumer_secret:      credentials.adhoc_twitter_access.consumer_secret,
-    access_token:         credentials.adhoc_twitter_access.access_token,
-    access_token_secret:  credentials.adhoc_twitter_access.access_token_secret
-  });
-
-  var stream = T.stream('statuses/filter', {locations: constants.boundary, language: 'en'});
-  clusterUpdater.initGarbageCollection();
-  console.log("Starting straming from Twitter inside: " + constants.boundary);
-  stream.on('tweet', function(tweet) {
-    if(tweet.entities.hashtags.length > 0) {
-      console.log("tweet ID: " + tweet.id 
-        + " at: " + tweet.created_at 
-        + " with message: " + tweet.text
-        + " from: " + (tweet.coordinates ? 
-              [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined));
-      
-      //Get hashtag and user_mentions from the tweet
-      var hashtags = [];
-      var user_mentions = [];
-      if(tweet.entities.hashtags.length !== 0) {
-        tweet.entities.hashtags.forEach(function(h) {
-          hashtags.push(h.text.toLowerCase());
-          if (hashtagMap[h.text.toLowerCase()]) {
-            hashtagMap[h.text.toLowerCase()]++;
-          } else {
-            hashtagMap[h.text.toLowerCase()] = 1;
-          }
-        });
-      }
-      if(tweet.entities.user_mentions.length !==0) {
-        tweet.entities.user_mentions.forEach(function(u) {
-          user_mentions.push(u.screen_name.toLowerCase());
-        });
-      }
-      console.log("hashtags: " + hashtags);
-      console.log("user_mentions: " + user_mentions);
-
-      //create new tweet entry
-      new Tweet(
-        {
-          id: tweet.id, 
-          createdAt: new Date(tweet.created_at), 
-          message: tweet.text, 
-          coordinates: tweet.coordinates ? 
-              [tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined,
-          hashtags: hashtags,
-          user_mentions: user_mentions
-        }
-      ).save(function(err, newTweet) {
-        if (err) {
-          console.log(err);
-        } else {
-            console.log("successfully saved tweet: " + newTweet.id);
-            clusterUpdater.tweetBelongsToEvent(newTweet, function(err, updatedEvents) {
-              if(err) {
-                console.log(err);
-              } else {
-                updatedEvents.forEach(function(e) {
-                  console.log("Event: " + e.theme + " updated.");
-                });
-              }
-            });
-          }
-        });
-    }
-  });
-})();
 
 //Create socket.io rooms
 io.sockets.on('connection', function (socket) {
@@ -285,3 +55,118 @@ function clearDb() {
     });
   }
 }
+
+(function() {
+	var HashtagCount = require('./models/HashtagCount.js');
+	var Tweet = require('./models/TweetObject.js');
+	var credentials = require('./credentials.js');
+	var constants = require('./models/constants.js');
+	clearDb(HashtagCount, Tweet);
+
+	setInterval(function() {
+		var o = {};
+		o.map = function() {
+			emit(this.hashtag, 1);
+		}
+		o.reduce = function(k, vals) {
+			return vals.length;
+		}
+		o.out = { replace: 'hashtagCollection'}
+
+		HashtagCount.mapReduce(o, function(err, results) {
+			results.find().sort({value: 'desc'}).where('value').gt(1).limit(10).exec(function(err, docs) {
+				if(err) {
+					console.log(err);
+				} else {
+					console.log(docs);
+					var iterator = function(item, callback) {
+						Tweet.find({hashtags: {$in: [item._id]}}, function(err, queryResults) {
+							if(err) {
+								console.log(err);
+							} else {
+								var topic = {
+									tweets: queryResults,
+									hashtag: item._id,
+									centers: []
+								}
+								callback(err, topic);
+							}
+						});
+					}
+
+					async.concat(docs, iterator, function(err, events) {
+						if(err) {
+							console.log(err);
+						} else {
+							events.forEach(function(e) {
+								console.log("saved Event: " + e.hashtag);
+							});
+						}
+					});
+
+
+
+				}
+			});
+		});
+	}, 1000*10);
+
+	//Twitter streaming
+	var Twit = require('twit');
+	var T = new Twit({
+	   consumer_key:         credentials.adhoc_twitter_access.consumer_key,
+	   consumer_secret:      credentials.adhoc_twitter_access.consumer_secret,
+	   access_token:         credentials.adhoc_twitter_access.access_token,
+	   access_token_secret:  credentials.adhoc_twitter_access.access_token_secret
+	});
+
+	var stream = T.stream('statuses/filter', {locations: constants.boundary, language: 'en'});
+
+	stream.on('tweet', function(tweet) {
+		if(tweet.entities.hashtags.length > 0) {
+
+			var hashtags = [];
+			var user_mentions = [];
+			tweet.entities.hashtags.forEach(function(h) {
+				hashtags.push(h.text.toLowerCase());
+				HashtagCount.create({hashtag: h.text.toLowerCase()}, function(err, hashtag) {
+					if(err) {
+						console.log(err);
+					}
+				});
+			});
+
+			tweet.entities.user_mentions.forEach(function(u) {
+	        	user_mentions.push(u.screen_name.toLowerCase());
+	        });
+
+	    	console.log("tweet ID: " + tweet.id 
+	    		+ " at: " + tweet.created_at 
+	        	+ " with message: " + tweet.text
+	        	+ " from: " + (tweet.coordinates ? 
+	            	[tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined)
+	    		+ " hashtags: " + hashtags
+	    		+ " user_mentions: " + user_mentions);
+
+	    	Tweet.create({
+	    		id: tweet.id, 
+          		createdAt: new Date(tweet.created_at), 
+          		message: tweet.text, 
+          		coordinates: tweet.coordinates ? 
+              		[tweet.coordinates.coordinates[0], tweet.coordinates.coordinates[1]] : undefined,
+          		hashtags: hashtags,
+          		user_mentions: user_mentions
+	    	}, function(err, tweet) {
+	    		if(err) {
+	    			console.log(err);
+	    		} else {
+
+	    		}
+	    	});
+
+	    }
+
+	});
+
+})();
+
