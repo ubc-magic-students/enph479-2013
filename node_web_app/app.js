@@ -64,7 +64,7 @@ io.sockets.on('connection', function (socket) {
 
   // Get all tweets in DB when app starts
   DBRetriever.initializeTweets(function(err, result) {
-    console.log(result);
+    //console.log(result);
     io.sockets.emit(SOCKET_EVENTS.TWEET_UPDATE, { data: result });
   });
 
