@@ -33,7 +33,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 1. Run MongoDB server `mongod --dbpath [path to your data storage]`.
 2. Go to `/adhocEvents` folder and run `node app.js`.
 
-### Credits
+## Credits
 * [Chris Yoon](https://github.com/chris-yoon90)
 * [Colin Leung](https://github.com/colinmleung)
 * [Richard Li](https://github.com/RileePlus)
