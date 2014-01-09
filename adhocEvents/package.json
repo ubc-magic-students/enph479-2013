@@ -1,25 +1,18 @@
 {
-  "name": "enph479-adhoc-webapp",
-  "author": [
-            "Colin Leung <colinmleung@gmail.com>",
-            "Chris yoon <chris.yoon90@gmail.com>",
-            "Richard Li <richardli520@gmail.com>"
-            ],
+  "name": "hashtag-location",
+  "author": "Chris yoon <chris.yoon90@gmail.com>",
   "description": "Adhoc Web application for ENPH479 project",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
     "express": "~3.0.0",
-    "jade": ">=0.0.1",
     "mongoose": ">=3.5.x",
     "connect": ">=1.9.1",
     "socket.io": "0.9.6",
     "twit": ">=1.1.10",
     "async": ">=0.2.5",
-    "nodeunit": ">=0.7.4",
-    "natural": ">=0.1.24",
-    "twitter-text": ">=1.7.0"
+    "nodeunit": ">=0.7.4"
   },
   "version": "0.0.1",
   "private": true,

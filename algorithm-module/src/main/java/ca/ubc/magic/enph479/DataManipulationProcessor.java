@@ -7,12 +7,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 import java.io.*;
 
-import net.sf.json.JSONSerializer;
 import ca.ubc.magic.enph479.builder.RegionObject;
-import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.RegionObject.regionX;
 import ca.ubc.magic.enph479.builder.WeatherObject;
@@ -22,7 +19,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import net.sf.json.JSONObject;
 
 /**
  * DataManipulationProcessor is the low level algorithm that actually process raw data processed from WoTkit
@@ -78,10 +74,6 @@ public class DataManipulationProcessor {
 		        BufferedReader breader = new BufferedReader(
 		                                new InputStreamReader(
 		                                		con.getInputStream()));
-		        /*String inputLine;
-		        while ((inputLine = bReader.readLine()) != null) {
-		            System.out.println(inputLine);
-		        }*/
 		        json_string_twitter = breader.readLine();
 		        //if(is_debug)
 		        //	System.out.println(json_string_twitter);
@@ -183,42 +175,6 @@ public class DataManipulationProcessor {
 			        	if(is_debug)
 				        	System.out.println(tweet.printInfo());
 		        		
-		        		
-		        		/*
-		        		//set sentiment polarity
-		        		if(is_debug)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting sentiment...");
-		        		tweet.setSentimentPolarity(TweetSentimentFetcher.doPost(tweet.getMessage()));
-		        		if(is_debug)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting sentiment successful!");
-						
-		        		//set weather
-		        		if(is_debug)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather...");
-		        		WeatherObject weatherScore = wdf.getWeatherFromLatLng(lat, lng);
-		        		double score = weatherScore.getWeatherScore();
-		        		if(score == -999)
-		        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather failed... neglecting this tweet...");
-		        		else {
-			        		tweet.setWeatherScore(weatherScore.getWeatherScore());
-			        		if(is_debug)
-			        			System.out.println("INCOMING: id:" + tweet.getId() + " getting weather successful!");
-	
-			        		//set region
-			        		if(is_debug)
-			        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region...");
-			        		int region_index = region_info.classifyIntoRegion(lat, lng, tweet.getWeatherScore(), tweet.getSentimentPolarity());
-			        		tweet.setRegion(region_index);
-			        		if(is_debug)
-			        			System.out.println("INCOMING: id:" + tweet.getId() + " getting region successful!");
-			        		
-			        		//add current tweet to list
-			        		ltweets_incoming.add(tweet);
-			        		ltweets_all.put(tweet.getId(), tweet);
-			        		
-			        		if(is_debug)
-				            	System.out.println(tweet.printInfo());
-		        		}*/
 		        	}
 	        	}
 	        }
@@ -227,51 +183,6 @@ public class DataManipulationProcessor {
     			System.out.println("current batch of tweet finished processing!");
         }
 
-	}
-	
-	public WeatherObject toWeatherFromJsonParser(web_type _type) {
-		
-        if(_type == web_type.weather) {
-        	
-        	if((json_string_weather == "")||(json_string_weather == null)) {
-        		return new WeatherObject();
-        	}
-        	
-        	JSONObject json = null;
-        	
-        	try {
-	        	json = (JSONObject) JSONSerializer.toJSON(json_string_weather);
-	        	int id = ((JSONObject)json.getJSONArray("weather").get(0)).getInt("id");
-	        	String weather = ((JSONObject)json.getJSONArray("weather").get(0)).getString("main");
-	        	String description = ((JSONObject)json.getJSONArray("weather").get(0)).getString("description");
-	        	String icon = ((JSONObject)json.getJSONArray("weather").get(0)).getString("icon");
-	        	double temperature = json.getJSONObject("main").getDouble("temp");
-	        	double pressure = json.getJSONObject("main").getDouble("pressure");
-	        	
-	        	weather_info.setId(id);
-	        	weather_info.setWeather(weather);
-	        	weather_info.setDescription(description);
-	        	weather_info.setTemperature(temperature - 273.0);
-	        	weather_info.setPressure(pressure);
-	        	weather_info.setIcon(icon);
-        	}
-        	catch(Exception ex) {
-        		String tmp = json_string_weather;
-        		//{"message":"Error: Not found city","cod":"404"}
-        		System.err.println("Weather API not responding to lat lng request: Not found city code 404");
-        		return new WeatherObject();
-        	}
-        	
-        	try {
-        		JSONObject precObject = json.getJSONObject("rain");
-	        	if (!precObject.isNullObject())
-	        		weather_info.setPrecipitation(precObject.getDouble("3h"));
-        	}catch(Exception ex) {
-        		System.out.println("precipitation 3h does not exist...");
-        	}
-        }
-        
-        return weather_info;
 	}
 	
 	public void removeDuplicates(wot_type _type) {
@@ -286,19 +197,6 @@ public class DataManipulationProcessor {
 			}
 		}
 		
-	}
-	
-	public ArrayList<TweetInstance> toWekaInstanceFromTwitterObj() {
-        
-        ArrayList<TweetInstance> linstance = new ArrayList<TweetInstance>();
-		
-        for(int i = 0; i < ltweets_incoming.size(); i++) {
-			TweetInstance ti = new TweetInstance(1, new double[]{ltweets_incoming.get(i).getLatitude(),
-					ltweets_incoming.get(i).getLongitude()}, ltweets_incoming.get(i).getId());
-			linstance.add(ti);
-		}
-		
-		return linstance;
 	}
 	
 	public void updateAllList(wot_type _type) {

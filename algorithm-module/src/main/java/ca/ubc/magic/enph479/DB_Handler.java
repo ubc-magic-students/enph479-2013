@@ -5,13 +5,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.TimeZone;
 
-import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.RegionObject.regionX;
 
@@ -45,55 +40,6 @@ public class DB_Handler {
         	return false;
 		}
 	}
-	
-	/*public ArrayList<TwitterObject> retrieveDBTweet() throws Exception {
-		
-		if(_skipDB)
-			return new ArrayList<TwitterObject>();
-		
-		try {
-			Statement st = con.createStatement();
-			ArrayList<TwitterObject> ltweets = new ArrayList<TwitterObject>();
-			
-            String mysql_select_command = "SELECT * FROM tweet_data";
-            ResultSet rs = st.executeQuery(mysql_select_command);
-
-            while (rs.next()) {
-				int id = rs.getInt("id");
-				String timestamp = rs.getString("timestamp");
-				double lat = rs.getDouble("lat");
-				double lng = rs.getDouble("lng");
-				int sensor_id = rs.getInt("sensor_id");
-				String sensor_name = rs.getString("sensor_name");
-				String message = rs.getString("message");
-				int value = rs.getInt("value");
-				int sentimentPolarity = rs.getInt("sentimentPolarity");
-				double weatherScore = rs.getDouble("weatherScore");
-				int region = rs.getInt("region");
-				
-				TwitterObject tweet = new TwitterObject();
-				tweet.setId(id);
-				tweet.setTimestamp(timestamp);
-				tweet.setLatitude(lat);
-				tweet.setLongitude(lng);
-				tweet.setSensor_id(sensor_id);
-				tweet.setSensor_name(sensor_name);
-				tweet.setMessage(message);
-				tweet.setValue(value);
-				tweet.setSentiment(sentimentPolarity);
-				tweet .setWeatherScore(weatherScore);
-				tweet.setRegion(region);
-				
-				ltweets.add(tweet);
-			}
-            
-            return ltweets;
-            
-        } catch (SQLException ex) {
-        	System.err.println("DB Retrieving Error: " + ex.getMessage());
-        	return null;
-        }
-	}*/
 	
 	public Boolean emptyDB() throws Exception {
 		
