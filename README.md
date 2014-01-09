@@ -36,4 +36,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ## Credits
 * [Chris Yoon](https://github.com/chris-yoon90)
 * [Colin Leung](https://github.com/colinmleung)
-* [Richard Li](https://github.com/RileePlus)
+* [Richard Lee](https://github.com/RileePlus)
