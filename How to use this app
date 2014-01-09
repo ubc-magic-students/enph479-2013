@@ -2,7 +2,7 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-1. run jar file
-2. in cmd or shell, go to the directory that contains "app.js" and run "node app.js"
+1. run jar file by using "java -jar algorithm-module-0.0.1-SNAPSHOT-jar-with-dependencies.jar" in /algorithm-module/target foler.
+2. in cmd or shell, go to the /node_web_app and run "node app.js"
 3. go to your favourite browser and type in url: "localhost:8090/map"
-4. map of Vancouver should appears and twitter feed should start to stream in
+4. map of Vancouver should appear and twitter feed should start to stream in
