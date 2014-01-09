@@ -10,8 +10,6 @@ import java.util.TimeZone;
 
 import com.google.gson.Gson;
 
-import ca.ubc.magic.enph479.builder.TweetCluster;
-import ca.ubc.magic.enph479.builder.TweetClusterJSONObject;
 import ca.ubc.magic.enph479.builder.TweetInstance;
 
 public class WDF_Driver {

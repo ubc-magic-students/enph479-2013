@@ -107,52 +107,6 @@ public class WoTDataFetcher {
 		dmp.toListFromJsonParser(wot_type.twitter);
 	}
 	
-	@Deprecated
-	public ArrayList<TweetInstance> fetchData() throws Exception {
-		//calculate start time and end time from ref_datetime
-		Date date_start_time = new Date(ref_datetime);
-		Date date_end_time = new Date(ref_datetime);
-		//set start time fetch interval earlier
-		date_start_time.setTime(date_start_time.getTime() - fetch_interval * 1000);
-		//format data to string with UTC
-		DateFormat date_format = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
-		String start_time = date_format.format(date_start_time);
-		String end_time = date_format.format(date_end_time);
-		start_time += " PST";
-		end_time += " PST";
-		//update ref_date
-		Date date_ref_time = new Date(ref_datetime);
-		date_ref_time.setTime(date_ref_time.getTime() + fetch_interval * 1000);
-		//check if start time is greater than current time
-		//if it is, set current time to start time
-		Date date_current_time = new Date();
-		
-		if(date_ref_time.after(date_current_time))
-			date_ref_time = date_current_time;
-		String ref_time = date_format.format(date_ref_time);
-		ref_datetime = ref_time;
-		//get epoch time
-		String epoch_start_time = dmp.toEpochTime(start_time);
-		String epoch_end_time = dmp.toEpochTime(end_time);
-		date_format.setTimeZone(TimeZone.getTimeZone("UTC"));
-		Date date_UTC = new Date(ref_datetime);
-		String time_UTC = date_format.format(date_UTC);
-		System.out.println("Fetching data @ " + ref_datetime + "(UTC: " + time_UTC + ")");
-		//retrieve from WoT
-		dmp.getJsonFromWoT(wot_type.twitter, epoch_start_time, epoch_end_time);
-		dmp.toListFromJsonParser(wot_type.twitter);
-		//remove duplicates
-		//dmp.removeDuplicates(wot_type.twitter);
-		//convert twitterObject to TweetInstance for clustering
-		ArrayList<TweetInstance> linstance = dmp.toWekaInstanceFromTwitterObj();
-		//update current all list
-		dmp.updateAllList(wot_type.twitter);
-		//write to DB
-		dbh.writeToDBTweet(dmp.gettweets_incoming());
-		
-		return linstance;
-	}
-	
 	//public ArrayList<TwitterObject> fetchNewData() throws Exception {
 	public String fetchNewData(boolean _isInitialization) throws Exception {
 		//_isInitialization represent whether we are fetching from bennu for initialization: true, or fetching real time: false
@@ -235,15 +189,5 @@ public class WoTDataFetcher {
 		
 		return dmp.getlJsonRegionObject();
 	}
-	
-	public WeatherObject getWeatherFromLatLng(double _lat, double _lng) throws Exception {
-		//retrive weather json from web
-		dmp.getJsonFromWeb(web_type.weather, _lat, _lng);
-		WeatherObject weather_condition = dmp.toWeatherFromJsonParser(web_type.weather);
-		//System.out.println("Weather data @ cluster centre: " + weather_condition.printInfo());
-		return weather_condition;
-	}
-	
-	
 	
 }
