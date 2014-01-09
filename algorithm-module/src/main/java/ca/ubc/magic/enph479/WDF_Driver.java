@@ -1,16 +1,8 @@
 package ca.ubc.magic.enph479;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.TimeZone;
-
-import com.google.gson.Gson;
-
-import ca.ubc.magic.enph479.builder.TweetInstance;
 
 public class WDF_Driver {
 

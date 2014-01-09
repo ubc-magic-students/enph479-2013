@@ -7,12 +7,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 import java.io.*;
 
-import net.sf.json.JSONSerializer;
 import ca.ubc.magic.enph479.builder.RegionObject;
-import ca.ubc.magic.enph479.builder.TweetInstance;
 import ca.ubc.magic.enph479.builder.TwitterObject;
 import ca.ubc.magic.enph479.builder.RegionObject.regionX;
 import ca.ubc.magic.enph479.builder.WeatherObject;
@@ -22,7 +19,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import net.sf.json.JSONObject;
 
 /**
  * DataManipulationProcessor is the low level algorithm that actually process raw data processed from WoTkit

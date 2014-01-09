@@ -1,13 +1,6 @@
 package ca.ubc.magic.enph479.builder;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import weka.core.Attribute;
-import weka.core.Instances;
 
 /**
  * RegionObject is the object that contains all of the informations about regions of Vancouver

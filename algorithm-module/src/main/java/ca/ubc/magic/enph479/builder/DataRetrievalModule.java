@@ -1,7 +1,5 @@
 package ca.ubc.magic.enph479.builder;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ca.ubc.magic.enph479.BennuStatus;
