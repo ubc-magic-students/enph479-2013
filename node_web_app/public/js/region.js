@@ -18,20 +18,14 @@ function Region(regionInfo, mapMaker, map) {
 
   this.removeRegionListener = function() {
     console.log('region listener removed');
-    if (listenedTo === true) {
-      google.maps.event.removeListener(regionListener);
-      listenedTo = false;
-    }
+    google.maps.event.removeListener(regionListener);
   }
 
   this.addRegionListener = function() {
     console.log('region listener added');
-    if (listenedTo === false) {
-      google.maps.event.addListener(this.regionBoundary, 'click', function() {
-        mediator.publish(EVENTS.ZOOM_TO_REGION, regionInfo.id);
-      });
-      listenedTo = true;
-    }
+    google.maps.event.addListener(this.regionBoundary, 'click', function() {
+      mediator.publish(EVENTS.ZOOM_TO_REGION, regionInfo.id);
+    });
   }
 
   var regionLabel = mapMaker.makeRegionLabel(
@@ -89,6 +83,7 @@ function Region(regionInfo, mapMaker, map) {
     });
     printCount = true;
     printTweets = false;
+    listenedTo = true;
   }
 
   this.showPrivateRegion = function() {
@@ -98,6 +93,7 @@ function Region(regionInfo, mapMaker, map) {
     this.showTweets();
     printCount = true;
     printTweets = true;
+    listenedTo = false;
   }
 
   this.hideRegion = function() {
@@ -109,6 +105,7 @@ function Region(regionInfo, mapMaker, map) {
     });
     printCount = false;
     printTweets = false;
+    listenedTo = false;
   }
 
   this.createTweets = function(data, infoWindow) {

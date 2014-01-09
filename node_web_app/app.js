@@ -65,25 +65,25 @@ io.sockets.on('connection', function (socket) {
   // Get all tweets in DB when app starts
   DBRetriever.initializeTweets(function(err, result) {
     console.log(result);
-    io.sockets.emit(SOCKET_EVENTS.TWEET_UPDATE, { data: result });
+    io.sockets.in('map').emit(SOCKET_EVENTS.TWEET_UPDATE, { data: result });
   });
-
 
   // Get new tweets from DB every 150 seconds
   setInterval(function() {
     DBRetriever.checkForNewTweets(function(err, result) {
-      io.sockets.emit(SOCKET_EVENTS.TWEET_UPDATE, { data: result });
+      io.sockets.in('map').emit(SOCKET_EVENTS.TWEET_UPDATE, { data: result });
     });
   } ,150000);
 
   // Get timeplay data when user requests it
   socket.on(SOCKET_EVENTS.TIMEPLAY_REQUEST, function() {
     DBRetriever.getTimeplayData(function(err, result) {
-      io.sockets.emit(SOCKET_EVENTS.TIMEPLAY_RESPONSE, { data: result });
+      io.sockets.in('map').emit(SOCKET_EVENTS.TIMEPLAY_RESPONSE, { data: result });
     });
   });
 
   socket.on('join graph', function(data) {
+    socket.leave('map');
     socket.join('graph');
 
     connection.query("SELECT sentimentPolarity, weatherScore FROM ENPH479.tweet_data", function(err, rows) {
@@ -95,6 +95,11 @@ io.sockets.on('connection', function (socket) {
         io.sockets.in('graph').emit('return graph points', { data: rows });
       }
     });
+  });
+
+  socket.on('join map', function(data) {
+    socket.leave('graph');
+    socket.join('map');
   });
 });
 
@@ -121,7 +126,7 @@ javaServer.on('connection', function (javaSocket) {
 
   var firstDataListener = function (data) {
     console.log('Received namespace from java End: ' + data);
-    io.sockets.emit(SOCKET_EVENTS.REGION_UPDATE, { data: String.fromCharCode.apply(String, data) });
+    io.sockets.in('map').emit(SOCKET_EVENTS.REGION_UPDATE, { data: String.fromCharCode.apply(String, data) });
     javaSocket.removeListener('data', firstDataListener);
   }
 
